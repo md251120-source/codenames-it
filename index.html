@@ -1,883 +1,656 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Codenames — IT Support</title>
 
   <style>
     :root{
-      --bg1:#050816;
-      --bg2:#0b1026;
+      --bg0:#070A12;
+      --bg1:#0B1020;
       --panel: rgba(255,255,255,.06);
-      --panel2: rgba(255,255,255,.10);
-      --text:#eaf1ff;
-      --muted: rgba(234,241,255,.72);
-      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --panel2: rgba(255,255,255,.08);
+      --stroke: rgba(255,255,255,.12);
+      --text:#EAF0FF;
+      --muted: rgba(234,240,255,.72);
+
+      --blue:#4EA2FF;
+      --red:#FF5A76;
+      --neutral:#B9C0D3;
+      --black:#000;
+
+      --shadow: 0 18px 55px rgba(0,0,0,.45);
       --radius: 18px;
 
-      --blue:#3b82f6;
-      --blue2:#60a5fa;
-      --red:#ef4444;
-      --red2:#fb7185;
-      --neutral:#e5e7eb;
-      --black:#05060a;
-
-      --hud: rgba(255,255,255,.12);
-      --glowBlue: 0 0 0 1px rgba(59,130,246,.22), 0 0 32px rgba(59,130,246,.20), 0 0 90px rgba(59,130,246,.12);
-      --glowRed:  0 0 0 1px rgba(239,68,68,.22), 0 0 32px rgba(239,68,68,.18), 0 0 90px rgba(239,68,68,.10);
+      --cardText:#F2F6FF;
+      --cardTextDim: rgba(242,246,255,.82);
     }
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
     body{
       margin:0;
-      color:var(--text);
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:
-        radial-gradient(1000px 650px at 15% 15%, rgba(59,130,246,.12), transparent 55%),
-        radial-gradient(1000px 650px at 85% 20%, rgba(239,68,68,.10), transparent 55%),
-        radial-gradient(900px 550px at 50% 110%, rgba(34,197,94,.08), transparent 55%),
-        linear-gradient(180deg, var(--bg1), var(--bg2));
+      color:var(--text);
+      background: radial-gradient(1200px 700px at 20% 10%, rgba(78,162,255,.18), transparent 60%),
+                  radial-gradient(1000px 650px at 80% 20%, rgba(255,90,118,.16), transparent 62%),
+                  linear-gradient(180deg, var(--bg0), var(--bg1));
       overflow-x:hidden;
     }
 
-    /* Animated grid + particles */
-    .bgGrid{
-      position:fixed; inset:0; pointer-events:none; z-index:-2;
-      background-image:
-        linear-gradient(to right, rgba(255,255,255,.06) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255,255,255,.06) 1px, transparent 1px);
-      background-size: 60px 60px;
-      opacity:.22;
-      transform: translateZ(0);
-      animation: gridMove 18s linear infinite;
-      mask-image: radial-gradient(ellipse at center, black 0%, black 55%, transparent 85%);
-    }
-    @keyframes gridMove{
-      from{ background-position: 0 0, 0 0; }
-      to{ background-position: 180px 220px, 180px 220px; }
-    }
-    .bgParticles{
-      position:fixed; inset:0; pointer-events:none; z-index:-1;
-      background:
-        radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,.20), transparent 60%),
-        radial-gradient(2px 2px at 75% 20%, rgba(255,255,255,.14), transparent 60%),
-        radial-gradient(2px 2px at 55% 70%, rgba(255,255,255,.16), transparent 60%),
-        radial-gradient(2px 2px at 15% 80%, rgba(255,255,255,.12), transparent 60%),
-        radial-gradient(2px 2px at 88% 78%, rgba(255,255,255,.12), transparent 60%);
-      opacity:.55;
-      animation: particlesFloat 10s ease-in-out infinite alternate;
-    }
-    @keyframes particlesFloat{
-      from{ transform: translateY(0px); filter: blur(0px); }
-      to  { transform: translateY(-10px); filter: blur(.2px); }
-    }
-
-    /* Soft cursor glow */
-    .cursorGlow{
-      position:fixed; left:0; top:0;
-      width:24px; height:24px;
-      border-radius:999px;
-      pointer-events:none;
-      background: radial-gradient(circle, rgba(255,255,255,.20), transparent 70%);
-      mix-blend-mode: screen;
-      transform: translate(-999px,-999px);
-      z-index: 99999;
-      transition: transform .06s linear;
-      filter: blur(.2px);
-    }
-
-    /* App + HUD lines */
-    .wrap{max-width:1240px; margin:0 auto; padding:18px;}
-    .hudFrame{
-      position:relative;
-      border-radius: 22px;
-      padding: 14px;
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .hudFrame::before{
+    /* slow background motion (NO FLASH) */
+    body::before{
       content:"";
-      position:absolute; inset:-2px;
+      position:fixed;
+      inset:-40%;
       background:
-        linear-gradient(90deg, rgba(255,255,255,.10), transparent 20%, transparent 80%, rgba(255,255,255,.10)),
-        linear-gradient(180deg, rgba(255,255,255,.08), transparent 25%, transparent 75%, rgba(255,255,255,.08));
-      opacity:.35;
+        radial-gradient(600px 420px at 30% 40%, rgba(78,162,255,.10), transparent 60%),
+        radial-gradient(650px 450px at 70% 55%, rgba(255,90,118,.09), transparent 62%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 1px, transparent 1px 140px);
+      filter: blur(0px);
+      transform: translate3d(0,0,0);
+      animation: bgDrift 28s linear infinite;
       pointer-events:none;
-      mask-image: radial-gradient(ellipse at center, black 0%, black 60%, transparent 90%);
+      opacity:.85;
     }
-    .aura{
-      position:absolute; inset:-2px;
-      border-radius: 24px;
-      pointer-events:none;
-      opacity:.0;
-      transition: opacity .35s ease;
+    @keyframes bgDrift{
+      from{ transform: translate3d(-2%, -1%, 0); }
+      to  { transform: translate3d( 2%,  1%, 0); }
     }
-    .aura.blue{ box-shadow: var(--glowBlue); opacity:1; }
-    .aura.red { box-shadow: var(--glowRed);  opacity:1; }
+
+    .app{
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 16px 16px 34px;
+    }
 
     .top{
-      display:flex; gap:14px;
-      justify-content:space-between; align-items:flex-start;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
       flex-wrap:wrap;
     }
-    .brand{display:flex; gap:12px; align-items:center;}
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width: 280px;
+    }
     .logo{
-      width:54px; height:54px; border-radius:16px;
+      width:54px; height:54px;
+      border-radius:16px;
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+      border:1px solid var(--stroke);
+      box-shadow: var(--shadow);
       display:grid; place-items:center;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.14);
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-      font-size: 26px;
+      font-size:26px;
     }
-    h1{margin:0; font-size:26px; letter-spacing:.3px;}
-    .sub{
-      margin-top:4px;
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-      color: var(--muted);
-      font-weight:800;
-      font-size:13px;
+    .title{ display:flex; flex-direction:column; gap:4px; }
+    h1{
+      margin:0;
+      font-size: 22px;
+      letter-spacing: .3px;
+      font-weight: 900;
     }
-    .dot{opacity:.5}
+    .meta{
+      display:flex; gap:10px; flex-wrap:wrap;
+      color:var(--muted);
+      font-weight: 800;
+      font-size: 12.5px;
+    }
+    .dot{ opacity:.5; }
 
-    .right{display:flex; gap:10px; flex-direction:column; align-items:flex-end;}
-    .counters{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;}
-    .pill{
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius:999px;
-      padding:10px 12px;
-      font-size:13px;
-      font-weight:900;
-      box-shadow: 0 10px 28px rgba(0,0,0,.22);
-      backdrop-filter: blur(10px);
-    }
-    .pill b{font-weight:1000}
-    .pill.blue b{color: var(--blue2)}
-    .pill.red b{color: var(--red2)}
-    .pill.gray b{color: rgba(234,241,255,.86)}
-    .pill.dark{ background: rgba(0,0,0,.28); }
-    .actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;}
-    .btn{
-      border:none; cursor:pointer;
-      padding:10px 14px;
-      border-radius: 14px;
-      font-weight:1000;
-      color: var(--text);
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.14);
-      box-shadow: 0 14px 38px rgba(0,0,0,.28);
-      transition: transform .12s ease, filter .12s ease;
-      backdrop-filter: blur(10px);
-    }
-    .btn:hover{ transform: translateY(-1px); filter: brightness(1.06); }
-    .btn:active{ transform: translateY(0px); }
-    .btn.primary{
-      background: linear-gradient(180deg, rgba(59,130,246,.28), rgba(59,130,246,.12));
-      border-color: rgba(59,130,246,.35);
-    }
-    .btn.danger{
-      background: linear-gradient(180deg, rgba(239,68,68,.26), rgba(239,68,68,.12));
-      border-color: rgba(239,68,68,.34);
-    }
-    .btn[disabled]{ opacity:.5; cursor:not-allowed; transform:none; }
-
-    /* Character background */
-    .stage{
-      position:relative;
-      margin-top: 14px;
-      border-radius: 22px;
-      overflow:hidden;
-      min-height: 520px;
-    }
-    .characters{
-      position:absolute; inset:0;
-      pointer-events:none;
-      opacity:.55;
+    .right{
       display:flex;
       align-items:flex-end;
-      justify-content:space-between;
-      padding: 18px 12px 0 12px;
-      filter: drop-shadow(0 20px 60px rgba(0,0,0,.35));
-      animation: charFloat 8s ease-in-out infinite alternate;
-      mask-image: radial-gradient(ellipse at center, black 0%, black 70%, transparent 95%);
-    }
-    @keyframes charFloat{
-      from{ transform: translateY(0px); }
-      to  { transform: translateY(-8px); }
-    }
-    .char{
-      width: 330px;
-      max-width: 38vw;
-      opacity:.95;
-      transform-origin: bottom;
-    }
-    .char.blue{ filter: drop-shadow(0 0 24px rgba(59,130,246,.25)); }
-    .char.red { filter: drop-shadow(0 0 24px rgba(239,68,68,.22)); }
-
-    .lightSweep{
-      position:absolute; inset:-40%;
-      background: radial-gradient(circle at 20% 20%, rgba(255,255,255,.18), transparent 60%);
-      transform: rotate(18deg);
-      animation: sweep 7s ease-in-out infinite;
-      pointer-events:none;
-      opacity:.35;
-    }
-    @keyframes sweep{
-      0%{ transform: translateX(-25%) rotate(18deg); opacity:.0; }
-      25%{ opacity:.35; }
-      50%{ transform: translateX(25%) rotate(18deg); opacity:.25; }
-      100%{ transform: translateX(40%) rotate(18deg); opacity:.0; }
+      justify-content:flex-end;
+      gap:10px;
+      flex-direction:column;
+      flex:1;
+      min-width: 320px;
     }
 
-    /* Bars */
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      gap:8px;
+    }
+
+    .chip{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: var(--panel);
+      border: 1px solid var(--stroke);
+      backdrop-filter: blur(10px);
+      font-weight: 900;
+      font-size: 13px;
+      box-shadow: 0 12px 35px rgba(0,0,0,.25);
+      white-space: nowrap;
+    }
+    .chip b{ font-size: 14px; }
+    .chip.blue b{ color: var(--blue); }
+    .chip.red b{ color: var(--red); }
+    .chip.neu b{ color: var(--neutral); }
+
+    .actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .btn{
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 900;
+      cursor:pointer;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 35px rgba(0,0,0,.25);
+    }
+    .btn.primary{
+      border-color: rgba(78,162,255,.35);
+      background: linear-gradient(180deg, rgba(78,162,255,.26), rgba(78,162,255,.10));
+    }
+    .btn.danger{
+      border-color: rgba(255,90,118,.35);
+      background: linear-gradient(180deg, rgba(255,90,118,.22), rgba(255,90,118,.08));
+    }
+    .btn:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+    }
+
+    /* clue bar */
     .clueBar{
-      display:flex; gap:12px; flex-wrap:wrap;
-      margin-top: 14px;
+      margin-top: 12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
       align-items:stretch;
     }
-    .panel{
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.12);
+    .clueCard{
+      flex: 1;
+      min-width: 320px;
+      background: var(--panel2);
+      border: 1px solid var(--stroke);
       border-radius: var(--radius);
-      box-shadow: 0 14px 40px rgba(0,0,0,.28);
-      backdrop-filter: blur(10px);
-      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      padding: 12px 14px;
+      display:flex;
+      align-items:center;
+      gap:12px;
     }
-    .clueShow{ flex:1; min-width:280px; display:flex; gap:12px; align-items:center; }
-    .label{ width:64px; color: var(--muted); font-weight:1000; }
-    .clueText{ flex:1; font-size:18px; font-weight:1100; letter-spacing:.6px; }
-    .clueNum{
-      width:48px; height:48px; border-radius:16px;
+    .clueLabel{
+      color: var(--muted);
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing:.4px;
+      text-transform: uppercase;
+      width: 54px;
+    }
+    .clueText{
+      flex:1;
+      font-weight: 950;
+      letter-spacing: .7px;
+      font-size: 18px;
+      color: var(--text);
+    }
+    .numBox{
+      width: 46px; height: 46px;
+      border-radius: 14px;
       display:grid; place-items:center;
-      background: rgba(0,0,0,.30);
-      border: 1px solid rgba(255,255,255,.14);
-      font-weight:1100;
+      border: 1px solid var(--stroke);
+      background: rgba(0,0,0,.22);
+      font-weight: 950;
+      font-size: 16px;
     }
-    .guesses{ display:flex; align-items:center; gap:10px; margin-left:auto; }
-    .tag{ color: var(--muted); font-weight:1000; font-size:12px; }
-    #guessesLeft{ font-size:18px; font-weight:1100; }
+    .guessInfo{
+      display:flex; align-items:center; gap:10px;
+      margin-left:auto;
+      color: var(--muted);
+      font-weight: 900;
+    }
+    .guessInfo b{
+      color: var(--text);
+      font-size: 16px;
+    }
 
-    .spymasterOnly{ flex:1; min-width:360px; }
-    .smTitle{ font-weight:1100; margin-bottom:10px; }
-    .smRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    /* spymaster panel */
+    .smPanel{
+      flex: 1;
+      min-width: 360px;
+      background: var(--panel2);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      padding: 12px 14px;
+      display:none;
+    }
+    .smHeader{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      margin-bottom: 10px;
+    }
+    .smHeader .tag{
+      font-weight: 950;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .smHeader .teamPill{
+      padding:6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(0,0,0,.18);
+      font-weight: 950;
+      font-size: 12px;
+    }
+
+    .smRow{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
     .smRow input{
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.14);
+      border: 1px solid var(--stroke);
       background: rgba(0,0,0,.18);
       color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 900;
       outline:none;
-      font-weight:1000;
     }
-    #clueInput{ flex:1; min-width:200px; }
-    #numInput{ width:120px; }
-    .hint{ margin-top:10px; color: var(--muted); font-weight:900; font-size:13px; line-height:1.4; }
+    .smRow input::placeholder{ color: rgba(234,240,255,.45); }
+    #clueInput{ flex:1; min-width: 180px; }
+    #numInput{ width: 120px; }
+    #secInput{ width: 140px; }
 
-    /* Timer circle */
-    .timerWrap{
-      display:flex; align-items:center; gap:10px; margin-left:auto;
+    .timerRow{
+      margin-top:10px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
     }
+    .toggle{
+      display:flex; align-items:center; gap:8px;
+      font-weight: 950;
+      color: var(--muted);
+      user-select:none;
+    }
+
+    /* timer circle */
     .timerCircle{
       width:44px; height:44px;
+      border-radius: 50%;
+      border: 1px solid var(--stroke);
+      background: conic-gradient(rgba(78,162,255,.75) 0deg, rgba(255,255,255,.10) 0deg);
       display:grid; place-items:center;
-      border-radius:999px;
-      background: rgba(0,0,0,.25);
-      border: 1px solid rgba(255,255,255,.16);
-      position:relative;
-      overflow:hidden;
-    }
-    .timerCircle svg{ position:absolute; inset:0; }
-    .timerCircle .t{
-      position:relative;
-      font-weight:1100;
-      font-size:12px;
-      opacity:.95;
+      font-weight: 950;
+      font-size: 12px;
+      color: var(--text);
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
     }
 
-    /* Board */
+    /* board */
     .board{
       margin-top: 14px;
       display:grid;
-      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      grid-template-columns: repeat(5, minmax(140px, 1fr));
       gap: 12px;
-      position:relative;
-      padding-bottom: 10px;
+    }
+    @media (max-width: 980px){
+      .board{ grid-template-columns: repeat(4, minmax(140px, 1fr)); }
+    }
+    @media (max-width: 760px){
+      .board{ grid-template-columns: repeat(3, minmax(140px, 1fr)); }
+    }
+    @media (max-width: 520px){
+      .board{ grid-template-columns: repeat(2, minmax(140px, 1fr)); }
     }
 
     .card{
-      perspective: 900px;
-      border:none; background: transparent; padding:0;
-      cursor:pointer;
-      outline:none;
       position:relative;
-    }
-    .cardInner{
-      position:relative;
-      width:100%;
-      min-height: 76px;
       border-radius: 18px;
-      transform-style: preserve-3d;
-      transition: transform .55s cubic-bezier(.2,.8,.2,1), filter .18s ease;
-      box-shadow: 0 16px 40px rgba(0,0,0,.30);
-    }
-    .card:hover .cardInner{ transform: translateY(-2px) rotateX(2deg); filter: brightness(1.05); }
-    .face{
-      position:absolute; inset:0;
-      border-radius: 18px;
-      backface-visibility: hidden;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: 14px 12px;
-      font-weight:1100;
-      letter-spacing:.35px;
-      text-align:center;
-      border: 1px solid rgba(255,255,255,.14);
+      border: 1px solid var(--stroke);
       background: rgba(255,255,255,.06);
-      overflow:hidden;
-    }
-
-    .face::before{
-      /* subtle tech icon watermark */
-      content:"";
-      position:absolute; inset:-40%;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,.14), transparent 58%),
-        radial-gradient(circle at 65% 70%, rgba(255,255,255,.10), transparent 62%),
-        conic-gradient(from 90deg, rgba(255,255,255,.08), transparent 30%, rgba(255,255,255,.06), transparent 70%, rgba(255,255,255,.06));
-      opacity:.28;
-      transform: rotate(18deg);
-      pointer-events:none;
-      filter: blur(.2px);
-    }
-    .word{
-      position:relative;
-      font-size:16px;
-      line-height:1.05;
-      z-index:1;
-      text-shadow: 0 6px 18px rgba(0,0,0,.38);
-    }
-    .tinyIcon{
-      position:absolute; left:10px; top:10px;
-      font-size:14px; opacity:.85;
-      z-index:1;
-      filter: drop-shadow(0 10px 16px rgba(0,0,0,.30));
-    }
-    .back{
-      transform: rotateY(180deg);
-      font-size: 14px;
-    }
-    .card.reveal .cardInner{ transform: rotateY(180deg); }
-    .card.reveal:hover .cardInner{ transform: rotateY(180deg) translateY(-1px); }
-
-    /* Front states */
-    .front.hidden{ background: rgba(255,255,255,.05); }
-    .front.hinted.blue{ background: rgba(59,130,246,.18); }
-    .front.hinted.red { background: rgba(239,68,68,.16); }
-    .front.hinted.neutral{ background: rgba(148,163,184,.16); }
-    .front.hinted.black{ background: rgba(0,0,0,.22); }
-
-    /* Back revealed colors */
-    .back.blue{ background: linear-gradient(180deg, rgba(59,130,246,.95), rgba(59,130,246,.80)); border-color: rgba(255,255,255,.22); }
-    .back.red { background: linear-gradient(180deg, rgba(239,68,68,.95), rgba(239,68,68,.78)); border-color: rgba(255,255,255,.22); }
-    .back.neutral{ background: linear-gradient(180deg, rgba(229,231,235,.96), rgba(229,231,235,.86)); color:#101827; border-color: rgba(0,0,0,.06); }
-    .back.black{ background: linear-gradient(180deg, rgba(0,0,0,.90), rgba(0,0,0,.76)); border-color: rgba(255,255,255,.18); }
-
-    .pulseBlue{ animation: pulseBlue 1.6s ease-in-out infinite; }
-    .pulseRed { animation: pulseRed  1.6s ease-in-out infinite; }
-    @keyframes pulseBlue{
-      0%,100%{ box-shadow: var(--glowBlue); }
-      50%{ box-shadow: 0 0 0 1px rgba(59,130,246,.28), 0 0 46px rgba(59,130,246,.25), 0 0 120px rgba(59,130,246,.14); }
-    }
-    @keyframes pulseRed{
-      0%,100%{ box-shadow: var(--glowRed); }
-      50%{ box-shadow: 0 0 0 1px rgba(239,68,68,.28), 0 0 46px rgba(239,68,68,.22), 0 0 120px rgba(239,68,68,.12); }
-    }
-
-    /* Near victory banner */
-    .banner{
-      position: fixed;
-      left: 50%;
-      top: 14px;
-      transform: translateX(-50%);
-      z-index: 9999;
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-weight:1100;
-      letter-spacing:.6px;
-      background: rgba(0,0,0,.35);
-      border: 1px solid rgba(255,255,255,.16);
-      box-shadow: 0 16px 50px rgba(0,0,0,.40);
-      backdrop-filter: blur(10px);
-      display:none;
-    }
-    .banner.blue{ box-shadow: var(--glowBlue); }
-    .banner.red{ box-shadow: var(--glowRed); }
-
-    /* Overlays */
-    .overlay{
-      position:fixed; inset:0;
-      display:none;
-      align-items:center; justify-content:center;
-      z-index: 100000;
-      padding: 16px;
-      background: rgba(0,0,0,.70);
-      backdrop-filter: blur(10px);
-    }
-    .overlayBox{
-      width: min(980px, 100%);
-      border-radius: 26px;
-      overflow:hidden;
-      box-shadow: 0 30px 90px rgba(0,0,0,.55);
-      border: 1px solid rgba(255,255,255,.18);
-      position:relative;
-    }
-    .overlayInner{
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap: 0;
-      min-height: 420px;
-      position:relative;
-    }
-    .overlayLeft{
-      padding: 28px 26px;
-      position:relative;
-      overflow:hidden;
-    }
-    .overlayRight{
-      position:relative;
-      display:flex;
-      align-items:flex-end;
-      justify-content:center;
-      padding: 18px;
-    }
-    .overlayTitle{
-      font-size: 40px;
-      font-weight: 1200;
-      margin: 0 0 8px;
-      letter-spacing:.6px;
-      text-shadow: 0 18px 60px rgba(0,0,0,.45);
-    }
-    .overlaySub{
-      color: rgba(255,255,255,.85);
-      font-weight: 900;
-      margin-bottom: 18px;
-    }
-    .overlayStats{
-      display:flex;
-      flex-wrap:wrap;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .stat{
-      background: rgba(0,0,0,.22);
-      border: 1px solid rgba(255,255,255,.16);
-      padding: 10px 12px;
-      border-radius: 14px;
-      font-weight: 1000;
-      min-width: 160px;
-    }
-    .stat small{
-      display:block;
-      color: rgba(255,255,255,.78);
-      font-weight: 900;
-      margin-bottom: 2px;
-      letter-spacing:.4px;
-    }
-    .overlayBtns{
-      display:flex;
-      gap: 10px;
-      flex-wrap:wrap;
-      margin-top: 18px;
-    }
-
-    .overlaySweep{
-      position:absolute; inset:-50%;
-      background: radial-gradient(circle at 25% 15%, rgba(255,255,255,.22), transparent 60%);
-      transform: rotate(16deg);
-      animation: sweep 7s ease-in-out infinite;
-      opacity:.35;
-      pointer-events:none;
-    }
-    .glitch{
-      animation: glitch .9s ease-in-out infinite alternate;
-    }
-    @keyframes glitch{
-      from{ filter: drop-shadow(0 0 0 rgba(255,0,0,0)); transform: translateY(0); }
-      to{ filter: drop-shadow(0 0 18px rgba(255,0,0,.12)); transform: translateY(-1px); }
-    }
-
-    /* Start screen */
-    .startScreen{
-      position:fixed; inset:0;
-      display:none;
-      z-index: 200000;
-      align-items:center; justify-content:center;
-      padding: 16px;
-      background: rgba(0,0,0,.55);
-      backdrop-filter: blur(12px);
-    }
-    .startBox{
-      width: min(920px, 100%);
-      border-radius: 28px;
-      overflow:hidden;
-      box-shadow: 0 30px 90px rgba(0,0,0,.55);
-      border: 1px solid rgba(255,255,255,.18);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      position:relative;
-    }
-    .startInner{
-      padding: 26px 22px;
-      display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap: 12px;
-      align-items:center;
-    }
-    .startTitle{
-      font-size: 38px;
-      font-weight: 1300;
-      margin: 0 0 8px;
-      letter-spacing:.8px;
-    }
-    .startText{ color: var(--muted); font-weight: 900; line-height:1.5; }
-    .startBtn{
-      margin-top: 14px;
-      padding: 12px 16px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: linear-gradient(180deg, rgba(59,130,246,.26), rgba(59,130,246,.10));
-      color: var(--text);
-      font-weight: 1200;
+      box-shadow: 0 16px 38px rgba(0,0,0,.35);
+      padding: 16px 14px 14px;
       cursor:pointer;
-      box-shadow: 0 18px 60px rgba(0,0,0,.40);
-      transition: transform .12s ease;
+      text-align:center;
+      user-select:none;
+      min-height: 72px;
+
+      /* keep it smooth but NOT flashy */
+      transition: transform .10s ease, background-color .12s ease, border-color .12s ease;
     }
-    .startBtn:hover{ transform: translateY(-1px); }
-    .startArt{
-      display:flex; justify-content:center; align-items:flex-end;
-      opacity:.92;
-      filter: drop-shadow(0 14px 50px rgba(0,0,0,.45));
-      animation: charFloat 7s ease-in-out infinite alternate;
+    .card:hover{ transform: translateY(-1px); }
+    .card:active{ transform: translateY(0); }
+
+    .word{
+      font-weight: 950;
+      letter-spacing: .3px;
+      font-size: 16px;
+      color: var(--cardText);
+      text-shadow: 0 2px 10px rgba(0,0,0,.4);
     }
 
-    /* Modals (password + spy) */
-    .modal{
-      position:fixed; inset:0;
+    /* tiny IT icon */
+    .icon{
+      position:absolute;
+      left: 10px;
+      top: 10px;
+      font-size: 14px;
+      opacity: .88;
+      filter: drop-shadow(0 6px 16px rgba(0,0,0,.35));
+    }
+
+    /* spymaster hint border */
+    .hint.blue{ border-color: rgba(78,162,255,.55); }
+    .hint.red{ border-color: rgba(255,90,118,.55); }
+    .hint.neutral{ border-color: rgba(185,192,211,.45); }
+    .hint.assassin{ border-color: rgba(255,255,255,.25); }
+
+    /* revealed */
+    .revealed.blue{
+      background: linear-gradient(180deg, rgba(78,162,255,.78), rgba(78,162,255,.55));
+      border-color: rgba(78,162,255,.75);
+    }
+    .revealed.red{
+      background: linear-gradient(180deg, rgba(255,90,118,.76), rgba(255,90,118,.54));
+      border-color: rgba(255,90,118,.72);
+    }
+    .revealed.neutral{
+      background: linear-gradient(180deg, rgba(185,192,211,.42), rgba(185,192,211,.26));
+      border-color: rgba(185,192,211,.45);
+    }
+    .revealed.assassin{
+      background: linear-gradient(180deg, rgba(0,0,0,.88), rgba(0,0,0,.70));
+      border-color: rgba(255,255,255,.22);
+    }
+
+    /* near victory glow (subtle, no flashing) */
+    .nearVictoryBlue body{}
+    .nearVictory{
+      position: fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:0;
+      transition: opacity .25s ease;
+    }
+    .nearVictory.on{ opacity:1; }
+    .nearVictory.blue{
+      background: radial-gradient(900px 500px at 30% 20%, rgba(78,162,255,.16), transparent 60%);
+    }
+    .nearVictory.red{
+      background: radial-gradient(900px 500px at 70% 25%, rgba(255,90,118,.14), transparent 60%);
+    }
+
+    /* start gate */
+    .gate{
+      position: fixed;
+      inset: 0;
       display:none;
-      z-index: 150000;
-      align-items:center; justify-content:center;
+      align-items:center;
+      justify-content:center;
       background: rgba(0,0,0,.62);
       backdrop-filter: blur(10px);
+      z-index: 9999;
       padding: 16px;
     }
-    .modal .box{
+    .gate .box{
       width: min(520px, 100%);
       border-radius: 22px;
+      border: 1px solid var(--stroke);
+      background: rgba(10,12,18,.82);
+      box-shadow: var(--shadow);
       padding: 16px;
-      background: rgba(10,12,24,.86);
-      border: 1px solid rgba(255,255,255,.18);
-      box-shadow: 0 30px 90px rgba(0,0,0,.55);
     }
-    .modal h3{ margin:0 0 8px; }
-    .modal p{ margin:0; color: var(--muted); font-weight: 900; }
-    .modal .row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
-    .modal input{
-      flex:1; min-width: 220px;
+    .gate h2{
+      margin: 0 0 10px;
+      font-size: 20px;
+      font-weight: 950;
+    }
+    .gate p{
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-weight: 850;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .gate .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .gate input{
+      flex:1;
+      min-width: 220px;
+      border: 1px solid var(--stroke);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
       padding: 12px 12px;
       border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(0,0,0,.25);
-      color: var(--text);
-      font-weight: 1000;
+      font-weight: 900;
       outline:none;
     }
 
-    /* responsive */
-    @media (max-width: 980px){
-      .overlayInner{ grid-template-columns: 1fr; }
-      .overlayRight{ justify-content:flex-start; }
+    /* end overlay */
+    .overlay{
+      position: fixed;
+      inset: 0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index: 10000;
+      padding: 16px;
+      background: rgba(0,0,0,.66);
+      backdrop-filter: blur(12px);
     }
-    @media (max-width: 860px){
-      .board{ grid-template-columns: repeat(3, minmax(140px,1fr)); }
-      .char{ width: 270px; }
+    .overlay .panel{
+      width: min(980px, 100%);
+      border-radius: 26px;
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
     }
-    @media (max-width: 520px){
-      .board{ grid-template-columns: repeat(2, minmax(140px,1fr)); }
-      .char{ width: 210px; }
-      .right{ align-items:flex-start; }
+    .overlay .hero{
+      min-height: 260px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 16px;
+      padding: 18px;
+    }
+    .overlay .hero.blue{
+      background: radial-gradient(900px 460px at 20% 25%, rgba(78,162,255,.35), transparent 60%),
+                  linear-gradient(180deg, rgba(78,162,255,.30), rgba(10,12,18,.85));
+    }
+    .overlay .hero.red{
+      background: radial-gradient(900px 460px at 80% 25%, rgba(255,90,118,.32), transparent 60%),
+                  linear-gradient(180deg, rgba(255,90,118,.28), rgba(10,12,18,.85));
+    }
+    .overlay .hero.black{
+      background: linear-gradient(180deg, rgba(0,0,0,.92), rgba(10,12,18,.92));
+    }
+    .overlay .titleBlock{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      padding: 10px 6px;
+    }
+    .overlay h3{
+      margin:0;
+      font-size: 34px;
+      font-weight: 1000;
+      letter-spacing: .6px;
+    }
+    .overlay .sub{
+      margin:0;
+      color: rgba(234,240,255,.80);
+      font-weight: 850;
+      font-size: 14px;
+    }
+    .overlay .footer{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 12px 14px;
+      border-top: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
+    }
+
+    /* robots (inline SVG containers) */
+    .robotWrap{
+      width: 320px;
+      max-width: 40vw;
+      opacity: .95;
+      filter: drop-shadow(0 18px 45px rgba(0,0,0,.55));
+    }
+    @media (max-width: 720px){
+      .overlay .hero{ flex-direction:column; align-items:flex-start; }
+      .robotWrap{ width: 300px; max-width: 85vw; }
+    }
+
+    /* reduce motion for accessibility */
+    @media (prefers-reduced-motion: reduce){
+      body::before{ animation:none; }
+      .card{ transition:none; }
     }
   </style>
 </head>
 
 <body>
-  <div class="bgGrid"></div>
-  <div class="bgParticles"></div>
-  <div class="cursorGlow" id="cursorGlow"></div>
+  <div class="nearVictory blue" id="nearBlue"></div>
+  <div class="nearVictory red" id="nearRed"></div>
 
-  <!-- Near victory banner -->
-  <div class="banner" id="nearBanner">⚠ ONE WORD LEFT!</div>
-
-  <!-- Start screen -->
-  <div class="startScreen" id="startScreen">
-    <div class="startBox">
-      <div class="overlaySweep"></div>
-      <div class="startInner">
-        <div>
-          <div class="startTitle">🛠️ CODENAMES — IT SUPPORT</div>
-          <div class="startText">
-            Welcome to the IT Challenge.<br/>
-            Find your team words. Avoid the black card.
+  <div class="app">
+    <header class="top">
+      <div class="brand">
+        <div class="logo">🛠️</div>
+        <div class="title">
+          <h1>CODENAMES — IT SUPPORT</h1>
+          <div class="meta">
+            <span id="roomLine">Room: CLASS1</span>
+            <span class="dot">•</span>
+            <span id="roleLine">Role: Player/Projector</span>
+            <span class="dot">•</span>
+            <span id="turnLine">Turn: —</span>
           </div>
-          <button class="startBtn" id="btnStart">▶ START GAME</button>
-          <div style="margin-top:10px; color:rgba(234,241,255,.62); font-weight:900; font-size:12px;">
-            (English UI — simple level)
-          </div>
-        </div>
-
-        <div class="startArt">
-          <!-- small decorative anime IT girl (SVG) -->
-          <svg width="280" height="320" viewBox="0 0 280 320" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <defs>
-              <linearGradient id="gHair" x1="0" y1="0" x2="1" y2="1">
-                <stop stop-color="#60a5fa" stop-opacity=".95"/>
-                <stop offset="1" stop-color="#a78bfa" stop-opacity=".70"/>
-              </linearGradient>
-              <linearGradient id="gJ" x1="0" y1="0" x2="0" y2="1">
-                <stop stop-color="#0ea5e9" stop-opacity=".35"/>
-                <stop offset="1" stop-color="#111827" stop-opacity=".40"/>
-              </linearGradient>
-            </defs>
-            <circle cx="145" cy="120" r="70" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.18)"/>
-            <path d="M110 135c10 25 55 25 70 0" stroke="rgba(255,255,255,.7)" stroke-width="6" stroke-linecap="round"/>
-            <path d="M95 110c10-55 90-70 125-15 8 13 12 30 8 45-8 30-34 55-62 58-45 6-80-28-71-88Z" fill="url(#gHair)"/>
-            <circle cx="128" cy="140" r="8" fill="rgba(255,255,255,.85)"/>
-            <circle cx="168" cy="140" r="8" fill="rgba(255,255,255,.85)"/>
-            <path d="M120 160c14 12 38 12 52 0" stroke="rgba(255,255,255,.8)" stroke-width="5" stroke-linecap="round"/>
-            <rect x="92" y="185" width="140" height="110" rx="26" fill="url(#gJ)" stroke="rgba(255,255,255,.18)"/>
-            <rect x="110" y="214" width="104" height="58" rx="14" fill="rgba(0,0,0,.25)" stroke="rgba(255,255,255,.16)"/>
-            <path d="M125 227h74M125 242h60M125 257h68" stroke="rgba(255,255,255,.35)" stroke-width="4" stroke-linecap="round"/>
-            <circle cx="92" cy="130" r="22" fill="rgba(0,0,0,.25)" stroke="rgba(255,255,255,.16)"/>
-            <circle cx="232" cy="130" r="22" fill="rgba(0,0,0,.25)" stroke="rgba(255,255,255,.16)"/>
-          </svg>
         </div>
       </div>
-    </div>
+
+      <div class="right">
+        <div class="chips">
+          <div class="chip blue">🔵 Blue left: <b id="blueLeft">—</b></div>
+          <div class="chip red">🔴 Red left: <b id="redLeft">—</b></div>
+          <div class="chip neu">⚪ Neutral: <b id="neutralLeft">—</b></div>
+          <div class="chip">
+            <span class="timerCircle" id="timerCircle">OFF</span>
+            <span id="timerText">Timer OFF</span>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" id="btnNew">New Game</button>
+          <button class="btn" id="btnCopyProjector">Copy Projector Link</button>
+          <button class="btn" id="btnCopyBlueSpy" style="display:none;">Copy Blue Spy Link</button>
+          <button class="btn" id="btnCopyRedSpy" style="display:none;">Copy Red Spy Link</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="clueBar">
+      <div class="clueCard">
+        <div class="clueLabel">Clue</div>
+        <div class="clueText" id="clueText">—</div>
+        <div class="numBox" id="clueNum">—</div>
+        <div class="guessInfo">
+          <span>Guesses left</span>
+          <b id="guessesLeft">—</b>
+        </div>
+      </div>
+
+      <div class="smPanel" id="smPanel">
+        <div class="smHeader">
+          <div class="tag">Spymaster Control</div>
+          <div class="teamPill" id="smTeamPill">TEAM</div>
+        </div>
+
+        <div class="smRow">
+          <input id="clueInput" placeholder="CLUE (e.g., NETWORK)" maxlength="20">
+          <input id="numInput" placeholder="NUMBER" type="number" min="0" max="9">
+          <button class="btn primary" id="btnSendClue">Send Clue</button>
+          <button class="btn" id="btnEndTurn">End Turn</button>
+        </div>
+
+        <div class="timerRow">
+          <label class="toggle">
+            <input type="checkbox" id="timerOn">
+            Use Timer
+          </label>
+          <input id="secInput" placeholder="Seconds" type="number" min="10" max="600">
+          <button class="btn" id="btnStartTimer">Start</button>
+          <button class="btn" id="btnStopTimer">Stop</button>
+        </div>
+
+        <div style="margin-top:10px;color:rgba(234,240,255,.70);font-weight:850;font-size:12.5px;line-height:1.35;">
+          Rules: Correct guesses reduce the round counter. Wrong / Neutral ends the turn instantly. Assassin = instant loss.
+        </div>
+      </div>
+    </section>
+
+    <main class="board" id="board"></main>
   </div>
 
-  <!-- Password gate -->
-  <div class="modal" id="pwModal">
+  <!-- Password Gate -->
+  <div class="gate" id="gate">
     <div class="box">
-      <h3>Enter Password</h3>
-      <p>This game is private. Please enter the room password.</p>
+      <h2>Enter Access Password</h2>
+      <p>This game is private. Only people with the link can enter.</p>
       <div class="row">
-        <input id="pwInput" placeholder="Password (example: LY10)" />
-        <button class="btn primary" id="pwEnter">Enter</button>
+        <input id="pwInput" placeholder="Password">
+        <button class="btn primary" id="pwEnter">Start</button>
       </div>
-      <div style="margin-top:10px; color:rgba(234,241,255,.58); font-weight:900; font-size:12px;">
-        Tip: Open the link again with <b>?pw=LY10</b>
-      </div>
+      <p style="margin-top:10px;">Tip: your link can include <b>pw=LY10</b> so this screen will be skipped.</p>
     </div>
   </div>
 
-  <!-- Spy code modal -->
-  <div class="modal" id="spyModal">
-    <div class="box">
-      <h3>Spymaster Login</h3>
-      <p>Enter your secret code.</p>
-      <div class="row">
-        <input id="spyCode" placeholder="BLUE-777 or RED-777" />
-        <button class="btn primary" id="spyEnter">Login</button>
-        <button class="btn" id="spyCancel">Cancel</button>
+  <!-- End Overlay -->
+  <div class="overlay" id="overlay">
+    <div class="panel">
+      <div class="hero" id="hero">
+        <div class="titleBlock">
+          <h3 id="endTitle">—</h3>
+          <p class="sub" id="endSub">—</p>
+          <p class="sub" id="endSummary" style="opacity:.9;margin-top:8px;"></p>
+        </div>
+
+        <div class="robotWrap" id="robotWrap"></div>
       </div>
-      <div style="margin-top:10px; color:rgba(234,241,255,.58); font-weight:900; font-size:12px;">
-        Only the spymaster should use this screen.
-      </div>
-    </div>
-  </div>
 
-  <div class="wrap">
-    <div class="hudFrame" id="hudFrame">
-      <div class="aura" id="aura"></div>
-
-      <header class="top">
-        <div class="brand">
-          <div class="logo">🛠️</div>
-          <div>
-            <h1>CODENAMES — IT SUPPORT</h1>
-            <div class="sub">
-              <span id="roomLine">Room: CLASS1</span>
-              <span class="dot">•</span>
-              <span id="roleLine">Role: Player</span>
-              <span class="dot">•</span>
-              <span id="turnLine">Turn: —</span>
-            </div>
-          </div>
+      <div class="footer">
+        <button class="btn primary" id="endNew">New Game</button>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <span style="color:rgba(234,240,255,.65);font-weight:850;font-size:12px;">
+            ESC closes (Spymaster only)
+          </span>
+          <button class="btn danger" id="endClose" style="display:none;">Close</button>
         </div>
-
-        <div class="right">
-          <div class="counters">
-            <div class="pill blue">🔵 Blue left: <b id="blueLeft">—</b></div>
-            <div class="pill red">🔴 Red left: <b id="redLeft">—</b></div>
-            <div class="pill gray">⚪ Neutral: <b id="neutralLeft">—</b></div>
-            <div class="pill dark">
-              <span style="display:inline-flex; align-items:center; gap:10px;">
-                ⏱️ <span id="timerText">Timer OFF</span>
-                <span class="timerWrap">
-                  <span class="timerCircle" id="timerCircle" title="Timer">
-                    <svg viewBox="0 0 44 44">
-                      <circle cx="22" cy="22" r="18" stroke="rgba(255,255,255,.18)" stroke-width="4" fill="none"></circle>
-                      <circle id="timerArc" cx="22" cy="22" r="18" stroke="rgba(34,197,94,.95)" stroke-width="4" fill="none"
-                              stroke-linecap="round"
-                              stroke-dasharray="113.097"
-                              stroke-dashoffset="113.097"
-                              transform="rotate(-90 22 22)"></circle>
-                    </svg>
-                    <span class="t" id="timerMini">—</span>
-                  </span>
-                </span>
-              </span>
-            </div>
-          </div>
-
-          <div class="actions">
-            <button class="btn" id="btnNew">New Game</button>
-            <button class="btn" id="btnProjector">Copy Projector Link</button>
-            <button class="btn" id="btnSpyLink">Copy Spymaster Link</button>
-          </div>
-        </div>
-      </header>
-
-      <section class="clueBar">
-        <div class="panel clueShow">
-          <div class="label">Clue</div>
-          <div class="clueText" id="clueText">—</div>
-          <div class="clueNum" id="clueNum">—</div>
-          <div class="guesses">
-            <span class="tag">Guesses left</span>
-            <b id="guessesLeft">—</b>
-          </div>
-        </div>
-
-        <div class="panel spymasterOnly" id="spymasterPanel" style="display:none;">
-          <div class="smTitle" id="smTitle">Spymaster Panel</div>
-
-          <div class="smRow">
-            <input id="clueInput" placeholder="Clue (example: NETWORK)" maxlength="20" />
-            <input id="numInput" placeholder="Number" type="number" min="0" max="9" />
-            <button class="btn primary" id="btnSendClue">Send</button>
-            <button class="btn" id="btnEndTurn">End Turn</button>
-            <button class="btn" id="btnClearClue">Clear</button>
-          </div>
-
-          <div class="smRow" style="margin-top:8px;">
-            <label class="pill" style="cursor:pointer;">
-              <input type="checkbox" id="timerEnabled" style="transform:translateY(1px);" />
-              Use Timer
-            </label>
-            <input id="timerSeconds" type="number" min="10" max="600" placeholder="Seconds (example: 60)" />
-            <button class="btn" id="btnStartTimer">Start</button>
-            <button class="btn" id="btnStopTimer">Stop</button>
-          </div>
-
-          <div class="hint">
-            ✅ Spymaster sees all colors. Players see colors only after reveal.<br/>
-            ✅ Wrong guess ends the turn immediately.<br/>
-            ✅ Win screen shows only when the game ends.
-          </div>
-        </div>
-      </section>
-
-      <div class="stage">
-        <div class="characters">
-          <!-- BLUE anime IT girl (confident + calm) -->
-          <svg class="char blue" viewBox="0 0 360 520" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <defs>
-              <linearGradient id="bHair" x1="0" y1="0" x2="1" y2="1">
-                <stop stop-color="#60a5fa" stop-opacity=".95"/>
-                <stop offset="1" stop-color="#a78bfa" stop-opacity=".65"/>
-              </linearGradient>
-              <linearGradient id="bJ" x1="0" y1="0" x2="0" y2="1">
-                <stop stop-color="rgba(59,130,246,.38)"/>
-                <stop offset="1" stop-color="rgba(17,24,39,.45)"/>
-              </linearGradient>
-            </defs>
-            <path d="M96 190c0-64 50-116 114-116s114 52 114 116c0 78-60 140-132 132-58-7-96-56-96-132Z" fill="url(#bHair)"/>
-            <circle cx="180" cy="214" r="74" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.16)"/>
-            <circle cx="154" cy="220" r="8" fill="rgba(255,255,255,.85)"/>
-            <circle cx="206" cy="220" r="8" fill="rgba(255,255,255,.85)"/>
-            <path d="M158 244c18 14 46 14 64 0" stroke="rgba(255,255,255,.78)" stroke-width="6" stroke-linecap="round"/>
-            <path d="M238 196c-20 10-44 10-64 0" stroke="rgba(255,255,255,.24)" stroke-width="6" stroke-linecap="round"/>
-            <circle cx="110" cy="210" r="22" fill="rgba(0,0,0,.22)" stroke="rgba(255,255,255,.14)"/>
-            <circle cx="250" cy="210" r="22" fill="rgba(0,0,0,.22)" stroke="rgba(255,255,255,.14)"/>
-            <rect x="92" y="292" width="220" height="190" rx="34" fill="url(#bJ)" stroke="rgba(255,255,255,.16)"/>
-            <rect x="118" y="332" width="168" height="90" rx="18" fill="rgba(0,0,0,.22)" stroke="rgba(255,255,255,.14)"/>
-            <path d="M136 356h132M136 378h108M136 400h120" stroke="rgba(255,255,255,.30)" stroke-width="5" stroke-linecap="round"/>
-          </svg>
-
-          <!-- RED anime IT girl (strong + energetic) -->
-          <svg class="char red" viewBox="0 0 360 520" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <defs>
-              <linearGradient id="rHair" x1="0" y1="0" x2="1" y2="1">
-                <stop stop-color="#fb7185" stop-opacity=".95"/>
-                <stop offset="1" stop-color="#f97316" stop-opacity=".55"/>
-              </linearGradient>
-              <linearGradient id="rJ" x1="0" y1="0" x2="0" y2="1">
-                <stop stop-color="rgba(239,68,68,.34)"/>
-                <stop offset="1" stop-color="rgba(17,24,39,.48)"/>
-              </linearGradient>
-            </defs>
-            <path d="M262 160c-8-70-70-112-136-92-44 13-82 56-82 112 0 80 58 146 132 140 72-6 96-62 86-160Z" fill="url(#rHair)"/>
-            <circle cx="190" cy="214" r="74" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.16)"/>
-            <circle cx="164" cy="220" r="8" fill="rgba(255,255,255,.85)"/>
-            <circle cx="216" cy="220" r="8" fill="rgba(255,255,255,.85)"/>
-            <path d="M160 252c22-10 48-10 70 0" stroke="rgba(255,255,255,.70)" stroke-width="6" stroke-linecap="round"/>
-            <path d="M168 196c10-8 18-10 28-6" stroke="rgba(255,255,255,.30)" stroke-width="6" stroke-linecap="round"/>
-            <path d="M210 196c10-8 18-10 28-6" stroke="rgba(255,255,255,.30)" stroke-width="6" stroke-linecap="round"/>
-            <circle cx="120" cy="210" r="22" fill="rgba(0,0,0,.22)" stroke="rgba(255,255,255,.14)"/>
-            <circle cx="260" cy="210" r="22" fill="rgba(0,0,0,.22)" stroke="rgba(255,255,255,.14)"/>
-            <rect x="98" y="292" width="220" height="190" rx="34" fill="url(#rJ)" stroke="rgba(255,255,255,.16)"/>
-            <rect x="124" y="332" width="168" height="90" rx="18" fill="rgba(0,0,0,.22)" stroke="rgba(255,255,255,.14)"/>
-            <path d="M142 356h132M142 378h116M142 400h124" stroke="rgba(255,255,255,.30)" stroke-width="5" stroke-linecap="round"/>
-          </svg>
-        </div>
-
-        <div class="lightSweep"></div>
-
-        <main class="board" id="board"></main>
-      </div>
-    </div>
-  </div>
-
-  <!-- Result / Lose overlay -->
-  <div class="overlay" id="resultOverlay">
-    <div class="overlayBox" id="overlayBox">
-      <div class="overlayInner" id="overlayInner">
-        <div class="overlayLeft" id="overlayLeft">
-          <div class="overlaySweep"></div>
-          <div class="overlayTitle" id="overlayTitle">—</div>
-          <div class="overlaySub" id="overlaySub">—</div>
-
-          <div class="overlayStats">
-            <div class="stat"><small>Total Rounds</small><span id="stRounds">—</span></div>
-            <div class="stat"><small>Total Moves</small><span id="stMoves">—</span></div>
-            <div class="stat"><small>Time Used</small><span id="stTime">—</span></div>
-            <div class="stat"><small>Assassin</small><span id="stAssassin">—</span></div>
-          </div>
-
-          <div class="overlayBtns">
-            <button class="btn primary" id="btnOverlayNew">🎮 New Game</button>
-            <button class="btn" id="btnOverlayClose" style="display:none;">✖ Close</button>
-          </div>
-
-          <div style="margin-top:10px; color:rgba(255,255,255,.70); font-weight:900; font-size:12px;">
-            Close is for spymaster only (ESC or click).
-          </div>
-        </div>
-
-        <div class="overlayRight" id="overlayRight"></div>
       </div>
     </div>
   </div>
@@ -888,27 +661,13 @@
       getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-    // =========================
-    // SETTINGS
-    // =========================
+    // ====== CONFIG ======
+    const PASSWORD = "LY10";
     const ROOM_ID = "CLASS1";
-    const ROOM_PASSWORD = "LY10";
 
-    const BLUE_CODE = "BLUE-777";
-    const RED_CODE  = "RED-777";
+    const BLUE_KEY = "BLUE-777";
+    const RED_KEY  = "RED-777";
 
-    // 25 IT Support words
-    const WORDS = [
-      "Ticket","Service Desk","VPN","Firewall","DNS",
-      "DHCP","IP Address","Router","Switch","Wi-Fi",
-      "Active Directory","Password","MFA","Account","Permissions",
-      "Hardware","Software","Printer","Antivirus","Patch",
-      "Backup","Restore","Incident","Outage","Email"
-    ];
-
-    const TECH_ICONS = ["⚙️","💻","🖥️","🔌","🌐","🧰","🗄️","🧩","🔐","📡"];
-
-    // Firebase (YOUR CONFIG)
     const firebaseConfig = {
       apiKey: "AIzaSyBaQKAER5HLq6LhPWIaIqrBRpd4qn0lUss",
       authDomain: "codenames-it-support.firebaseapp.com",
@@ -919,11 +678,21 @@
       measurementId: "G-NVG0G4SM6D"
     };
 
-    // =========================
-    // UTILS
-    // =========================
-    const qs = new URLSearchParams(location.search);
-    const getParam = (k) => qs.get(k);
+    const WORDS = [
+      "Ticket","Service Desk","VPN","Firewall","DNS",
+      "DHCP","IP Address","Router","Switch","Wi-Fi",
+      "Active Directory","Password","MFA","Account","Permissions",
+      "Hardware","Software","Printer","Antivirus","Patch",
+      "Backup","Restore","Incident","Outage","Email"
+    ];
+
+    const ICONS = {
+      "Ticket":"🎫","Service Desk":"🎧","VPN":"🛡️","Firewall":"🔥","DNS":"🌐",
+      "DHCP":"📡","IP Address":"🧭","Router":"📶","Switch":"🔀","Wi-Fi":"📡",
+      "Active Directory":"👥","Password":"🔑","MFA":"✅","Account":"🧾","Permissions":"🧷",
+      "Hardware":"🧩","Software":"💿","Printer":"🖨️","Antivirus":"🧪","Patch":"🩹",
+      "Backup":"💾","Restore":"⏪","Incident":"🚨","Outage":"⛔","Email":"✉️"
+    };
 
     function shuffle(arr){
       const a = [...arr];
@@ -933,184 +702,224 @@
       }
       return a;
     }
+    const otherTeam = (t)=> t==="blue" ? "red" : "blue";
 
-    const otherTeam = (t) => t === "blue" ? "red" : "blue";
-    const clamp = (n,min,max) => Math.max(min, Math.min(max,n));
-
-    function msToClock(ms){
-      const s = Math.max(0, Math.floor(ms/1000));
-      const m = Math.floor(s/60);
-      const r = s%60;
-      return `${m}:${String(r).padStart(2,"0")}`;
-    }
-
-    // Soft tech click sound (no external file)
     function playClick(){
       try{
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const now = ctx.currentTime;
+        const ctx = new (window.AudioContext||window.webkitAudioContext)();
         const o = ctx.createOscillator();
         const g = ctx.createGain();
-        o.type = "triangle";
-        o.frequency.setValueAtTime(620, now);
-        o.frequency.exponentialRampToValueAtTime(420, now + 0.06);
-        g.gain.setValueAtTime(0.0001, now);
-        g.gain.exponentialRampToValueAtTime(0.10, now + 0.01);
-        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+        o.type = "square";
+        o.frequency.value = 680;
+        g.gain.value = 0.03;
         o.connect(g); g.connect(ctx.destination);
-        o.start(now); o.stop(now + 0.09);
-      } catch {}
+        o.start();
+        setTimeout(()=>{ o.stop(); ctx.close(); }, 55);
+      }catch{}
     }
-
-    function playWinSound(){
+    function playWin(){
       try{
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const now = ctx.currentTime;
+        const ctx = new (window.AudioContext||window.webkitAudioContext)();
         const o = ctx.createOscillator();
         const g = ctx.createGain();
-        o.type = "sine";
+        o.type="sine";
         o.connect(g); g.connect(ctx.destination);
-        g.gain.setValueAtTime(0.0001, now);
-        g.gain.exponentialRampToValueAtTime(0.18, now + 0.02);
-        const notes = [523.25, 659.25, 783.99, 1046.5];
-        notes.forEach((f, i) => o.frequency.setValueAtTime(f, now + i * 0.12));
-        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.60);
-        o.start(now); o.stop(now + 0.62);
-      } catch {}
+        const t = ctx.currentTime;
+        g.gain.setValueAtTime(0.0001,t);
+        g.gain.exponentialRampToValueAtTime(0.12,t+0.02);
+        const notes=[523.25,659.25,783.99,1046.5];
+        notes.forEach((f,i)=>o.frequency.setValueAtTime(f,t+i*0.12));
+        g.gain.exponentialRampToValueAtTime(0.0001,t+0.62);
+        o.start(t); o.stop(t+0.66);
+      }catch{}
     }
 
-    // =========================
-    // PASSWORD GATE + SPY MODE
-    // =========================
-    const pwModal = document.getElementById("pwModal");
+    // ====== URL ROLE ======
+    const qs = new URLSearchParams(location.search);
+    const pw = qs.get("pw") || "";
+    const role = (qs.get("role") || "player").toLowerCase();
+    const team = (qs.get("team") || "").toLowerCase();
+    const key  = (qs.get("key") || "");
+
+    const isSpy =
+      role === "spymaster" &&
+      ( (team==="blue" && key===BLUE_KEY) || (team==="red" && key===RED_KEY) );
+
+    const spyTeam = isSpy ? team : null;
+
+    // ====== PASSWORD GATE ======
+    const gate = document.getElementById("gate");
     const pwInput = document.getElementById("pwInput");
     const pwEnter = document.getElementById("pwEnter");
 
-    const spyModal = document.getElementById("spyModal");
-    const spyCodeInp = document.getElementById("spyCode");
-    const spyEnter = document.getElementById("spyEnter");
-    const spyCancel = document.getElementById("spyCancel");
+    function accessOk(){
+      if(pw === PASSWORD) return true;
+      if(sessionStorage.getItem("cn_pw_ok")==="1") return true;
+      return false;
+    }
 
-    const modeSpy = (getParam("mode") || "").toLowerCase() === "spy";
-    const pw = getParam("pw") || "";
-
-    function showPwModal(){
-      pwModal.style.display = "flex";
+    function showGate(){
+      gate.style.display = "flex";
       pwInput.value = "";
       pwInput.focus();
     }
-
-    function showSpyModal(){
-      spyModal.style.display = "flex";
-      spyCodeInp.value = "";
-      spyCodeInp.focus();
-    }
-
-    function hideModals(){
-      pwModal.style.display = "none";
-      spyModal.style.display = "none";
-    }
-
-    // Gate: require pw=LY10
-    if(pw !== ROOM_PASSWORD){
-      showPwModal();
+    function hideGate(){
+      gate.style.display = "none";
     }
 
     pwEnter.addEventListener("click", ()=>{
-      const v = (pwInput.value || "").trim();
-      if(v !== ROOM_PASSWORD){
+      const v = (pwInput.value||"").trim();
+      if(v === PASSWORD){
+        sessionStorage.setItem("cn_pw_ok","1");
+        hideGate();
+      }else{
         alert("Wrong password");
-        return;
       }
-      // reload with pw
-      const nqs = new URLSearchParams(location.search);
-      nqs.set("pw", ROOM_PASSWORD);
-      location.search = "?" + nqs.toString();
     });
 
-    // Spymaster code check (no code in link)
-    let isSpymaster = false;
-    let spymasterTeam = null; // "blue" | "red"
-
-    function loadSpyFromSession(){
-      const saved = sessionStorage.getItem("cn_spy_code") || "";
-      if(saved === BLUE_CODE){ isSpymaster = true; spymasterTeam = "blue"; }
-      else if(saved === RED_CODE){ isSpymaster = true; spymasterTeam = "red"; }
-      else { isSpymaster = false; spymasterTeam = null; }
+    if(!accessOk()){
+      showGate();
     }
 
-    loadSpyFromSession();
+    // ====== UI refs ======
+    document.getElementById("roomLine").textContent = "Room: " + ROOM_ID;
+    document.getElementById("roleLine").textContent = isSpy ? `Role: Spymaster (${spyTeam.toUpperCase()})` : "Role: Player/Projector";
 
-    if(pw === ROOM_PASSWORD && modeSpy && !isSpymaster){
-      showSpyModal();
+    const smPanel = document.getElementById("smPanel");
+    if(isSpy) smPanel.style.display = "block";
+
+    const btnCopyBlueSpy = document.getElementById("btnCopyBlueSpy");
+    const btnCopyRedSpy  = document.getElementById("btnCopyRedSpy");
+    if(isSpy){
+      btnCopyBlueSpy.style.display = "inline-block";
+      btnCopyRedSpy.style.display  = "inline-block";
     }
 
-    spyEnter.addEventListener("click", ()=>{
-      const c = (spyCodeInp.value || "").trim();
-      if(c !== BLUE_CODE && c !== RED_CODE){
-        alert("Invalid code");
-        return;
-      }
-      sessionStorage.setItem("cn_spy_code", c);
-      loadSpyFromSession();
-      hideModals();
-      // update UI role
-      updateRoleLine();
-    });
+    const boardEl = document.getElementById("board");
+    const clueTextEl = document.getElementById("clueText");
+    const clueNumEl = document.getElementById("clueNum");
+    const guessesLeftEl = document.getElementById("guessesLeft");
+    const blueLeftEl = document.getElementById("blueLeft");
+    const redLeftEl = document.getElementById("redLeft");
+    const neutralLeftEl = document.getElementById("neutralLeft");
+    const turnLineEl = document.getElementById("turnLine");
 
-    spyCancel.addEventListener("click", ()=>{
-      hideModals();
-      // send back to projector mode
-      const nqs = new URLSearchParams(location.search);
-      nqs.delete("mode");
-      location.search = "?" + nqs.toString();
-    });
+    const timerTextEl = document.getElementById("timerText");
+    const timerCircle = document.getElementById("timerCircle");
+    const nearBlue = document.getElementById("nearBlue");
+    const nearRed  = document.getElementById("nearRed");
 
-    // =========================
-    // START SCREEN (optional, no sound)
-    // =========================
-    const startScreen = document.getElementById("startScreen");
-    const btnStart = document.getElementById("btnStart");
+    // spymaster controls
+    const clueInput = document.getElementById("clueInput");
+    const numInput  = document.getElementById("numInput");
+    const btnSendClue = document.getElementById("btnSendClue");
+    const btnEndTurn  = document.getElementById("btnEndTurn");
 
-    // show start screen once per session (after password ok)
-    if(pw === ROOM_PASSWORD && sessionStorage.getItem("cn_started") !== "1"){
-      startScreen.style.display = "flex";
+    const timerOn = document.getElementById("timerOn");
+    const secInput = document.getElementById("secInput");
+    const btnStartTimer = document.getElementById("btnStartTimer");
+    const btnStopTimer  = document.getElementById("btnStopTimer");
+
+    const btnNew = document.getElementById("btnNew");
+    const btnCopyProjector = document.getElementById("btnCopyProjector");
+
+    // overlay
+    const overlay = document.getElementById("overlay");
+    const hero = document.getElementById("hero");
+    const endTitle = document.getElementById("endTitle");
+    const endSub = document.getElementById("endSub");
+    const endSummary = document.getElementById("endSummary");
+    const robotWrap = document.getElementById("robotWrap");
+    const endNew = document.getElementById("endNew");
+    const endClose = document.getElementById("endClose");
+
+    if(isSpy) endClose.style.display = "inline-block";
+
+    // robots (simple SVG, no external images)
+    function robotSVG(color){
+      const c = color==="blue" ? "#4EA2FF" : "#FF5A76";
+      const eye = color==="blue" ? "#BFE3FF" : "#FFD0D9";
+      const mood = color==="blue" ? "Calm mode" : "Power mode";
+      return `
+        <svg viewBox="0 0 420 420" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="${c}" stop-opacity="0.95"/>
+              <stop offset="1" stop-color="#0B1020" stop-opacity="0.85"/>
+            </linearGradient>
+            <filter id="sh" x="-40%" y="-40%" width="180%" height="180%">
+              <feDropShadow dx="0" dy="18" stdDeviation="14" flood-color="#000" flood-opacity=".55"/>
+            </filter>
+          </defs>
+
+          <g filter="url(#sh)">
+            <rect x="120" y="70" rx="26" ry="26" width="180" height="170" fill="url(#g1)" stroke="rgba(255,255,255,.22)" stroke-width="2"/>
+            <rect x="135" y="90" rx="22" ry="22" width="150" height="90" fill="rgba(0,0,0,.25)" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+            <circle cx="185" cy="135" r="14" fill="${eye}" opacity="0.95"/>
+            <circle cx="235" cy="135" r="14" fill="${eye}" opacity="0.95"/>
+            <rect x="180" y="165" rx="10" ry="10" width="60" height="12" fill="rgba(255,255,255,.75)" opacity="0.55"/>
+
+            <rect x="150" y="240" rx="22" ry="22" width="120" height="110" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+            <rect x="165" y="262" rx="12" ry="12" width="90" height="16" fill="rgba(255,255,255,.20)"/>
+            <rect x="165" y="290" rx="12" ry="12" width="90" height="16" fill="rgba(255,255,255,.16)"/>
+            <rect x="165" y="318" rx="12" ry="12" width="90" height="16" fill="rgba(255,255,255,.12)"/>
+
+            <text x="210" y="388" text-anchor="middle" fill="rgba(234,240,255,.70)" font-family="ui-sans-serif,system-ui" font-weight="900" font-size="16">${mood}</text>
+          </g>
+
+          <circle cx="210" cy="55" r="10" fill="${c}" opacity="0.9"/>
+          <rect x="206" y="30" width="8" height="22" rx="4" fill="rgba(255,255,255,.35)"/>
+        </svg>
+      `;
     }
-    btnStart.addEventListener("click", ()=>{
-      startScreen.style.display = "none";
-      sessionStorage.setItem("cn_started","1");
+
+    function baseUrl(){
+      return location.origin + location.pathname;
+    }
+
+    function linkProjector(){
+      return `${baseUrl()}?pw=${encodeURIComponent(PASSWORD)}`;
+    }
+    function linkSpy(t){
+      const k = (t==="blue") ? BLUE_KEY : RED_KEY;
+      return `${baseUrl()}?pw=${encodeURIComponent(PASSWORD)}&role=spymaster&team=${t}&key=${encodeURIComponent(k)}`;
+    }
+
+    btnCopyProjector.addEventListener("click", async ()=>{
+      await navigator.clipboard.writeText(linkProjector());
+      alert("Projector link copied ✅");
+    });
+    btnCopyBlueSpy.addEventListener("click", async ()=>{
+      await navigator.clipboard.writeText(linkSpy("blue"));
+      alert("Blue spymaster link copied ✅");
+    });
+    btnCopyRedSpy.addEventListener("click", async ()=>{
+      await navigator.clipboard.writeText(linkSpy("red"));
+      alert("Red spymaster link copied ✅");
     });
 
-    // =========================
-    // FIREBASE
-    // =========================
+    // ====== FIREBASE ======
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const roomRef = doc(db, "rooms", ROOM_ID);
 
-    // =========================
-    // GAME STATE
-    // =========================
-    function createNewGameState(){
+    function makeNewState(){
       const startingTeam = Math.random() < 0.5 ? "blue" : "red";
-      const blueCount = startingTeam === "blue" ? 9 : 8;
-      const redCount  = startingTeam === "red"  ? 9 : 8;
-      const assassinCount = 1;
-      const neutralCount = 25 - blueCount - redCount - assassinCount;
+      const blueCount = startingTeam==="blue" ? 9 : 8;
+      const redCount  = startingTeam==="red"  ? 9 : 8;
+      const neutralCount = 25 - blueCount - redCount - 1;
 
-      const colors = [
+      const colors = shuffle([
         ...Array(blueCount).fill("blue"),
         ...Array(redCount).fill("red"),
         ...Array(neutralCount).fill("neutral"),
-        ...Array(assassinCount).fill("assassin"),
-      ];
+        "assassin"
+      ]);
 
       const words = shuffle(WORDS);
-      const shuffledColors = shuffle(colors);
-
       const mapping = {};
       for(let i=0;i<25;i++){
-        mapping[words[i]] = { team: shuffledColors[i], revealed: false, icon: TECH_ICONS[i % TECH_ICONS.length] };
+        mapping[words[i]] = { team: colors[i], revealed:false };
       }
 
       return {
@@ -1119,149 +928,49 @@
         mapping,
         startingTeam,
         activeTeam: startingTeam,
-        phase: "clue", // clue | guess
+        phase: "clue",          // "clue" or "guess"
         clueText: "—",
         clueNumber: "—",
         guessesLeft: 0,
 
-        // result
-        status: "playing", // playing | win | lose
-        winnerTeam: null, // blue | red
-        loserTeam: null,  // blue | red
-        assassinTriggered: false,
-
-        // timer
         timerEnabled: false,
         timerSeconds: 60,
-        timerEndsAt: null,
         timerRunning: false,
+        timerEndsAt: null,
 
-        // stats
-        startedAtMs: Date.now(),
-        endedAtMs: null,
-        roundCount: 0,
-        moveCount: 0,
-
-        updatedAt: serverTimestamp(),
+        winner: null,           // "blue" | "red" | null
+        loser: null,            // "blue" | "red" | null (assassin)
+        updatedAt: serverTimestamp()
       };
     }
 
     async function ensureRoom(){
       const snap = await getDoc(roomRef);
       if(!snap.exists()){
-        await setDoc(roomRef, createNewGameState());
+        await setDoc(roomRef, makeNewState());
       }
     }
 
-    function computeCounts(mapping){
-      let blueLeft=0, redLeft=0, neutralLeft=0;
+    btnNew.addEventListener("click", async ()=>{
+      await setDoc(roomRef, makeNewState());
+    });
+    endNew.addEventListener("click", async ()=>{
+      await setDoc(roomRef, makeNewState());
+      hideOverlay();
+    });
+
+    function counts(mapping){
+      let blue=0, red=0, neutral=0;
       for(const w in mapping){
         const c = mapping[w];
-        if(!c.revealed && c.team==="blue") blueLeft++;
-        if(!c.revealed && c.team==="red") redLeft++;
-        if(!c.revealed && c.team==="neutral") neutralLeft++;
+        if(!c.revealed && c.team==="blue") blue++;
+        if(!c.revealed && c.team==="red") red++;
+        if(!c.revealed && c.team==="neutral") neutral++;
       }
-      return {blueLeft, redLeft, neutralLeft};
+      return {blue, red, neutral};
     }
 
-    // =========================
-    // UI HOOKS
-    // =========================
-    const roomLine = document.getElementById("roomLine");
-    const roleLine = document.getElementById("roleLine");
-    const turnLine = document.getElementById("turnLine");
-
-    const clueTextEl = document.getElementById("clueText");
-    const clueNumEl = document.getElementById("clueNum");
-    const guessesLeftEl = document.getElementById("guessesLeft");
-
-    const blueLeftEl = document.getElementById("blueLeft");
-    const redLeftEl = document.getElementById("redLeft");
-    const neutralLeftEl = document.getElementById("neutralLeft");
-
-    const timerTextEl = document.getElementById("timerText");
-    const timerMiniEl = document.getElementById("timerMini");
-    const timerArc = document.getElementById("timerArc");
-
-    const spymasterPanel = document.getElementById("spymasterPanel");
-    const smTitle = document.getElementById("smTitle");
-
-    const clueInput = document.getElementById("clueInput");
-    const numInput = document.getElementById("numInput");
-    const btnSendClue = document.getElementById("btnSendClue");
-    const btnEndTurn = document.getElementById("btnEndTurn");
-    const btnClearClue = document.getElementById("btnClearClue");
-
-    const timerEnabledChk = document.getElementById("timerEnabled");
-    const timerSecondsInp = document.getElementById("timerSeconds");
-    const btnStartTimer = document.getElementById("btnStartTimer");
-    const btnStopTimer = document.getElementById("btnStopTimer");
-
-    const board = document.getElementById("board");
-    const aura = document.getElementById("aura");
-    const nearBanner = document.getElementById("nearBanner");
-
-    const btnNew = document.getElementById("btnNew");
-    const btnProjector = document.getElementById("btnProjector");
-    const btnSpyLink = document.getElementById("btnSpyLink");
-
-    // Result overlay
-    const resultOverlay = document.getElementById("resultOverlay");
-    const overlayLeft = document.getElementById("overlayLeft");
-    const overlayRight = document.getElementById("overlayRight");
-    const overlayTitle = document.getElementById("overlayTitle");
-    const overlaySub = document.getElementById("overlaySub");
-    const stRounds = document.getElementById("stRounds");
-    const stMoves = document.getElementById("stMoves");
-    const stTime = document.getElementById("stTime");
-    const stAssassin = document.getElementById("stAssassin");
-    const btnOverlayNew = document.getElementById("btnOverlayNew");
-    const btnOverlayClose = document.getElementById("btnOverlayClose");
-
-    function updateRoleLine(){
-      roomLine.textContent = "Room: " + ROOM_ID;
-      if(isSpymaster){
-        roleLine.textContent = `Role: Spymaster (${spymasterTeam.toUpperCase()})`;
-        spymasterPanel.style.display = "block";
-        btnOverlayClose.style.display = "inline-block";
-      } else {
-        roleLine.textContent = "Role: Player";
-        spymasterPanel.style.display = "none";
-        btnOverlayClose.style.display = "none";
-      }
-    }
-    updateRoleLine();
-
-    function baseUrl(){
-      // keep same path, just include pw
-      return location.origin + location.pathname + "?pw=" + encodeURIComponent(ROOM_PASSWORD);
-    }
-
-    btnProjector.addEventListener("click", async ()=>{
-      const url = baseUrl();
-      await navigator.clipboard.writeText(url);
-      alert("Projector link copied ✅");
-    });
-
-    btnSpyLink.addEventListener("click", async ()=>{
-      const url = baseUrl() + "&mode=spy";
-      await navigator.clipboard.writeText(url);
-      alert("Spymaster link copied ✅");
-    });
-
-    // Cursor glow (mouse only)
-    const cursorGlow = document.getElementById("cursorGlow");
-    window.addEventListener("mousemove", (e)=>{
-      cursorGlow.style.transform = `translate(${e.clientX-12}px, ${e.clientY-12}px)`;
-    });
-
-    // =========================
-    // GAME LOGIC
-    // =========================
-    let latestState = null;
-    let timerInterval = null;
-
-    async function endTurnRemote(cur){
+    async function endTurn(cur){
       const next = otherTeam(cur.activeTeam);
       await updateDoc(roomRef, {
         activeTeam: next,
@@ -1275,502 +984,423 @@
       });
     }
 
-    function setAura(team){
-      aura.className = "aura " + (team === "blue" ? "blue" : "red");
-    }
+    async function reveal(word){
+      const snap = await getDoc(roomRef);
+      if(!snap.exists()) return;
+      const cur = snap.data();
+      if(cur.winner || cur.loser) return;
 
-    function updateNearVictory(counts){
-      // show if any team is at 1 word left (dramatic mode)
-      if(counts.blueLeft === 1 && counts.redLeft !== 0){
-        nearBanner.style.display = "block";
-        nearBanner.className = "banner blue";
-        nearBanner.textContent = "⚠ ONE WORD LEFT! (BLUE)";
-        // add pulse on frame
-        document.getElementById("hudFrame").classList.add("pulseBlue");
-        document.getElementById("hudFrame").classList.remove("pulseRed");
+      const mapping = cur.mapping || {};
+      const cell = mapping[word];
+      if(!cell || cell.revealed) return;
+
+      cell.revealed = true;
+
+      // assassin = instant loss for active team
+      if(cell.team === "assassin"){
+        await updateDoc(roomRef, {
+          mapping,
+          loser: cur.activeTeam,
+          winner: otherTeam(cur.activeTeam),
+          timerRunning: false,
+          timerEndsAt: null,
+          updatedAt: serverTimestamp()
+        });
         return;
       }
-      if(counts.redLeft === 1 && counts.blueLeft !== 0){
-        nearBanner.style.display = "block";
-        nearBanner.className = "banner red";
-        nearBanner.textContent = "⚠ ONE WORD LEFT! (RED)";
-        document.getElementById("hudFrame").classList.add("pulseRed");
-        document.getElementById("hudFrame").classList.remove("pulseBlue");
+
+      // check win after reveal
+      const after = counts(mapping);
+      if(after.blue === 0){
+        await updateDoc(roomRef, { mapping, winner:"blue", updatedAt: serverTimestamp() });
         return;
       }
-      nearBanner.style.display = "none";
-      document.getElementById("hudFrame").classList.remove("pulseBlue","pulseRed");
+      if(after.red === 0){
+        await updateDoc(roomRef, { mapping, winner:"red", updatedAt: serverTimestamp() });
+        return;
+      }
+
+      // if in guess phase: apply rules
+      if(cur.phase === "guess"){
+        if(cell.team === cur.activeTeam){
+          const newLeft = Math.max(0, (cur.guessesLeft||0) - 1);
+          await updateDoc(roomRef, { mapping, guessesLeft: newLeft, updatedAt: serverTimestamp() });
+
+          // if guesses finished -> auto end turn
+          if(newLeft <= 0){
+            // re-read is optional; using cur is fine
+            await endTurn({ ...cur, guessesLeft: newLeft, mapping });
+          }
+        } else {
+          // wrong team OR neutral -> end turn immediately
+          await updateDoc(roomRef, { mapping, updatedAt: serverTimestamp() });
+          await endTurn(cur);
+        }
+      } else {
+        // clue phase: allow reveal (if someone clicked early) but do not change guesses
+        await updateDoc(roomRef, { mapping, updatedAt: serverTimestamp() });
+      }
     }
 
-    function renderTimer(state){
+    // ====== Rendering without heavy re-build ======
+    let cardsBuilt = false;
+    const cardEls = new Map(); // word -> element
+    let lastRevealed = {};     // word -> bool
+    let lastState = null;
+
+    function setNearVictory(teamOn){
+      nearBlue.classList.toggle("on", teamOn==="blue");
+      nearRed.classList.toggle("on", teamOn==="red");
+    }
+
+    function setTimerUI(state){
       if(!state.timerEnabled){
         timerTextEl.textContent = "Timer OFF";
-        timerMiniEl.textContent = "—";
-        timerArc.setAttribute("stroke-dashoffset", "113.097");
-        timerArc.setAttribute("stroke", "rgba(255,255,255,.25)");
+        timerCircle.textContent = "OFF";
+        timerCircle.style.background = "conic-gradient(rgba(255,255,255,.15) 0deg, rgba(255,255,255,.10) 0deg)";
         return;
       }
       if(!state.timerRunning || !state.timerEndsAt){
         timerTextEl.textContent = "Timer READY";
-        timerMiniEl.textContent = "—";
-        timerArc.setAttribute("stroke-dashoffset", "113.097");
-        timerArc.setAttribute("stroke", "rgba(255,255,255,.25)");
+        timerCircle.textContent = "—";
+        timerCircle.style.background = "conic-gradient(rgba(78,162,255,.45) 360deg, rgba(255,255,255,.10) 0deg)";
         return;
       }
+      const ms = state.timerEndsAt - Date.now();
+      const sec = Math.max(0, Math.ceil(ms/1000));
+      timerTextEl.textContent = "Time: " + sec + "s";
+      timerCircle.textContent = String(sec);
 
-      const total = Math.max(10, Number(state.timerSeconds||60));
-      const leftMs = state.timerEndsAt - Date.now();
-      const leftSec = clamp(Math.ceil(leftMs/1000), 0, total);
-      timerTextEl.textContent = "Time: " + leftSec + "s";
-      timerMiniEl.textContent = String(leftSec);
+      const total = Math.max(10, Math.min(600, Number(state.timerSeconds||60)));
+      const frac = Math.max(0, Math.min(1, sec / total));
+      const deg = Math.round(frac * 360);
 
-      const circ = 113.097; // 2*pi*r (r=18)
-      const progress = clamp(leftSec / total, 0, 1);
-      const dash = circ * (1 - progress);
-      timerArc.setAttribute("stroke-dashoffset", String(dash));
+      // green -> yellow -> red
+      let col = "rgba(78,162,255,.65)";
+      if(frac <= 0.35) col = "rgba(255,90,118,.70)";
+      else if(frac <= 0.65) col = "rgba(255,210,90,.65)";
 
-      // color
-      let col = "rgba(34,197,94,.95)"; // green
-      if(progress <= 0.2) col = "rgba(239,68,68,.95)"; // red
-      else if(progress <= 0.5) col = "rgba(234,179,8,.95)"; // yellow
-      timerArc.setAttribute("stroke", col);
+      timerCircle.style.background = `conic-gradient(${col} ${deg}deg, rgba(255,255,255,.10) 0deg)`;
+    }
 
-      // auto end turn only by active spymaster (safe)
-      if(leftSec <= 0 && isSpymaster && spymasterTeam === state.activeTeam && state.phase === "guess" && state.timerRunning){
-        clearInterval(timerInterval);
-        timerInterval = null;
-        getDoc(roomRef).then(snap=>{
-          if(!snap.exists()) return;
-          const cur = snap.data();
-          if(cur.status !== "playing") return;
-          if(cur.phase === "guess" && cur.timerRunning){
-            endTurnRemote(cur);
+    let timerTick = null;
+    function startTimerTicker(){
+      if(timerTick) clearInterval(timerTick);
+      timerTick = setInterval(()=>{
+        if(lastState) setTimerUI(lastState);
+        // if timer ends: let spymaster auto-end turn (only once)
+        if(lastState && lastState.timerEnabled && lastState.timerRunning && lastState.timerEndsAt){
+          const sec = Math.max(0, Math.ceil((lastState.timerEndsAt - Date.now())/1000));
+          if(sec <= 0){
+            // stop locally
+            clearInterval(timerTick); timerTick=null;
+            // end turn (anyone can write, rules allow; but usually spymaster is controlling)
+            getDoc(roomRef).then(s=>{
+              if(!s.exists()) return;
+              const cur = s.data();
+              if(cur.winner || cur.loser) return;
+              if(cur.phase === "guess" && cur.timerRunning){
+                endTurn(cur);
+              }
+            });
           }
-        });
-      }
-    }
-
-    function showResultOverlay(state){
-      // Build overlay style + character
-      resultOverlay.style.display = "flex";
-
-      overlayRight.innerHTML = "";
-      overlayLeft.classList.remove("glitch");
-
-      const duration = state.endedAtMs ? (state.endedAtMs - (state.startedAtMs || state.endedAtMs)) : 0;
-
-      stRounds.textContent = String(state.roundCount ?? 0);
-      stMoves.textContent = String(state.moveCount ?? 0);
-      stTime.textContent = msToClock(duration);
-      stAssassin.textContent = state.assassinTriggered ? "YES" : "NO";
-
-      // WIN
-      if(state.status === "win"){
-        const w = state.winnerTeam;
-        if(w === "blue"){
-          overlayLeft.style.background = "linear-gradient(180deg, rgba(59,130,246,.92), rgba(17,24,39,.72))";
-          overlayTitle.textContent = "BLUE TEAM WINS";
-          overlaySub.textContent = "Excellent Support!";
-          overlayRight.innerHTML = document.querySelector(".char.blue").outerHTML;
-        }else{
-          overlayLeft.style.background = "linear-gradient(180deg, rgba(239,68,68,.90), rgba(17,24,39,.72))";
-          overlayTitle.textContent = "RED TEAM WINS";
-          overlaySub.textContent = "System Secured!";
-          overlayRight.innerHTML = document.querySelector(".char.red").outerHTML;
         }
-        playWinSound();
-        return;
-      }
-
-      // LOSE (assassin)
-      overlayLeft.style.background = "linear-gradient(180deg, rgba(0,0,0,.92), rgba(17,24,39,.72))";
-      overlayLeft.classList.add("glitch");
-      overlayTitle.textContent = "SYSTEM FAILURE";
-      overlaySub.textContent = (state.loserTeam ? state.loserTeam.toUpperCase() : "A TEAM") + " LOST";
-      // show loser character (dim)
-      if(state.loserTeam === "blue") overlayRight.innerHTML = document.querySelector(".char.blue").outerHTML;
-      else if(state.loserTeam === "red") overlayRight.innerHTML = document.querySelector(".char.red").outerHTML;
-      else overlayRight.innerHTML = "";
+      }, 1000); // 1s to avoid lag / flashing
     }
 
-    function hideResultOverlay(){
-      resultOverlay.style.display = "none";
-    }
+    function buildBoardOnce(state){
+      boardEl.innerHTML = "";
+      cardEls.clear();
+      lastRevealed = {};
 
-    async function finishWin(team, mapping, cur){
-      await updateDoc(roomRef, {
-        mapping,
-        status: "win",
-        winnerTeam: team,
-        loserTeam: null,
-        endedAtMs: Date.now(),
-        updatedAt: serverTimestamp()
-      });
-    }
-
-    async function finishLose(loserTeam, mapping){
-      await updateDoc(roomRef, {
-        mapping,
-        status: "lose",
-        winnerTeam: null,
-        loserTeam,
-        assassinTriggered: true,
-        endedAtMs: Date.now(),
-        phase: "clue",
-        guessesLeft: 0,
-        timerRunning: false,
-        timerEndsAt: null,
-        updatedAt: serverTimestamp()
-      });
-    }
-
-    async function revealWord(word){
-      const snap = await getDoc(roomRef);
-      if(!snap.exists()) return;
-      const cur = snap.data();
-      if(cur.status !== "playing") return;
-
-      const mapping = cur.mapping || {};
-      if(!mapping[word] || mapping[word].revealed) return;
-
-      mapping[word].revealed = true;
-      playClick();
-
-      const revealedTeam = mapping[word].team; // blue|red|neutral|assassin
-      const active = cur.activeTeam;
-
-      // increment move count
-      const newMoveCount = (cur.moveCount || 0) + 1;
-
-      // Assassin -> active loses
-      if(revealedTeam === "assassin"){
-        await updateDoc(roomRef, { moveCount: newMoveCount, updatedAt: serverTimestamp() });
-        await finishLose(active, mapping);
-        return;
-      }
-
-      // check win condition
-      const countsAfter = computeCounts(mapping);
-      if(countsAfter.blueLeft === 0){
-        await updateDoc(roomRef, { moveCount: newMoveCount, updatedAt: serverTimestamp() });
-        await finishWin("blue", mapping, cur);
-        return;
-      }
-      if(countsAfter.redLeft === 0){
-        await updateDoc(roomRef, { moveCount: newMoveCount, updatedAt: serverTimestamp() });
-        await finishWin("red", mapping, cur);
-        return;
-      }
-
-      // Guess logic
-      if(cur.phase === "guess"){
-        // correct
-        if(revealedTeam === active){
-          const newGuesses = Math.max(0, (cur.guessesLeft || 0) - 1);
-
-          await updateDoc(roomRef, {
-            mapping,
-            guessesLeft: newGuesses,
-            moveCount: newMoveCount,
-            updatedAt: serverTimestamp()
-          });
-
-          if(newGuesses <= 0){
-            // auto end turn when guesses end
-            await endTurnRemote(cur);
-          }
-          return;
-        }
-
-        // wrong (neutral or other team) => end immediately
-        await updateDoc(roomRef, {
-          mapping,
-          moveCount: newMoveCount,
-          updatedAt: serverTimestamp()
-        });
-        await endTurnRemote(cur);
-        return;
-      }
-
-      // phase clue: reveal only (no turn change)
-      await updateDoc(roomRef, {
-        mapping,
-        moveCount: newMoveCount,
-        updatedAt: serverTimestamp()
-      });
-    }
-
-    // =========================
-    // SPYMASTER CONTROLS
-    // =========================
-    btnSendClue?.addEventListener("click", async ()=>{
-      if(!isSpymaster) return;
-      if(!latestState) return;
-      if(latestState.status !== "playing") return;
-      if(latestState.phase !== "clue") return;
-      if(spymasterTeam !== latestState.activeTeam) return;
-
-      const clue = (clueInput.value || "").trim().toUpperCase();
-      const n = Number((numInput.value || "").trim());
-
-      if(!clue || !Number.isFinite(n) || n < 0 || n > 9){
-        alert("Enter clue + number (0 to 9)");
-        return;
-      }
-
-      const nextRound = (latestState.roundCount || 0) + 1;
-
-      const update = {
-        clueText: clue,
-        clueNumber: String(n),
-        guessesLeft: n,
-        phase: "guess",
-        roundCount: nextRound,
-        updatedAt: serverTimestamp()
-      };
-
-      // prepare timer (do not auto start unless user clicks Start)
-      if(latestState.timerEnabled){
-        update.timerSeconds = Number(latestState.timerSeconds || 60);
-        update.timerRunning = false;
-        update.timerEndsAt = null;
-      }
-
-      await updateDoc(roomRef, update);
-
-      clueInput.value = "";
-      numInput.value = "";
-    });
-
-    btnEndTurn?.addEventListener("click", async ()=>{
-      if(!isSpymaster) return;
-      const snap = await getDoc(roomRef);
-      if(!snap.exists()) return;
-      const cur = snap.data();
-      if(cur.status !== "playing") return;
-      if(cur.phase !== "guess") return;
-      if(spymasterTeam !== cur.activeTeam) return;
-      await endTurnRemote(cur);
-    });
-
-    btnClearClue?.addEventListener("click", async ()=>{
-      if(!isSpymaster) return;
-      await updateDoc(roomRef, { clueText: "—", clueNumber: "—", updatedAt: serverTimestamp() });
-      clueInput.value = "";
-      numInput.value = "";
-    });
-
-    timerEnabledChk?.addEventListener("change", async ()=>{
-      if(!isSpymaster) return;
-      const enabled = !!timerEnabledChk.checked;
-      const seconds = Number(timerSecondsInp.value || 60);
-      await updateDoc(roomRef, {
-        timerEnabled: enabled,
-        timerSeconds: Number.isFinite(seconds) ? clamp(seconds, 10, 600) : 60,
-        timerRunning: false,
-        timerEndsAt: null,
-        updatedAt: serverTimestamp()
-      });
-    });
-
-    btnStartTimer?.addEventListener("click", async ()=>{
-      if(!isSpymaster) return;
-      const snap = await getDoc(roomRef);
-      if(!snap.exists()) return;
-      const cur = snap.data();
-      if(cur.status !== "playing") return;
-      if(cur.phase !== "guess") return;
-      if(spymasterTeam !== cur.activeTeam) return;
-      if(!cur.timerEnabled) return;
-
-      const seconds = clamp(Number(cur.timerSeconds || 60), 10, 600);
-      const endsAt = Date.now() + seconds*1000;
-
-      await updateDoc(roomRef, {
-        timerRunning: true,
-        timerEndsAt: endsAt,
-        updatedAt: serverTimestamp()
-      });
-    });
-
-    btnStopTimer?.addEventListener("click", async ()=>{
-      if(!isSpymaster) return;
-      const snap = await getDoc(roomRef);
-      if(!snap.exists()) return;
-      const cur = snap.data();
-      if(spymasterTeam !== cur.activeTeam) return;
-      await updateDoc(roomRef, {
-        timerRunning: false,
-        timerEndsAt: null,
-        updatedAt: serverTimestamp()
-      });
-    });
-
-    // New Game
-    btnNew.addEventListener("click", async ()=>{
-      await setDoc(roomRef, createNewGameState());
-      hideResultOverlay();
-    });
-
-    // Overlay controls (spymaster only close)
-    btnOverlayNew.addEventListener("click", async ()=>{
-      await setDoc(roomRef, createNewGameState());
-      hideResultOverlay();
-    });
-
-    btnOverlayClose.addEventListener("click", ()=>{
-      if(!isSpymaster) return;
-      hideResultOverlay();
-    });
-
-    // ESC close overlay for spymaster
-    document.addEventListener("keydown", (e)=>{
-      if(e.key === "Escape" && isSpymaster && resultOverlay.style.display === "flex"){
-        hideResultOverlay();
-      }
-    });
-
-    // Click anywhere to close overlay (spymaster only)
-    resultOverlay.addEventListener("click", (e)=>{
-      if(!isSpymaster) return;
-      // close when clicking outside the box or even inside (as requested: mouse click)
-      hideResultOverlay();
-    });
-    document.getElementById("overlayBox").addEventListener("click", (e)=> e.stopPropagation());
-
-    // =========================
-    // RENDER
-    // =========================
-    function render(state){
-      latestState = state;
-
-      // Aura by active team
-      setAura(state.activeTeam || "blue");
-
-      // Turn label
-      turnLine.textContent = `Turn: ${(state.activeTeam||"—").toUpperCase()} • ${(state.phase||"—").toUpperCase()}`;
-
-      // clue
-      clueTextEl.textContent = state.clueText || "—";
-      clueNumEl.textContent = state.clueNumber || "—";
-      guessesLeftEl.textContent = String(state.guessesLeft ?? "—");
-
-      // counts
-      const counts = computeCounts(state.mapping || {});
-      blueLeftEl.textContent = counts.blueLeft;
-      redLeftEl.textContent = counts.redLeft;
-      neutralLeftEl.textContent = counts.neutralLeft;
-
-      updateNearVictory(counts);
-
-      // Spymaster panel controls
-      if(isSpymaster){
-        const isMyTurn = (spymasterTeam === state.activeTeam);
-        smTitle.textContent =
-          `Spymaster Panel — You: ${spymasterTeam.toUpperCase()} — Active: ${state.activeTeam.toUpperCase()} — Start: ${state.startingTeam.toUpperCase()}`;
-
-        btnSendClue.disabled = !(isMyTurn && state.phase === "clue" && state.status === "playing");
-        btnEndTurn.disabled  = !(isMyTurn && state.phase === "guess" && state.status === "playing");
-
-        timerEnabledChk.checked = !!state.timerEnabled;
-        timerSecondsInp.value = state.timerSeconds ?? 60;
-
-        btnStartTimer.disabled = !(isMyTurn && state.phase === "guess" && state.timerEnabled && !state.timerRunning && state.status === "playing");
-        btnStopTimer.disabled  = !(isMyTurn && state.timerRunning && state.status === "playing");
-      }
-
-      // Timer
-      if(timerInterval) clearInterval(timerInterval);
-      renderTimer(state);
-      timerInterval = setInterval(()=> renderTimer(latestState), 250);
-
-      // Board
-      board.innerHTML = "";
-      const wordsOrder = state.words || Object.keys(state.mapping || {});
-
-      for(const w of wordsOrder){
-        const info = state.mapping?.[w];
-        if(!info) continue;
-
-        const card = document.createElement("button");
-        card.type = "button";
-        card.className = "card";
-
-        const inner = document.createElement("div");
-        inner.className = "cardInner";
-
-        const front = document.createElement("div");
-        front.className = "face front";
-
-        const back = document.createElement("div");
-        back.className = "face back";
+      for(const w of state.words){
+        const cell = state.mapping[w];
+        const btn = document.createElement("div");
+        btn.className = "card";
+        btn.tabIndex = 0;
 
         const icon = document.createElement("div");
-        icon.className = "tinyIcon";
-        icon.textContent = info.icon || "⚙️";
+        icon.className = "icon";
+        icon.textContent = ICONS[w] || "⚙️";
 
         const word = document.createElement("div");
         word.className = "word";
         word.textContent = w;
 
-        const revealed = !!info.revealed;
-        const team = info.team; // blue red neutral assassin
+        btn.appendChild(icon);
+        btn.appendChild(word);
 
-        // Front (hidden or hinted)
-        if(isSpymaster){
-          front.classList.add("hinted");
-          front.classList.add(team === "assassin" ? "black" : team);
-        } else {
-          front.classList.add("hidden");
-        }
-
-        // Back (revealed color)
-        if(revealed){
-          card.classList.add("reveal");
-          back.classList.add(team === "assassin" ? "black" : team);
-        } else {
-          back.classList.add("neutral"); // back exists but will be hidden until flip
-        }
-
-        front.appendChild(icon);
-        front.appendChild(word);
-
-        // back text (same word + small status)
-        const backWord = document.createElement("div");
-        backWord.className = "word";
-        backWord.textContent = w;
-        back.appendChild(backWord);
-
-        inner.appendChild(front);
-        inner.appendChild(back);
-        card.appendChild(inner);
-
-        card.addEventListener("click", async ()=>{
-          if(latestState?.status !== "playing") return;
-          await revealWord(w);
+        btn.addEventListener("click", ()=>{
+          if(!accessOk()) return;
+          if(lastState?.winner || lastState?.loser) return;
+          playClick();
+          reveal(w);
         });
 
-        board.appendChild(card);
-      }
+        boardEl.appendChild(btn);
+        cardEls.set(w, btn);
+        lastRevealed[w] = false;
 
-      // Result overlay: only when game ends
-      if(state.status === "playing"){
-        hideResultOverlay();
-      } else {
-        showResultOverlay(state);
+        // initial spymaster hint border
+        if(isSpy && cell){
+          btn.classList.add("hint");
+          btn.classList.add(cell.team); // blue/red/neutral/assassin
+        }
+      }
+      cardsBuilt = true;
+    }
+
+    function updateCards(state){
+      for(const w of state.words){
+        const cell = state.mapping[w];
+        const el = cardEls.get(w);
+        if(!cell || !el) continue;
+
+        // spymaster hint border
+        if(isSpy){
+          el.classList.add("hint");
+          el.classList.toggle("blue", cell.team==="blue");
+          el.classList.toggle("red", cell.team==="red");
+          el.classList.toggle("neutral", cell.team==="neutral");
+          el.classList.toggle("assassin", cell.team==="assassin");
+        }else{
+          el.classList.remove("hint","blue","red","neutral","assassin");
+        }
+
+        // revealed state (update only if changed)
+        const was = !!lastRevealed[w];
+        const now = !!cell.revealed;
+        if(was !== now){
+          el.classList.toggle("revealed", now);
+          el.classList.toggle("blue", now && cell.team==="blue");
+          el.classList.toggle("red", now && cell.team==="red");
+          el.classList.toggle("neutral", now && cell.team==="neutral");
+          el.classList.toggle("assassin", now && cell.team==="assassin");
+          lastRevealed[w] = now;
+        } else {
+          // keep classes correct (just in case)
+          if(now){
+            el.classList.toggle("blue", cell.team==="blue");
+            el.classList.toggle("red", cell.team==="red");
+            el.classList.toggle("neutral", cell.team==="neutral");
+            el.classList.toggle("assassin", cell.team==="assassin");
+            el.classList.add("revealed");
+          }else{
+            el.classList.remove("revealed");
+          }
+        }
       }
     }
 
-    // =========================
-    // START
-    // =========================
-    await ensureRoom();
+    function showOverlay(type, state){
+      overlay.style.display = "flex";
 
+      if(type==="winBlue"){
+        hero.className = "hero blue";
+        endTitle.textContent = "BLUE TEAM WINS";
+        endSub.textContent = "All blue keywords found.";
+        robotWrap.innerHTML = robotSVG("blue");
+      } else if(type==="winRed"){
+        hero.className = "hero red";
+        endTitle.textContent = "RED TEAM WINS";
+        endSub.textContent = "All red keywords found.";
+        robotWrap.innerHTML = robotSVG("red");
+      } else if(type==="loseBlue"){
+        hero.className = "hero black";
+        endTitle.textContent = "BLUE TEAM LOST";
+        endSub.textContent = "Assassin card was revealed.";
+        robotWrap.innerHTML = robotSVG("red");
+      } else if(type==="loseRed"){
+        hero.className = "hero black";
+        endTitle.textContent = "RED TEAM LOST";
+        endSub.textContent = "Assassin card was revealed.";
+        robotWrap.innerHTML = robotSVG("blue");
+      }
+
+      const c = counts(state.mapping);
+      endSummary.textContent = `Remaining — Blue: ${c.blue} | Red: ${c.red} | Neutral: ${c.neutral}`;
+
+      if(isSpy){
+        endClose.style.display = "inline-block";
+      }else{
+        endClose.style.display = "none";
+      }
+    }
+
+    function hideOverlay(){
+      overlay.style.display = "none";
+    }
+
+    endClose.addEventListener("click", ()=>{
+      if(!isSpy) return;
+      hideOverlay();
+    });
+
+    window.addEventListener("keydown", (e)=>{
+      if(e.key === "Escape" && overlay.style.display === "flex"){
+        if(isSpy) hideOverlay();
+      }
+    });
+
+    function render(state){
+      lastState = state;
+
+      // header and clue info
+      turnLineEl.textContent = `Turn: ${String(state.activeTeam||"—").toUpperCase()} • ${String(state.phase||"—").toUpperCase()}`;
+      clueTextEl.textContent = state.clueText || "—";
+      clueNumEl.textContent  = state.clueNumber || "—";
+      guessesLeftEl.textContent = String(state.guessesLeft ?? "—");
+
+      const c = counts(state.mapping || {});
+      blueLeftEl.textContent = c.blue;
+      redLeftEl.textContent = c.red;
+      neutralLeftEl.textContent = c.neutral;
+
+      // near victory mode (only when 1 left)
+      if(c.blue === 1) setNearVictory("blue");
+      else if(c.red === 1) setNearVictory("red");
+      else setNearVictory(null);
+
+      // timer UI
+      setTimerUI(state);
+      startTimerTicker();
+
+      // spymaster enable/disable
+      if(isSpy){
+        document.getElementById("smTeamPill").textContent = `YOU: ${spyTeam.toUpperCase()} • ACTIVE: ${state.activeTeam.toUpperCase()}`;
+        const myTurn = (spyTeam === state.activeTeam);
+
+        btnSendClue.disabled = !(myTurn && state.phase==="clue" && !state.winner && !state.loser);
+        btnEndTurn.disabled  = !(myTurn && state.phase==="guess" && !state.winner && !state.loser);
+
+        timerOn.checked = !!state.timerEnabled;
+        secInput.value = state.timerSeconds ?? 60;
+
+        btnStartTimer.disabled = !(myTurn && state.phase==="guess" && state.timerEnabled && !state.timerRunning && !state.winner && !state.loser);
+        btnStopTimer.disabled  = !(myTurn && state.timerRunning && !state.winner && !state.loser);
+      }
+
+      // build board once
+      if(!cardsBuilt){
+        buildBoardOnce(state);
+      }
+      updateCards(state);
+
+      // overlay logic
+      if(state.winner){
+        if(state.winner === "blue"){
+          if(overlay.style.display!=="flex"){ playWin(); }
+          showOverlay("winBlue", state);
+        }else if(state.winner === "red"){
+          if(overlay.style.display!=="flex"){ playWin(); }
+          showOverlay("winRed", state);
+        }
+      } else if(state.loser){
+        // loser is the team who clicked assassin
+        if(state.loser === "blue"){
+          showOverlay("loseBlue", state);
+        } else if(state.loser === "red"){
+          showOverlay("loseRed", state);
+        }
+      } else {
+        // keep closed if not finished
+        if(overlay.style.display==="flex") hideOverlay();
+      }
+    }
+
+    // ====== Spymaster actions ======
+    btnSendClue.addEventListener("click", async ()=>{
+      if(!isSpy) return;
+      const snap = await getDoc(roomRef);
+      if(!snap.exists()) return;
+      const cur = snap.data();
+      if(cur.winner || cur.loser) return;
+      if(cur.phase !== "clue") return;
+      if(cur.activeTeam !== spyTeam) return;
+
+      const clue = (clueInput.value||"").trim().toUpperCase();
+      const n = Number((numInput.value||"").trim());
+      if(!clue || !Number.isFinite(n) || n<0 || n>9){
+        alert("Enter a clue + number (0-9)");
+        return;
+      }
+
+      await updateDoc(roomRef,{
+        clueText: clue,
+        clueNumber: String(n),
+        guessesLeft: n,
+        phase: "guess",
+        timerRunning: false,
+        timerEndsAt: null,
+        updatedAt: serverTimestamp()
+      });
+
+      clueInput.value = "";
+      numInput.value = "";
+    });
+
+    btnEndTurn.addEventListener("click", async ()=>{
+      if(!isSpy) return;
+      const snap = await getDoc(roomRef);
+      if(!snap.exists()) return;
+      const cur = snap.data();
+      if(cur.winner || cur.loser) return;
+      if(cur.phase !== "guess") return;
+      if(cur.activeTeam !== spyTeam) return;
+      await endTurn(cur);
+    });
+
+    timerOn.addEventListener("change", async ()=>{
+      if(!isSpy) return;
+      const enabled = !!timerOn.checked;
+      const seconds = Math.max(10, Math.min(600, Number(secInput.value||60)));
+      await updateDoc(roomRef,{
+        timerEnabled: enabled,
+        timerSeconds: Number.isFinite(seconds) ? seconds : 60,
+        updatedAt: serverTimestamp()
+      });
+    });
+
+    btnStartTimer.addEventListener("click", async ()=>{
+      if(!isSpy) return;
+      const snap = await getDoc(roomRef);
+      if(!snap.exists()) return;
+      const cur = snap.data();
+      if(cur.winner || cur.loser) return;
+      if(cur.phase !== "guess") return;
+      if(cur.activeTeam !== spyTeam) return;
+      if(!cur.timerEnabled) return;
+
+      const seconds = Math.max(10, Math.min(600, Number(cur.timerSeconds||60)));
+      const ends = Date.now() + seconds*1000;
+
+      await updateDoc(roomRef,{
+        timerRunning: true,
+        timerEndsAt: ends,
+        updatedAt: serverTimestamp()
+      });
+    });
+
+    btnStopTimer.addEventListener("click", async ()=>{
+      if(!isSpy) return;
+      const snap = await getDoc(roomRef);
+      if(!snap.exists()) return;
+      const cur = snap.data();
+      if(cur.activeTeam !== spyTeam) return;
+
+      await updateDoc(roomRef,{
+        timerRunning: false,
+        timerEndsAt: null,
+        updatedAt: serverTimestamp()
+      });
+    });
+
+    // ====== START ======
+    await ensureRoom();
     onSnapshot(roomRef, (snap)=>{
       if(!snap.exists()) return;
       render(snap.data());
     });
-
   </script>
 </body>
 </html>
