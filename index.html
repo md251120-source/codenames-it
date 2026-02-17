@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -7,421 +7,878 @@
 
   <style>
     :root{
-      --bg0:#070b16;
-      --bg1:#0a1226;
-      --panel:rgba(255,255,255,.06);
-      --panel2:rgba(255,255,255,.08);
-      --stroke:rgba(255,255,255,.10);
-      --text:#eaf0ff;
-      --muted:#a7b4d6;
+      --bg1:#050816;
+      --bg2:#0b1026;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.10);
+      --text:#eaf1ff;
+      --muted: rgba(234,241,255,.72);
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --radius: 18px;
 
       --blue:#3b82f6;
+      --blue2:#60a5fa;
       --red:#ef4444;
-      --neutral:#cbd5e1;
-      --black:#0b0f1a;
+      --red2:#fb7185;
+      --neutral:#e5e7eb;
+      --black:#05060a;
 
-      --shadow: 0 18px 50px rgba(0,0,0,.35);
-      --radius: 18px;
+      --hud: rgba(255,255,255,.12);
+      --glowBlue: 0 0 0 1px rgba(59,130,246,.22), 0 0 32px rgba(59,130,246,.20), 0 0 90px rgba(59,130,246,.12);
+      --glowRed:  0 0 0 1px rgba(239,68,68,.22), 0 0 32px rgba(239,68,68,.18), 0 0 90px rgba(239,68,68,.10);
     }
 
-    *{ box-sizing:border-box; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
-
-      /* Dark IT background */
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background:
-        radial-gradient(900px 500px at 15% 0%, rgba(59,130,246,.18) 0%, transparent 60%),
-        radial-gradient(900px 500px at 85% 0%, rgba(239,68,68,.14) 0%, transparent 60%),
-        radial-gradient(900px 700px at 50% 110%, rgba(34,197,94,.10) 0%, transparent 60%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
+        radial-gradient(1000px 650px at 15% 15%, rgba(59,130,246,.12), transparent 55%),
+        radial-gradient(1000px 650px at 85% 20%, rgba(239,68,68,.10), transparent 55%),
+        radial-gradient(900px 550px at 50% 110%, rgba(34,197,94,.08), transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
       overflow-x:hidden;
     }
 
-    /* subtle tech grid + icons */
-    body::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      background:
-        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
-      background-size: 54px 54px;
-      mask-image: radial-gradient(circle at 50% 30%, rgba(0,0,0,.9), transparent 70%);
-      opacity:.25;
+    /* Animated grid + particles */
+    .bgGrid{
+      position:fixed; inset:0; pointer-events:none; z-index:-2;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,.06) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity:.22;
+      transform: translateZ(0);
+      animation: gridMove 18s linear infinite;
+      mask-image: radial-gradient(ellipse at center, black 0%, black 55%, transparent 85%);
     }
-    body::after{
-      content:"";
-      position:fixed;
-      inset:-20%;
-      pointer-events:none;
+    @keyframes gridMove{
+      from{ background-position: 0 0, 0 0; }
+      to{ background-position: 180px 220px, 180px 220px; }
+    }
+    .bgParticles{
+      position:fixed; inset:0; pointer-events:none; z-index:-1;
       background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,.08), transparent 40%),
-        radial-gradient(circle at 70% 60%, rgba(255,255,255,.06), transparent 45%),
-        radial-gradient(circle at 50% 80%, rgba(255,255,255,.05), transparent 45%);
-      filter: blur(22px);
-      opacity:.65;
+        radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,.20), transparent 60%),
+        radial-gradient(2px 2px at 75% 20%, rgba(255,255,255,.14), transparent 60%),
+        radial-gradient(2px 2px at 55% 70%, rgba(255,255,255,.16), transparent 60%),
+        radial-gradient(2px 2px at 15% 80%, rgba(255,255,255,.12), transparent 60%),
+        radial-gradient(2px 2px at 88% 78%, rgba(255,255,255,.12), transparent 60%);
+      opacity:.55;
+      animation: particlesFloat 10s ease-in-out infinite alternate;
+    }
+    @keyframes particlesFloat{
+      from{ transform: translateY(0px); filter: blur(0px); }
+      to  { transform: translateY(-10px); filter: blur(.2px); }
     }
 
-    .app{ max-width:1200px; margin:0 auto; padding:18px; position:relative; z-index:1; }
+    /* Soft cursor glow */
+    .cursorGlow{
+      position:fixed; left:0; top:0;
+      width:24px; height:24px;
+      border-radius:999px;
+      pointer-events:none;
+      background: radial-gradient(circle, rgba(255,255,255,.20), transparent 70%);
+      mix-blend-mode: screen;
+      transform: translate(-999px,-999px);
+      z-index: 99999;
+      transition: transform .06s linear;
+      filter: blur(.2px);
+    }
+
+    /* App + HUD lines */
+    .wrap{max-width:1240px; margin:0 auto; padding:18px;}
+    .hudFrame{
+      position:relative;
+      border-radius: 22px;
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .hudFrame::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.10), transparent 20%, transparent 80%, rgba(255,255,255,.10)),
+        linear-gradient(180deg, rgba(255,255,255,.08), transparent 25%, transparent 75%, rgba(255,255,255,.08));
+      opacity:.35;
+      pointer-events:none;
+      mask-image: radial-gradient(ellipse at center, black 0%, black 60%, transparent 90%);
+    }
+    .aura{
+      position:absolute; inset:-2px;
+      border-radius: 24px;
+      pointer-events:none;
+      opacity:.0;
+      transition: opacity .35s ease;
+    }
+    .aura.blue{ box-shadow: var(--glowBlue); opacity:1; }
+    .aura.red { box-shadow: var(--glowRed);  opacity:1; }
 
     .top{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:14px;
+      display:flex; gap:14px;
+      justify-content:space-between; align-items:flex-start;
       flex-wrap:wrap;
-      margin-bottom:14px;
     }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding:14px 14px;
-      background: var(--panel);
-      border: 1px solid var(--stroke);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(8px);
-    }
-
+    .brand{display:flex; gap:12px; align-items:center;}
     .logo{
-      width:52px; height:52px;
-      border-radius:16px;
+      width:54px; height:54px; border-radius:16px;
+      display:grid; place-items:center;
       background: rgba(255,255,255,.08);
       border: 1px solid rgba(255,255,255,.14);
-      display:grid; place-items:center;
-      font-size:26px;
-      box-shadow: 0 14px 30px rgba(0,0,0,.25);
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      font-size: 26px;
     }
-
-    h1{ margin:0; font-size:26px; letter-spacing:.3px; }
+    h1{margin:0; font-size:26px; letter-spacing:.3px;}
     .sub{
       margin-top:4px;
-      color:var(--muted);
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      color: var(--muted);
       font-weight:800;
       font-size:13px;
-      opacity:.95;
     }
-    .dot{ opacity:.55; }
+    .dot{opacity:.5}
 
-    .right{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      align-items:flex-end;
-    }
-
-    .pills{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
+    .right{display:flex; gap:10px; flex-direction:column; align-items:flex-end;}
+    .counters{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;}
     .pill{
-      background: var(--panel);
-      border: 1px solid var(--stroke);
-      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius:999px;
       padding:10px 12px;
-      font-weight:1000;
       font-size:13px;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 14px 35px rgba(0,0,0,.25);
-      display:flex;
-      align-items:center;
-      gap:8px;
+      font-weight:900;
+      box-shadow: 0 10px 28px rgba(0,0,0,.22);
+      backdrop-filter: blur(10px);
     }
-    .pill b{ font-weight:1200; }
-    .pill.blue b{ color: var(--blue); }
-    .pill.red b{ color: var(--red); }
-    .pill.neutral b{ color: var(--neutral); }
-    .pill.time{ background: rgba(255,255,255,.08); }
-
-    .actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
+    .pill b{font-weight:1000}
+    .pill.blue b{color: var(--blue2)}
+    .pill.red b{color: var(--red2)}
+    .pill.gray b{color: rgba(234,241,255,.86)}
+    .pill.dark{ background: rgba(0,0,0,.28); }
+    .actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;}
     .btn{
-      border:none;
-      border-radius: 14px;
+      border:none; cursor:pointer;
       padding:10px 14px;
-      font-weight:1100;
-      cursor:pointer;
-      color:var(--text);
-      background: rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.14);
-      box-shadow: 0 14px 35px rgba(0,0,0,.25);
-      backdrop-filter: blur(8px);
-      transition: transform .12s ease, opacity .12s ease;
+      border-radius: 14px;
+      font-weight:1000;
+      color: var(--text);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 14px 38px rgba(0,0,0,.28);
+      transition: transform .12s ease, filter .12s ease;
+      backdrop-filter: blur(10px);
     }
-    .btn:hover{ transform: translateY(-1px); }
+    .btn:hover{ transform: translateY(-1px); filter: brightness(1.06); }
     .btn:active{ transform: translateY(0px); }
-    .btn.primary{ background: rgba(34,197,94,.22); border-color: rgba(34,197,94,.25); }
-    .btn.danger{ background: rgba(239,68,68,.18); border-color: rgba(239,68,68,.22); }
-    .btn[disabled]{ opacity:.45; cursor:not-allowed; transform:none; }
+    .btn.primary{
+      background: linear-gradient(180deg, rgba(59,130,246,.28), rgba(59,130,246,.12));
+      border-color: rgba(59,130,246,.35);
+    }
+    .btn.danger{
+      background: linear-gradient(180deg, rgba(239,68,68,.26), rgba(239,68,68,.12));
+      border-color: rgba(239,68,68,.34);
+    }
+    .btn[disabled]{ opacity:.5; cursor:not-allowed; transform:none; }
 
-    /* spymaster panel */
-    #spymasterPanel{
-      display:none;
-      margin-top:12px;
-      padding:14px;
-      background: var(--panel);
-      border: 1px solid var(--stroke);
+    /* Character background */
+    .stage{
+      position:relative;
+      margin-top: 14px;
+      border-radius: 22px;
+      overflow:hidden;
+      min-height: 520px;
+    }
+    .characters{
+      position:absolute; inset:0;
+      pointer-events:none;
+      opacity:.55;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      padding: 18px 12px 0 12px;
+      filter: drop-shadow(0 20px 60px rgba(0,0,0,.35));
+      animation: charFloat 8s ease-in-out infinite alternate;
+      mask-image: radial-gradient(ellipse at center, black 0%, black 70%, transparent 95%);
+    }
+    @keyframes charFloat{
+      from{ transform: translateY(0px); }
+      to  { transform: translateY(-8px); }
+    }
+    .char{
+      width: 330px;
+      max-width: 38vw;
+      opacity:.95;
+      transform-origin: bottom;
+    }
+    .char.blue{ filter: drop-shadow(0 0 24px rgba(59,130,246,.25)); }
+    .char.red { filter: drop-shadow(0 0 24px rgba(239,68,68,.22)); }
+
+    .lightSweep{
+      position:absolute; inset:-40%;
+      background: radial-gradient(circle at 20% 20%, rgba(255,255,255,.18), transparent 60%);
+      transform: rotate(18deg);
+      animation: sweep 7s ease-in-out infinite;
+      pointer-events:none;
+      opacity:.35;
+    }
+    @keyframes sweep{
+      0%{ transform: translateX(-25%) rotate(18deg); opacity:.0; }
+      25%{ opacity:.35; }
+      50%{ transform: translateX(25%) rotate(18deg); opacity:.25; }
+      100%{ transform: translateX(40%) rotate(18deg); opacity:.0; }
+    }
+
+    /* Bars */
+    .clueBar{
+      display:flex; gap:12px; flex-wrap:wrap;
+      margin-top: 14px;
+      align-items:stretch;
+    }
+    .panel{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(8px);
+      box-shadow: 0 14px 40px rgba(0,0,0,.28);
+      backdrop-filter: blur(10px);
+      padding: 14px 16px;
     }
-    .smTitle{
-      font-weight:1200;
-      margin-bottom:10px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
+    .clueShow{ flex:1; min-width:280px; display:flex; gap:12px; align-items:center; }
+    .label{ width:64px; color: var(--muted); font-weight:1000; }
+    .clueText{ flex:1; font-size:18px; font-weight:1100; letter-spacing:.6px; }
+    .clueNum{
+      width:48px; height:48px; border-radius:16px;
+      display:grid; place-items:center;
+      background: rgba(0,0,0,.30);
+      border: 1px solid rgba(255,255,255,.14);
+      font-weight:1100;
     }
-    .smRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-    .smRow input, .smRow select{
-      padding:11px 12px;
+    .guesses{ display:flex; align-items:center; gap:10px; margin-left:auto; }
+    .tag{ color: var(--muted); font-weight:1000; font-size:12px; }
+    #guessesLeft{ font-size:18px; font-weight:1100; }
+
+    .spymasterOnly{ flex:1; min-width:360px; }
+    .smTitle{ font-weight:1100; margin-bottom:10px; }
+    .smRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .smRow input{
+      padding:10px 12px;
       border-radius:14px;
-      border:1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
       color: var(--text);
       outline:none;
       font-weight:1000;
     }
-    .smRow input::placeholder{ color: rgba(234,240,255,.55); }
-    #clueInput{ min-width:220px; flex:1; }
+    #clueInput{ flex:1; min-width:200px; }
     #numInput{ width:120px; }
-    #secondsInput{ width:170px; }
+    .hint{ margin-top:10px; color: var(--muted); font-weight:900; font-size:13px; line-height:1.4; }
 
-    .check{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      font-weight:1000;
-      color: var(--muted);
+    /* Timer circle */
+    .timerWrap{
+      display:flex; align-items:center; gap:10px; margin-left:auto;
+    }
+    .timerCircle{
+      width:44px; height:44px;
+      display:grid; place-items:center;
+      border-radius:999px;
+      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(255,255,255,.16);
+      position:relative;
+      overflow:hidden;
+    }
+    .timerCircle svg{ position:absolute; inset:0; }
+    .timerCircle .t{
+      position:relative;
+      font-weight:1100;
+      font-size:12px;
+      opacity:.95;
     }
 
-    /* board */
+    /* Board */
     .board{
-      margin-top:14px;
+      margin-top: 14px;
       display:grid;
       grid-template-columns: repeat(5, minmax(150px, 1fr));
-      gap:14px;
+      gap: 12px;
+      position:relative;
+      padding-bottom: 10px;
     }
 
     .card{
-      border:none;
-      border-radius: 18px;
-      padding:18px 14px;
-      background: rgba(255,255,255,.07);
-      border:1px solid rgba(255,255,255,.10);
-      box-shadow: 0 14px 35px rgba(0,0,0,.25);
-      color: var(--text);
+      perspective: 900px;
+      border:none; background: transparent; padding:0;
       cursor:pointer;
+      outline:none;
       position:relative;
-      overflow:hidden;
-      transition: transform .10s ease, filter .15s ease, opacity .15s ease;
-      backdrop-filter: blur(8px);
-      text-align:center;
     }
-    .card:hover{ transform: translateY(-2px); }
-    .card:active{ transform: translateY(0px); }
-
-    .word{
-      font-weight:1200;
-      letter-spacing:.3px;
-      font-size:18px;
-      text-shadow: 0 2px 10px rgba(0,0,0,.35);
+    .cardInner{
+      position:relative;
+      width:100%;
+      min-height: 76px;
+      border-radius: 18px;
+      transform-style: preserve-3d;
+      transition: transform .55s cubic-bezier(.2,.8,.2,1), filter .18s ease;
+      box-shadow: 0 16px 40px rgba(0,0,0,.30);
     }
-
-    .icon{
-      position:absolute;
-      top:10px;
-      left:10px;
-      width:22px;
-      height:22px;
-      opacity:.55;
-      filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
-    }
-
-    /* hidden state for players */
-    .hidden{
-      background: rgba(255,255,255,.06);
-    }
-
-    /* spymaster hint border (unrevealed) */
-    .spyHint.blue{ outline: 2px solid rgba(59,130,246,.55); }
-    .spyHint.red{ outline: 2px solid rgba(239,68,68,.55); }
-    .spyHint.neutral{ outline: 2px solid rgba(203,213,225,.45); }
-    .spyHint.assassin{ outline: 2px solid rgba(0,0,0,.85); }
-
-    /* revealed colors */
-    .revealed.blue{ background: rgba(59,130,246,.85); border-color: rgba(59,130,246,.90); }
-    .revealed.red{ background: rgba(239,68,68,.85); border-color: rgba(239,68,68,.90); }
-    .revealed.neutral{ background: rgba(203,213,225,.88); border-color: rgba(203,213,225,.92); color:#0b1220; }
-    .revealed.assassin{ background: rgba(0,0,0,.92); border-color: rgba(0,0,0,.92); }
-
-    .revealed .icon{ opacity:.85; }
-
-    /* overlay */
-    .overlay{
-      position:fixed;
-      inset:0;
-      display:none;
+    .card:hover .cardInner{ transform: translateY(-2px) rotateX(2deg); filter: brightness(1.05); }
+    .face{
+      position:absolute; inset:0;
+      border-radius: 18px;
+      backface-visibility: hidden;
+      display:flex;
       align-items:center;
       justify-content:center;
-      z-index:9999;
-      padding:18px;
+      padding: 14px 12px;
+      font-weight:1100;
+      letter-spacing:.35px;
+      text-align:center;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      overflow:hidden;
+    }
+
+    .face::before{
+      /* subtle tech icon watermark */
+      content:"";
+      position:absolute; inset:-40%;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.14), transparent 58%),
+        radial-gradient(circle at 65% 70%, rgba(255,255,255,.10), transparent 62%),
+        conic-gradient(from 90deg, rgba(255,255,255,.08), transparent 30%, rgba(255,255,255,.06), transparent 70%, rgba(255,255,255,.06));
+      opacity:.28;
+      transform: rotate(18deg);
+      pointer-events:none;
+      filter: blur(.2px);
+    }
+    .word{
+      position:relative;
+      font-size:16px;
+      line-height:1.05;
+      z-index:1;
+      text-shadow: 0 6px 18px rgba(0,0,0,.38);
+    }
+    .tinyIcon{
+      position:absolute; left:10px; top:10px;
+      font-size:14px; opacity:.85;
+      z-index:1;
+      filter: drop-shadow(0 10px 16px rgba(0,0,0,.30));
+    }
+    .back{
+      transform: rotateY(180deg);
+      font-size: 14px;
+    }
+    .card.reveal .cardInner{ transform: rotateY(180deg); }
+    .card.reveal:hover .cardInner{ transform: rotateY(180deg) translateY(-1px); }
+
+    /* Front states */
+    .front.hidden{ background: rgba(255,255,255,.05); }
+    .front.hinted.blue{ background: rgba(59,130,246,.18); }
+    .front.hinted.red { background: rgba(239,68,68,.16); }
+    .front.hinted.neutral{ background: rgba(148,163,184,.16); }
+    .front.hinted.black{ background: rgba(0,0,0,.22); }
+
+    /* Back revealed colors */
+    .back.blue{ background: linear-gradient(180deg, rgba(59,130,246,.95), rgba(59,130,246,.80)); border-color: rgba(255,255,255,.22); }
+    .back.red { background: linear-gradient(180deg, rgba(239,68,68,.95), rgba(239,68,68,.78)); border-color: rgba(255,255,255,.22); }
+    .back.neutral{ background: linear-gradient(180deg, rgba(229,231,235,.96), rgba(229,231,235,.86)); color:#101827; border-color: rgba(0,0,0,.06); }
+    .back.black{ background: linear-gradient(180deg, rgba(0,0,0,.90), rgba(0,0,0,.76)); border-color: rgba(255,255,255,.18); }
+
+    .pulseBlue{ animation: pulseBlue 1.6s ease-in-out infinite; }
+    .pulseRed { animation: pulseRed  1.6s ease-in-out infinite; }
+    @keyframes pulseBlue{
+      0%,100%{ box-shadow: var(--glowBlue); }
+      50%{ box-shadow: 0 0 0 1px rgba(59,130,246,.28), 0 0 46px rgba(59,130,246,.25), 0 0 120px rgba(59,130,246,.14); }
+    }
+    @keyframes pulseRed{
+      0%,100%{ box-shadow: var(--glowRed); }
+      50%{ box-shadow: 0 0 0 1px rgba(239,68,68,.28), 0 0 46px rgba(239,68,68,.22), 0 0 120px rgba(239,68,68,.12); }
+    }
+
+    /* Near victory banner */
+    .banner{
+      position: fixed;
+      left: 50%;
+      top: 14px;
+      transform: translateX(-50%);
+      z-index: 9999;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight:1100;
+      letter-spacing:.6px;
+      background: rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 16px 50px rgba(0,0,0,.40);
+      backdrop-filter: blur(10px);
+      display:none;
+    }
+    .banner.blue{ box-shadow: var(--glowBlue); }
+    .banner.red{ box-shadow: var(--glowRed); }
+
+    /* Overlays */
+    .overlay{
+      position:fixed; inset:0;
+      display:none;
+      align-items:center; justify-content:center;
+      z-index: 100000;
+      padding: 16px;
+      background: rgba(0,0,0,.70);
+      backdrop-filter: blur(10px);
     }
     .overlayBox{
-      width:min(720px, 100%);
-      border-radius: 24px;
-      padding:32px 26px;
-      text-align:center;
-      box-shadow: 0 30px 90px rgba(0,0,0,.45);
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.08);
-      backdrop-filter: blur(10px);
-      animation: pop .25s ease;
+      width: min(980px, 100%);
+      border-radius: 26px;
+      overflow:hidden;
+      box-shadow: 0 30px 90px rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.18);
+      position:relative;
     }
-    @keyframes pop{ from{ transform:scale(.92); opacity:.2; } to{ transform:scale(1); opacity:1; } }
-
+    .overlayInner{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 0;
+      min-height: 420px;
+      position:relative;
+    }
+    .overlayLeft{
+      padding: 28px 26px;
+      position:relative;
+      overflow:hidden;
+    }
+    .overlayRight{
+      position:relative;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding: 18px;
+    }
     .overlayTitle{
-      font-size:44px;
-      font-weight:1300;
-      margin:0 0 10px;
+      font-size: 40px;
+      font-weight: 1200;
+      margin: 0 0 8px;
+      letter-spacing:.6px;
+      text-shadow: 0 18px 60px rgba(0,0,0,.45);
     }
     .overlaySub{
-      margin:0;
-      color: rgba(255,255,255,.88);
-      font-weight:900;
-      font-size:16px;
+      color: rgba(255,255,255,.85);
+      font-weight: 900;
+      margin-bottom: 18px;
+    }
+    .overlayStats{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .stat{
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.16);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 1000;
+      min-width: 160px;
+    }
+    .stat small{
+      display:block;
+      color: rgba(255,255,255,.78);
+      font-weight: 900;
+      margin-bottom: 2px;
+      letter-spacing:.4px;
+    }
+    .overlayBtns{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      margin-top: 18px;
     }
 
-    .deny{
-      max-width:640px;
-      margin:60px auto;
-      padding:18px;
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-      text-align:center;
+    .overlaySweep{
+      position:absolute; inset:-50%;
+      background: radial-gradient(circle at 25% 15%, rgba(255,255,255,.22), transparent 60%);
+      transform: rotate(16deg);
+      animation: sweep 7s ease-in-out infinite;
+      opacity:.35;
+      pointer-events:none;
     }
-    .deny h2{ margin:0 0 10px; font-weight:1300; }
-    .deny p{ margin:0; color: var(--muted); font-weight:900; line-height:1.6; }
+    .glitch{
+      animation: glitch .9s ease-in-out infinite alternate;
+    }
+    @keyframes glitch{
+      from{ filter: drop-shadow(0 0 0 rgba(255,0,0,0)); transform: translateY(0); }
+      to{ filter: drop-shadow(0 0 18px rgba(255,0,0,.12)); transform: translateY(-1px); }
+    }
 
+    /* Start screen */
+    .startScreen{
+      position:fixed; inset:0;
+      display:none;
+      z-index: 200000;
+      align-items:center; justify-content:center;
+      padding: 16px;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(12px);
+    }
+    .startBox{
+      width: min(920px, 100%);
+      border-radius: 28px;
+      overflow:hidden;
+      box-shadow: 0 30px 90px rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.18);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      position:relative;
+    }
+    .startInner{
+      padding: 26px 22px;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 12px;
+      align-items:center;
+    }
+    .startTitle{
+      font-size: 38px;
+      font-weight: 1300;
+      margin: 0 0 8px;
+      letter-spacing:.8px;
+    }
+    .startText{ color: var(--muted); font-weight: 900; line-height:1.5; }
+    .startBtn{
+      margin-top: 14px;
+      padding: 12px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: linear-gradient(180deg, rgba(59,130,246,.26), rgba(59,130,246,.10));
+      color: var(--text);
+      font-weight: 1200;
+      cursor:pointer;
+      box-shadow: 0 18px 60px rgba(0,0,0,.40);
+      transition: transform .12s ease;
+    }
+    .startBtn:hover{ transform: translateY(-1px); }
+    .startArt{
+      display:flex; justify-content:center; align-items:flex-end;
+      opacity:.92;
+      filter: drop-shadow(0 14px 50px rgba(0,0,0,.45));
+      animation: charFloat 7s ease-in-out infinite alternate;
+    }
+
+    /* Modals (password + spy) */
+    .modal{
+      position:fixed; inset:0;
+      display:none;
+      z-index: 150000;
+      align-items:center; justify-content:center;
+      background: rgba(0,0,0,.62);
+      backdrop-filter: blur(10px);
+      padding: 16px;
+    }
+    .modal .box{
+      width: min(520px, 100%);
+      border-radius: 22px;
+      padding: 16px;
+      background: rgba(10,12,24,.86);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 30px 90px rgba(0,0,0,.55);
+    }
+    .modal h3{ margin:0 0 8px; }
+    .modal p{ margin:0; color: var(--muted); font-weight: 900; }
+    .modal .row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .modal input{
+      flex:1; min-width: 220px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      font-weight: 1000;
+      outline:none;
+    }
+
+    /* responsive */
+    @media (max-width: 980px){
+      .overlayInner{ grid-template-columns: 1fr; }
+      .overlayRight{ justify-content:flex-start; }
+    }
     @media (max-width: 860px){
-      .board{ grid-template-columns: repeat(3, minmax(140px, 1fr)); }
+      .board{ grid-template-columns: repeat(3, minmax(140px,1fr)); }
+      .char{ width: 270px; }
     }
     @media (max-width: 520px){
-      .board{ grid-template-columns: repeat(2, minmax(140px, 1fr)); }
-      .overlayTitle{ font-size:34px; }
+      .board{ grid-template-columns: repeat(2, minmax(140px,1fr)); }
+      .char{ width: 210px; }
+      .right{ align-items:flex-start; }
     }
   </style>
 </head>
 
 <body>
-  <div class="app" id="appRoot" style="display:none;">
-    <div class="top">
-      <div class="brand">
-        <div class="logo">🛠️</div>
+  <div class="bgGrid"></div>
+  <div class="bgParticles"></div>
+  <div class="cursorGlow" id="cursorGlow"></div>
+
+  <!-- Near victory banner -->
+  <div class="banner" id="nearBanner">⚠ ONE WORD LEFT!</div>
+
+  <!-- Start screen -->
+  <div class="startScreen" id="startScreen">
+    <div class="startBox">
+      <div class="overlaySweep"></div>
+      <div class="startInner">
         <div>
-          <h1>Codenames — IT Support</h1>
-          <div class="sub">
-            <span id="roleLine">Role: —</span>
-            <span class="dot">•</span>
-            <span id="turnLine">Turn: —</span>
-            <span class="dot">•</span>
-            <span id="phaseLine">Phase: —</span>
+          <div class="startTitle">🛠️ CODENAMES — IT SUPPORT</div>
+          <div class="startText">
+            Welcome to the IT Challenge.<br/>
+            Find your team words. Avoid the black card.
+          </div>
+          <button class="startBtn" id="btnStart">▶ START GAME</button>
+          <div style="margin-top:10px; color:rgba(234,241,255,.62); font-weight:900; font-size:12px;">
+            (English UI — simple level)
           </div>
         </div>
-      </div>
 
-      <div class="right">
-        <div class="pills">
-          <div class="pill blue">🔵 Blue left: <b id="blueLeft">—</b></div>
-          <div class="pill red">🔴 Red left: <b id="redLeft">—</b></div>
-          <div class="pill neutral">⚪ Neutral: <b id="neutralLeft">—</b></div>
-          <div class="pill time">⏱️ <b id="timerText">Timer OFF</b></div>
-          <div class="pill">🎯 Guesses left: <b id="guessesLeft">0</b></div>
-          <div class="pill">💡 Clue: <b id="clueShow">—</b></div>
-          <div class="pill">🔢 Num: <b id="numShow">—</b></div>
-        </div>
-
-        <div class="actions">
-          <button class="btn primary" id="btnNewGame" style="display:none;">New Game</button>
+        <div class="startArt">
+          <!-- small decorative anime IT girl (SVG) -->
+          <svg width="280" height="320" viewBox="0 0 280 320" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="gHair" x1="0" y1="0" x2="1" y2="1">
+                <stop stop-color="#60a5fa" stop-opacity=".95"/>
+                <stop offset="1" stop-color="#a78bfa" stop-opacity=".70"/>
+              </linearGradient>
+              <linearGradient id="gJ" x1="0" y1="0" x2="0" y2="1">
+                <stop stop-color="#0ea5e9" stop-opacity=".35"/>
+                <stop offset="1" stop-color="#111827" stop-opacity=".40"/>
+              </linearGradient>
+            </defs>
+            <circle cx="145" cy="120" r="70" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.18)"/>
+            <path d="M110 135c10 25 55 25 70 0" stroke="rgba(255,255,255,.7)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M95 110c10-55 90-70 125-15 8 13 12 30 8 45-8 30-34 55-62 58-45 6-80-28-71-88Z" fill="url(#gHair)"/>
+            <circle cx="128" cy="140" r="8" fill="rgba(255,255,255,.85)"/>
+            <circle cx="168" cy="140" r="8" fill="rgba(255,255,255,.85)"/>
+            <path d="M120 160c14 12 38 12 52 0" stroke="rgba(255,255,255,.8)" stroke-width="5" stroke-linecap="round"/>
+            <rect x="92" y="185" width="140" height="110" rx="26" fill="url(#gJ)" stroke="rgba(255,255,255,.18)"/>
+            <rect x="110" y="214" width="104" height="58" rx="14" fill="rgba(0,0,0,.25)" stroke="rgba(255,255,255,.16)"/>
+            <path d="M125 227h74M125 242h60M125 257h68" stroke="rgba(255,255,255,.35)" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="92" cy="130" r="22" fill="rgba(0,0,0,.25)" stroke="rgba(255,255,255,.16)"/>
+            <circle cx="232" cy="130" r="22" fill="rgba(0,0,0,.25)" stroke="rgba(255,255,255,.16)"/>
+          </svg>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Spymaster only -->
-    <div id="spymasterPanel">
-      <div class="smTitle" id="smTitle">🧠 Spymaster Panel</div>
-
-      <div class="smRow" style="margin-bottom:10px;">
-        <label style="font-weight:1100;color:var(--muted);">Team</label>
-        <select id="teamSelect">
-          <option value="blue">BLUE</option>
-          <option value="red">RED</option>
-        </select>
-
-        <input id="clueInput" placeholder="Clue (مثال: NETWORK)" maxlength="20" />
-        <input id="numInput" type="number" min="0" max="9" placeholder="Number" />
-        <button class="btn" id="btnSendClue">Send Clue</button>
-        <button class="btn danger" id="btnEndTurn">End Turn</button>
+  <!-- Password gate -->
+  <div class="modal" id="pwModal">
+    <div class="box">
+      <h3>Enter Password</h3>
+      <p>This game is private. Please enter the room password.</p>
+      <div class="row">
+        <input id="pwInput" placeholder="Password (example: LY10)" />
+        <button class="btn primary" id="pwEnter">Enter</button>
       </div>
-
-      <div class="smRow">
-        <label class="check">
-          <input type="checkbox" id="useTimer" />
-          Use Timer
-        </label>
-        <input id="secondsInput" type="number" min="10" max="600" placeholder="Seconds (مثال: 60)" />
-        <button class="btn" id="btnStartTimer">Start</button>
-        <button class="btn" id="btnStopTimer">Stop</button>
-      </div>
-
-      <div style="margin-top:10px;color:var(--muted);font-weight:900;line-height:1.5;">
-        ✅ الرقم = عدد المحاولات بهذا الراوند. <br/>
-        ✅ كلمة خطأ/بيضاء/حق الفريق الثاني = ينتقل الدور فورًا. <br/>
-        ✅ السوداء = خسارة مباشرة للفريق اللي دوره.
+      <div style="margin-top:10px; color:rgba(234,241,255,.58); font-weight:900; font-size:12px;">
+        Tip: Open the link again with <b>?pw=LY10</b>
       </div>
     </div>
-
-    <main class="board" id="board"></main>
   </div>
 
-  <!-- Access denied -->
-  <div class="deny" id="denyBox" style="display:none;">
-    <h2>🚫 Access Denied</h2>
-    <p>
-      لازم تفتح الرابط الصحيح اللي فيه كلمة المرور.<br/>
-      إذا أنت مع المجموعة، اطلب الرابط من المنظّم.
-    </p>
+  <!-- Spy code modal -->
+  <div class="modal" id="spyModal">
+    <div class="box">
+      <h3>Spymaster Login</h3>
+      <p>Enter your secret code.</p>
+      <div class="row">
+        <input id="spyCode" placeholder="BLUE-777 or RED-777" />
+        <button class="btn primary" id="spyEnter">Login</button>
+        <button class="btn" id="spyCancel">Cancel</button>
+      </div>
+      <div style="margin-top:10px; color:rgba(234,241,255,.58); font-weight:900; font-size:12px;">
+        Only the spymaster should use this screen.
+      </div>
+    </div>
   </div>
 
-  <!-- Overlay -->
-  <div class="overlay" id="overlay">
+  <div class="wrap">
+    <div class="hudFrame" id="hudFrame">
+      <div class="aura" id="aura"></div>
+
+      <header class="top">
+        <div class="brand">
+          <div class="logo">🛠️</div>
+          <div>
+            <h1>CODENAMES — IT SUPPORT</h1>
+            <div class="sub">
+              <span id="roomLine">Room: CLASS1</span>
+              <span class="dot">•</span>
+              <span id="roleLine">Role: Player</span>
+              <span class="dot">•</span>
+              <span id="turnLine">Turn: —</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="right">
+          <div class="counters">
+            <div class="pill blue">🔵 Blue left: <b id="blueLeft">—</b></div>
+            <div class="pill red">🔴 Red left: <b id="redLeft">—</b></div>
+            <div class="pill gray">⚪ Neutral: <b id="neutralLeft">—</b></div>
+            <div class="pill dark">
+              <span style="display:inline-flex; align-items:center; gap:10px;">
+                ⏱️ <span id="timerText">Timer OFF</span>
+                <span class="timerWrap">
+                  <span class="timerCircle" id="timerCircle" title="Timer">
+                    <svg viewBox="0 0 44 44">
+                      <circle cx="22" cy="22" r="18" stroke="rgba(255,255,255,.18)" stroke-width="4" fill="none"></circle>
+                      <circle id="timerArc" cx="22" cy="22" r="18" stroke="rgba(34,197,94,.95)" stroke-width="4" fill="none"
+                              stroke-linecap="round"
+                              stroke-dasharray="113.097"
+                              stroke-dashoffset="113.097"
+                              transform="rotate(-90 22 22)"></circle>
+                    </svg>
+                    <span class="t" id="timerMini">—</span>
+                  </span>
+                </span>
+              </span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn" id="btnNew">New Game</button>
+            <button class="btn" id="btnProjector">Copy Projector Link</button>
+            <button class="btn" id="btnSpyLink">Copy Spymaster Link</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="clueBar">
+        <div class="panel clueShow">
+          <div class="label">Clue</div>
+          <div class="clueText" id="clueText">—</div>
+          <div class="clueNum" id="clueNum">—</div>
+          <div class="guesses">
+            <span class="tag">Guesses left</span>
+            <b id="guessesLeft">—</b>
+          </div>
+        </div>
+
+        <div class="panel spymasterOnly" id="spymasterPanel" style="display:none;">
+          <div class="smTitle" id="smTitle">Spymaster Panel</div>
+
+          <div class="smRow">
+            <input id="clueInput" placeholder="Clue (example: NETWORK)" maxlength="20" />
+            <input id="numInput" placeholder="Number" type="number" min="0" max="9" />
+            <button class="btn primary" id="btnSendClue">Send</button>
+            <button class="btn" id="btnEndTurn">End Turn</button>
+            <button class="btn" id="btnClearClue">Clear</button>
+          </div>
+
+          <div class="smRow" style="margin-top:8px;">
+            <label class="pill" style="cursor:pointer;">
+              <input type="checkbox" id="timerEnabled" style="transform:translateY(1px);" />
+              Use Timer
+            </label>
+            <input id="timerSeconds" type="number" min="10" max="600" placeholder="Seconds (example: 60)" />
+            <button class="btn" id="btnStartTimer">Start</button>
+            <button class="btn" id="btnStopTimer">Stop</button>
+          </div>
+
+          <div class="hint">
+            ✅ Spymaster sees all colors. Players see colors only after reveal.<br/>
+            ✅ Wrong guess ends the turn immediately.<br/>
+            ✅ Win screen shows only when the game ends.
+          </div>
+        </div>
+      </section>
+
+      <div class="stage">
+        <div class="characters">
+          <!-- BLUE anime IT girl (confident + calm) -->
+          <svg class="char blue" viewBox="0 0 360 520" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="bHair" x1="0" y1="0" x2="1" y2="1">
+                <stop stop-color="#60a5fa" stop-opacity=".95"/>
+                <stop offset="1" stop-color="#a78bfa" stop-opacity=".65"/>
+              </linearGradient>
+              <linearGradient id="bJ" x1="0" y1="0" x2="0" y2="1">
+                <stop stop-color="rgba(59,130,246,.38)"/>
+                <stop offset="1" stop-color="rgba(17,24,39,.45)"/>
+              </linearGradient>
+            </defs>
+            <path d="M96 190c0-64 50-116 114-116s114 52 114 116c0 78-60 140-132 132-58-7-96-56-96-132Z" fill="url(#bHair)"/>
+            <circle cx="180" cy="214" r="74" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.16)"/>
+            <circle cx="154" cy="220" r="8" fill="rgba(255,255,255,.85)"/>
+            <circle cx="206" cy="220" r="8" fill="rgba(255,255,255,.85)"/>
+            <path d="M158 244c18 14 46 14 64 0" stroke="rgba(255,255,255,.78)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M238 196c-20 10-44 10-64 0" stroke="rgba(255,255,255,.24)" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="110" cy="210" r="22" fill="rgba(0,0,0,.22)" stroke="rgba(255,255,255,.14)"/>
+            <circle cx="250" cy="210" r="22" fill="rgba(0,0,0,.22)" stroke="rgba(255,255,255,.14)"/>
+            <rect x="92" y="292" width="220" height="190" rx="34" fill="url(#bJ)" stroke="rgba(255,255,255,.16)"/>
+            <rect x="118" y="332" width="168" height="90" rx="18" fill="rgba(0,0,0,.22)" stroke="rgba(255,255,255,.14)"/>
+            <path d="M136 356h132M136 378h108M136 400h120" stroke="rgba(255,255,255,.30)" stroke-width="5" stroke-linecap="round"/>
+          </svg>
+
+          <!-- RED anime IT girl (strong + energetic) -->
+          <svg class="char red" viewBox="0 0 360 520" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="rHair" x1="0" y1="0" x2="1" y2="1">
+                <stop stop-color="#fb7185" stop-opacity=".95"/>
+                <stop offset="1" stop-color="#f97316" stop-opacity=".55"/>
+              </linearGradient>
+              <linearGradient id="rJ" x1="0" y1="0" x2="0" y2="1">
+                <stop stop-color="rgba(239,68,68,.34)"/>
+                <stop offset="1" stop-color="rgba(17,24,39,.48)"/>
+              </linearGradient>
+            </defs>
+            <path d="M262 160c-8-70-70-112-136-92-44 13-82 56-82 112 0 80 58 146 132 140 72-6 96-62 86-160Z" fill="url(#rHair)"/>
+            <circle cx="190" cy="214" r="74" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.16)"/>
+            <circle cx="164" cy="220" r="8" fill="rgba(255,255,255,.85)"/>
+            <circle cx="216" cy="220" r="8" fill="rgba(255,255,255,.85)"/>
+            <path d="M160 252c22-10 48-10 70 0" stroke="rgba(255,255,255,.70)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M168 196c10-8 18-10 28-6" stroke="rgba(255,255,255,.30)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M210 196c10-8 18-10 28-6" stroke="rgba(255,255,255,.30)" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="120" cy="210" r="22" fill="rgba(0,0,0,.22)" stroke="rgba(255,255,255,.14)"/>
+            <circle cx="260" cy="210" r="22" fill="rgba(0,0,0,.22)" stroke="rgba(255,255,255,.14)"/>
+            <rect x="98" y="292" width="220" height="190" rx="34" fill="url(#rJ)" stroke="rgba(255,255,255,.16)"/>
+            <rect x="124" y="332" width="168" height="90" rx="18" fill="rgba(0,0,0,.22)" stroke="rgba(255,255,255,.14)"/>
+            <path d="M142 356h132M142 378h116M142 400h124" stroke="rgba(255,255,255,.30)" stroke-width="5" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div class="lightSweep"></div>
+
+        <main class="board" id="board"></main>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result / Lose overlay -->
+  <div class="overlay" id="resultOverlay">
     <div class="overlayBox" id="overlayBox">
-      <h2 class="overlayTitle" id="overlayTitle">—</h2>
-      <p class="overlaySub" id="overlaySub">—</p>
+      <div class="overlayInner" id="overlayInner">
+        <div class="overlayLeft" id="overlayLeft">
+          <div class="overlaySweep"></div>
+          <div class="overlayTitle" id="overlayTitle">—</div>
+          <div class="overlaySub" id="overlaySub">—</div>
+
+          <div class="overlayStats">
+            <div class="stat"><small>Total Rounds</small><span id="stRounds">—</span></div>
+            <div class="stat"><small>Total Moves</small><span id="stMoves">—</span></div>
+            <div class="stat"><small>Time Used</small><span id="stTime">—</span></div>
+            <div class="stat"><small>Assassin</small><span id="stAssassin">—</span></div>
+          </div>
+
+          <div class="overlayBtns">
+            <button class="btn primary" id="btnOverlayNew">🎮 New Game</button>
+            <button class="btn" id="btnOverlayClose" style="display:none;">✖ Close</button>
+          </div>
+
+          <div style="margin-top:10px; color:rgba(255,255,255,.70); font-weight:900; font-size:12px;">
+            Close is for spymaster only (ESC or click).
+          </div>
+        </div>
+
+        <div class="overlayRight" id="overlayRight"></div>
+      </div>
     </div>
   </div>
 
@@ -431,24 +888,27 @@
       getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-    // ====== ACCESS (الحل الأول) ======
-    const REQUIRED_PW = "LY10";
-    const qs = new URLSearchParams(location.search);
-    const pw = qs.get("pw") || "";
-    const isSpyLink = qs.get("spy") === "1";
+    // =========================
+    // SETTINGS
+    // =========================
+    const ROOM_ID = "CLASS1";
+    const ROOM_PASSWORD = "LY10";
 
-    const appRoot = document.getElementById("appRoot");
-    const denyBox = document.getElementById("denyBox");
-    if(pw !== REQUIRED_PW){
-      denyBox.style.display = "block";
-      appRoot.style.display = "none";
-      throw new Error("Access denied");
-    }else{
-      appRoot.style.display = "block";
-      denyBox.style.display = "none";
-    }
+    const BLUE_CODE = "BLUE-777";
+    const RED_CODE  = "RED-777";
 
-    // ====== Firebase Config (كما عندك) ======
+    // 25 IT Support words
+    const WORDS = [
+      "Ticket","Service Desk","VPN","Firewall","DNS",
+      "DHCP","IP Address","Router","Switch","Wi-Fi",
+      "Active Directory","Password","MFA","Account","Permissions",
+      "Hardware","Software","Printer","Antivirus","Patch",
+      "Backup","Restore","Incident","Outage","Email"
+    ];
+
+    const TECH_ICONS = ["⚙️","💻","🖥️","🔌","🌐","🧰","🗄️","🧩","🔐","📡"];
+
+    // Firebase (YOUR CONFIG)
     const firebaseConfig = {
       apiKey: "AIzaSyBaQKAER5HLq6LhPWIaIqrBRpd4qn0lUss",
       authDomain: "codenames-it-support.firebaseapp.com",
@@ -459,25 +919,11 @@
       measurementId: "G-NVG0G4SM6D"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // ====== غرفة واحدة فقط ======
-    const ROOM_ID = "CLASS1";
-    const roomRef = doc(db, "rooms", ROOM_ID);
-
-    // ====== كلمات IT Support (25) ======
-    const WORDS = [
-      "Ticket","Service Desk","VPN","Firewall","DNS",
-      "DHCP","IP Address","Router","Switch","Wi-Fi",
-      "Active Directory","Password","MFA","Account","Permissions",
-      "Hardware","Software","Printer","Antivirus","Patch",
-      "Backup","Restore","Incident","Outage","Email"
-    ];
-
-    // ====== Helpers ======
-    const otherTeam = (t) => t === "blue" ? "red" : "blue";
-    const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+    // =========================
+    // UTILS
+    // =========================
+    const qs = new URLSearchParams(location.search);
+    const getParam = (k) => qs.get(k);
 
     function shuffle(arr){
       const a = [...arr];
@@ -488,17 +934,33 @@
       return a;
     }
 
-    // icons (simple inline SVG)
-    const ICONS = [
-      // server
-      `<svg viewBox="0 0 24 24" fill="none"><path d="M4 6c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2v3c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V6Z" stroke="currentColor" stroke-width="2"/><path d="M4 13c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2v3c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2v-3Z" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1" fill="currentColor"/><circle cx="8" cy="15" r="1" fill="currentColor"/></svg>`,
-      // gear
-      `<svg viewBox="0 0 24 24" fill="none"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" stroke-width="2"/><path d="M19 12a7.6 7.6 0 0 0-.1-1l2-1.5-2-3.5-2.4 1a8 8 0 0 0-1.7-1l-.4-2.6H10l-.4 2.6a8 8 0 0 0-1.7 1l-2.4-1-2 3.5 2 1.5A7.6 7.6 0 0 0 5 12c0 .34.03.67.1 1l-2 1.5 2 3.5 2.4-1a8 8 0 0 0 1.7 1l.4 2.6h4.2l.4-2.6a8 8 0 0 0 1.7-1l2.4 1 2-3.5-2-1.5c.07-.33.1-.66.1-1Z" stroke="currentColor" stroke-width="2" opacity=".9"/></svg>`,
-      // shield
-      `<svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 6v6c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V6l8-3Z" stroke="currentColor" stroke-width="2"/></svg>`,
-      // network
-      `<svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="12" r="2" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="6" r="2" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="18" r="2" stroke="currentColor" stroke-width="2"/><path d="M7.7 11.1 16.2 6.9M7.7 12.9l8.5 4.2" stroke="currentColor" stroke-width="2"/></svg>`
-    ];
+    const otherTeam = (t) => t === "blue" ? "red" : "blue";
+    const clamp = (n,min,max) => Math.max(min, Math.min(max,n));
+
+    function msToClock(ms){
+      const s = Math.max(0, Math.floor(ms/1000));
+      const m = Math.floor(s/60);
+      const r = s%60;
+      return `${m}:${String(r).padStart(2,"0")}`;
+    }
+
+    // Soft tech click sound (no external file)
+    function playClick(){
+      try{
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = "triangle";
+        o.frequency.setValueAtTime(620, now);
+        o.frequency.exponentialRampToValueAtTime(420, now + 0.06);
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(0.10, now + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(now); o.stop(now + 0.09);
+      } catch {}
+    }
 
     function playWinSound(){
       try{
@@ -507,42 +969,148 @@
         const o = ctx.createOscillator();
         const g = ctx.createGain();
         o.type = "sine";
-        o.connect(g);
-        g.connect(ctx.destination);
+        o.connect(g); g.connect(ctx.destination);
         g.gain.setValueAtTime(0.0001, now);
         g.gain.exponentialRampToValueAtTime(0.18, now + 0.02);
         const notes = [523.25, 659.25, 783.99, 1046.5];
         notes.forEach((f, i) => o.frequency.setValueAtTime(f, now + i * 0.12));
-        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
-        o.start(now);
-        o.stop(now + 0.60);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.60);
+        o.start(now); o.stop(now + 0.62);
       } catch {}
     }
 
-    // ====== Create state ======
-    function createNewGame(){
+    // =========================
+    // PASSWORD GATE + SPY MODE
+    // =========================
+    const pwModal = document.getElementById("pwModal");
+    const pwInput = document.getElementById("pwInput");
+    const pwEnter = document.getElementById("pwEnter");
+
+    const spyModal = document.getElementById("spyModal");
+    const spyCodeInp = document.getElementById("spyCode");
+    const spyEnter = document.getElementById("spyEnter");
+    const spyCancel = document.getElementById("spyCancel");
+
+    const modeSpy = (getParam("mode") || "").toLowerCase() === "spy";
+    const pw = getParam("pw") || "";
+
+    function showPwModal(){
+      pwModal.style.display = "flex";
+      pwInput.value = "";
+      pwInput.focus();
+    }
+
+    function showSpyModal(){
+      spyModal.style.display = "flex";
+      spyCodeInp.value = "";
+      spyCodeInp.focus();
+    }
+
+    function hideModals(){
+      pwModal.style.display = "none";
+      spyModal.style.display = "none";
+    }
+
+    // Gate: require pw=LY10
+    if(pw !== ROOM_PASSWORD){
+      showPwModal();
+    }
+
+    pwEnter.addEventListener("click", ()=>{
+      const v = (pwInput.value || "").trim();
+      if(v !== ROOM_PASSWORD){
+        alert("Wrong password");
+        return;
+      }
+      // reload with pw
+      const nqs = new URLSearchParams(location.search);
+      nqs.set("pw", ROOM_PASSWORD);
+      location.search = "?" + nqs.toString();
+    });
+
+    // Spymaster code check (no code in link)
+    let isSpymaster = false;
+    let spymasterTeam = null; // "blue" | "red"
+
+    function loadSpyFromSession(){
+      const saved = sessionStorage.getItem("cn_spy_code") || "";
+      if(saved === BLUE_CODE){ isSpymaster = true; spymasterTeam = "blue"; }
+      else if(saved === RED_CODE){ isSpymaster = true; spymasterTeam = "red"; }
+      else { isSpymaster = false; spymasterTeam = null; }
+    }
+
+    loadSpyFromSession();
+
+    if(pw === ROOM_PASSWORD && modeSpy && !isSpymaster){
+      showSpyModal();
+    }
+
+    spyEnter.addEventListener("click", ()=>{
+      const c = (spyCodeInp.value || "").trim();
+      if(c !== BLUE_CODE && c !== RED_CODE){
+        alert("Invalid code");
+        return;
+      }
+      sessionStorage.setItem("cn_spy_code", c);
+      loadSpyFromSession();
+      hideModals();
+      // update UI role
+      updateRoleLine();
+    });
+
+    spyCancel.addEventListener("click", ()=>{
+      hideModals();
+      // send back to projector mode
+      const nqs = new URLSearchParams(location.search);
+      nqs.delete("mode");
+      location.search = "?" + nqs.toString();
+    });
+
+    // =========================
+    // START SCREEN (optional, no sound)
+    // =========================
+    const startScreen = document.getElementById("startScreen");
+    const btnStart = document.getElementById("btnStart");
+
+    // show start screen once per session (after password ok)
+    if(pw === ROOM_PASSWORD && sessionStorage.getItem("cn_started") !== "1"){
+      startScreen.style.display = "flex";
+    }
+    btnStart.addEventListener("click", ()=>{
+      startScreen.style.display = "none";
+      sessionStorage.setItem("cn_started","1");
+    });
+
+    // =========================
+    // FIREBASE
+    // =========================
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const roomRef = doc(db, "rooms", ROOM_ID);
+
+    // =========================
+    // GAME STATE
+    // =========================
+    function createNewGameState(){
       const startingTeam = Math.random() < 0.5 ? "blue" : "red";
       const blueCount = startingTeam === "blue" ? 9 : 8;
-      const redCount  = startingTeam === "red" ? 9 : 8;
+      const redCount  = startingTeam === "red"  ? 9 : 8;
       const assassinCount = 1;
       const neutralCount = 25 - blueCount - redCount - assassinCount;
 
-      const colors = shuffle([
+      const colors = [
         ...Array(blueCount).fill("blue"),
         ...Array(redCount).fill("red"),
         ...Array(neutralCount).fill("neutral"),
-        ...Array(assassinCount).fill("assassin")
-      ]);
+        ...Array(assassinCount).fill("assassin"),
+      ];
 
       const words = shuffle(WORDS);
+      const shuffledColors = shuffle(colors);
 
       const mapping = {};
       for(let i=0;i<25;i++){
-        mapping[words[i]] = {
-          team: colors[i],
-          revealed: false,
-          icon: Math.floor(Math.random()*ICONS.length) // store icon index
-        };
+        mapping[words[i]] = { team: shuffledColors[i], revealed: false, icon: TECH_ICONS[i % TECH_ICONS.length] };
       }
 
       return {
@@ -551,101 +1119,149 @@
         mapping,
         startingTeam,
         activeTeam: startingTeam,
-        phase: "clue",          // clue | guess
+        phase: "clue", // clue | guess
         clueText: "—",
         clueNumber: "—",
         guessesLeft: 0,
 
+        // result
+        status: "playing", // playing | win | lose
+        winnerTeam: null, // blue | red
+        loserTeam: null,  // blue | red
+        assassinTriggered: false,
+
         // timer
         timerEnabled: false,
         timerSeconds: 60,
-        timerRunning: false,
         timerEndsAt: null,
+        timerRunning: false,
 
-        // end
-        winner: null,           // "blue" | "red"
-        loser: null,            // "blue" | "red" (for assassin)
-        endedBy: null,          // "win" | "assassin"
-        updatedAt: serverTimestamp()
+        // stats
+        startedAtMs: Date.now(),
+        endedAtMs: null,
+        roundCount: 0,
+        moveCount: 0,
+
+        updatedAt: serverTimestamp(),
       };
     }
 
     async function ensureRoom(){
       const snap = await getDoc(roomRef);
       if(!snap.exists()){
-        await setDoc(roomRef, createNewGame());
+        await setDoc(roomRef, createNewGameState());
       }
     }
 
-    function countLeft(mapping){
-      let blue=0, red=0, neutral=0;
+    function computeCounts(mapping){
+      let blueLeft=0, redLeft=0, neutralLeft=0;
       for(const w in mapping){
         const c = mapping[w];
-        if(!c.revealed && c.team==="blue") blue++;
-        if(!c.revealed && c.team==="red") red++;
-        if(!c.revealed && c.team==="neutral") neutral++;
+        if(!c.revealed && c.team==="blue") blueLeft++;
+        if(!c.revealed && c.team==="red") redLeft++;
+        if(!c.revealed && c.team==="neutral") neutralLeft++;
       }
-      return {blue, red, neutral};
+      return {blueLeft, redLeft, neutralLeft};
     }
 
-    // ====== UI refs ======
+    // =========================
+    // UI HOOKS
+    // =========================
+    const roomLine = document.getElementById("roomLine");
     const roleLine = document.getElementById("roleLine");
     const turnLine = document.getElementById("turnLine");
-    const phaseLine = document.getElementById("phaseLine");
+
+    const clueTextEl = document.getElementById("clueText");
+    const clueNumEl = document.getElementById("clueNum");
+    const guessesLeftEl = document.getElementById("guessesLeft");
 
     const blueLeftEl = document.getElementById("blueLeft");
     const redLeftEl = document.getElementById("redLeft");
     const neutralLeftEl = document.getElementById("neutralLeft");
 
-    const timerText = document.getElementById("timerText");
-    const guessesLeftEl = document.getElementById("guessesLeft");
-    const clueShow = document.getElementById("clueShow");
-    const numShow = document.getElementById("numShow");
+    const timerTextEl = document.getElementById("timerText");
+    const timerMiniEl = document.getElementById("timerMini");
+    const timerArc = document.getElementById("timerArc");
 
     const spymasterPanel = document.getElementById("spymasterPanel");
-    const btnNewGame = document.getElementById("btnNewGame");
+    const smTitle = document.getElementById("smTitle");
 
-    const teamSelect = document.getElementById("teamSelect");
     const clueInput = document.getElementById("clueInput");
     const numInput = document.getElementById("numInput");
     const btnSendClue = document.getElementById("btnSendClue");
     const btnEndTurn = document.getElementById("btnEndTurn");
+    const btnClearClue = document.getElementById("btnClearClue");
 
-    const useTimer = document.getElementById("useTimer");
-    const secondsInput = document.getElementById("secondsInput");
+    const timerEnabledChk = document.getElementById("timerEnabled");
+    const timerSecondsInp = document.getElementById("timerSeconds");
     const btnStartTimer = document.getElementById("btnStartTimer");
     const btnStopTimer = document.getElementById("btnStopTimer");
 
     const board = document.getElementById("board");
+    const aura = document.getElementById("aura");
+    const nearBanner = document.getElementById("nearBanner");
 
-    const overlay = document.getElementById("overlay");
-    const overlayBox = document.getElementById("overlayBox");
+    const btnNew = document.getElementById("btnNew");
+    const btnProjector = document.getElementById("btnProjector");
+    const btnSpyLink = document.getElementById("btnSpyLink");
+
+    // Result overlay
+    const resultOverlay = document.getElementById("resultOverlay");
+    const overlayLeft = document.getElementById("overlayLeft");
+    const overlayRight = document.getElementById("overlayRight");
     const overlayTitle = document.getElementById("overlayTitle");
     const overlaySub = document.getElementById("overlaySub");
+    const stRounds = document.getElementById("stRounds");
+    const stMoves = document.getElementById("stMoves");
+    const stTime = document.getElementById("stTime");
+    const stAssassin = document.getElementById("stAssassin");
+    const btnOverlayNew = document.getElementById("btnOverlayNew");
+    const btnOverlayClose = document.getElementById("btnOverlayClose");
 
-    // ====== Role ======
-    // projector: spy=0
-    // spymaster: spy=1 (and choose team inside)
-    let myRole = isSpyLink ? "spymaster" : "player";
-    roleLine.textContent = "Role: " + (myRole === "spymaster" ? "Spymaster" : "Player/Projector");
+    function updateRoleLine(){
+      roomLine.textContent = "Room: " + ROOM_ID;
+      if(isSpymaster){
+        roleLine.textContent = `Role: Spymaster (${spymasterTeam.toUpperCase()})`;
+        spymasterPanel.style.display = "block";
+        btnOverlayClose.style.display = "inline-block";
+      } else {
+        roleLine.textContent = "Role: Player";
+        spymasterPanel.style.display = "none";
+        btnOverlayClose.style.display = "none";
+      }
+    }
+    updateRoleLine();
 
-    if(myRole === "spymaster"){
-      spymasterPanel.style.display = "block";
-      btnNewGame.style.display = "inline-block";
-    }else{
-      spymasterPanel.style.display = "none";
-      btnNewGame.style.display = "none";
+    function baseUrl(){
+      // keep same path, just include pw
+      return location.origin + location.pathname + "?pw=" + encodeURIComponent(ROOM_PASSWORD);
     }
 
-    // store team choice locally on spymaster device
-    if(myRole === "spymaster"){
-      const savedTeam = localStorage.getItem("cn_team");
-      if(savedTeam === "blue" || savedTeam === "red") teamSelect.value = savedTeam;
-      teamSelect.addEventListener("change", ()=> localStorage.setItem("cn_team", teamSelect.value));
-    }
+    btnProjector.addEventListener("click", async ()=>{
+      const url = baseUrl();
+      await navigator.clipboard.writeText(url);
+      alert("Projector link copied ✅");
+    });
 
-    // ====== Game actions ======
-    async function endTurn(cur){
+    btnSpyLink.addEventListener("click", async ()=>{
+      const url = baseUrl() + "&mode=spy";
+      await navigator.clipboard.writeText(url);
+      alert("Spymaster link copied ✅");
+    });
+
+    // Cursor glow (mouse only)
+    const cursorGlow = document.getElementById("cursorGlow");
+    window.addEventListener("mousemove", (e)=>{
+      cursorGlow.style.transform = `translate(${e.clientX-12}px, ${e.clientY-12}px)`;
+    });
+
+    // =========================
+    // GAME LOGIC
+    // =========================
+    let latestState = null;
+    let timerInterval = null;
+
+    async function endTurnRemote(cur){
       const next = otherTeam(cur.activeTeam);
       await updateDoc(roomRef, {
         activeTeam: next,
@@ -659,323 +1275,330 @@
       });
     }
 
-    async function setWinner(team){
-      await updateDoc(roomRef, {
-        winner: team,
-        endedBy: "win",
-        timerRunning: false,
-        timerEndsAt: null,
-        updatedAt: serverTimestamp()
-      });
+    function setAura(team){
+      aura.className = "aura " + (team === "blue" ? "blue" : "red");
     }
 
-    async function assassinHit(cur){
-      const loser = cur.activeTeam;
-      const winner = otherTeam(cur.activeTeam);
-      await updateDoc(roomRef, {
-        winner,
-        loser,
-        endedBy: "assassin",
-        timerRunning: false,
-        timerEndsAt: null,
-        updatedAt: serverTimestamp()
-      });
-    }
-
-    async function reveal(word){
-      const snap = await getDoc(roomRef);
-      if(!snap.exists()) return;
-      const cur = snap.data();
-      if(cur.winner) return;
-
-      const mapping = cur.mapping || {};
-      const card = mapping[word];
-      if(!card || card.revealed) return;
-
-      // reveal
-      card.revealed = true;
-
-      // assassin
-      if(card.team === "assassin"){
-        await updateDoc(roomRef, { mapping, updatedAt: serverTimestamp() });
-        await assassinHit(cur);
+    function updateNearVictory(counts){
+      // show if any team is at 1 word left (dramatic mode)
+      if(counts.blueLeft === 1 && counts.redLeft !== 0){
+        nearBanner.style.display = "block";
+        nearBanner.className = "banner blue";
+        nearBanner.textContent = "⚠ ONE WORD LEFT! (BLUE)";
+        // add pulse on frame
+        document.getElementById("hudFrame").classList.add("pulseBlue");
+        document.getElementById("hudFrame").classList.remove("pulseRed");
         return;
       }
-
-      // check win after revealing (only if all of a team done)
-      const left = countLeft(mapping);
-      await updateDoc(roomRef, { mapping, updatedAt: serverTimestamp() });
-      if(left.blue === 0){ await setWinner("blue"); return; }
-      if(left.red === 0){ await setWinner("red"); return; }
-
-      // if in guessing phase: apply your rules
-      if(cur.phase === "guess"){
-        const active = cur.activeTeam;
-
-        if(card.team === active){
-          // correct -> reduce guesses
-          const newGuesses = Math.max(0, (cur.guessesLeft || 0) - 1);
-          await updateDoc(roomRef, { guessesLeft: newGuesses, updatedAt: serverTimestamp() });
-
-          // if finished allowed guesses -> auto end turn
-          if(newGuesses <= 0){
-            const snap2 = await getDoc(roomRef);
-            if(snap2.exists() && !snap2.data().winner){
-              await endTurn(snap2.data());
-            }
-          }
-        }else{
-          // wrong team OR neutral -> end turn immediately
-          const snap2 = await getDoc(roomRef);
-          if(snap2.exists() && !snap2.data().winner){
-            await endTurn(snap2.data());
-          }
-        }
+      if(counts.redLeft === 1 && counts.blueLeft !== 0){
+        nearBanner.style.display = "block";
+        nearBanner.className = "banner red";
+        nearBanner.textContent = "⚠ ONE WORD LEFT! (RED)";
+        document.getElementById("hudFrame").classList.add("pulseRed");
+        document.getElementById("hudFrame").classList.remove("pulseBlue");
+        return;
       }
+      nearBanner.style.display = "none";
+      document.getElementById("hudFrame").classList.remove("pulseBlue","pulseRed");
     }
 
-    // ====== Timer ======
-    let timerInterval = null;
-    function updateTimerUI(state){
+    function renderTimer(state){
       if(!state.timerEnabled){
-        timerText.textContent = "Timer OFF";
+        timerTextEl.textContent = "Timer OFF";
+        timerMiniEl.textContent = "—";
+        timerArc.setAttribute("stroke-dashoffset", "113.097");
+        timerArc.setAttribute("stroke", "rgba(255,255,255,.25)");
         return;
       }
       if(!state.timerRunning || !state.timerEndsAt){
-        timerText.textContent = "Timer READY";
+        timerTextEl.textContent = "Timer READY";
+        timerMiniEl.textContent = "—";
+        timerArc.setAttribute("stroke-dashoffset", "113.097");
+        timerArc.setAttribute("stroke", "rgba(255,255,255,.25)");
         return;
       }
-      const ms = state.timerEndsAt - Date.now();
-      const s = Math.max(0, Math.ceil(ms/1000));
-      timerText.textContent = "Time: " + s + "s";
 
-      // when time ends => end turn automatically (only once)
-      if(s <= 0){
-        // stop local ticking
-        if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
-        getDoc(roomRef).then(sn=>{
-          if(!sn.exists()) return;
-          const cur = sn.data();
-          if(cur.timerRunning && cur.phase === "guess" && !cur.winner){
-            endTurn(cur);
+      const total = Math.max(10, Number(state.timerSeconds||60));
+      const leftMs = state.timerEndsAt - Date.now();
+      const leftSec = clamp(Math.ceil(leftMs/1000), 0, total);
+      timerTextEl.textContent = "Time: " + leftSec + "s";
+      timerMiniEl.textContent = String(leftSec);
+
+      const circ = 113.097; // 2*pi*r (r=18)
+      const progress = clamp(leftSec / total, 0, 1);
+      const dash = circ * (1 - progress);
+      timerArc.setAttribute("stroke-dashoffset", String(dash));
+
+      // color
+      let col = "rgba(34,197,94,.95)"; // green
+      if(progress <= 0.2) col = "rgba(239,68,68,.95)"; // red
+      else if(progress <= 0.5) col = "rgba(234,179,8,.95)"; // yellow
+      timerArc.setAttribute("stroke", col);
+
+      // auto end turn only by active spymaster (safe)
+      if(leftSec <= 0 && isSpymaster && spymasterTeam === state.activeTeam && state.phase === "guess" && state.timerRunning){
+        clearInterval(timerInterval);
+        timerInterval = null;
+        getDoc(roomRef).then(snap=>{
+          if(!snap.exists()) return;
+          const cur = snap.data();
+          if(cur.status !== "playing") return;
+          if(cur.phase === "guess" && cur.timerRunning){
+            endTurnRemote(cur);
           }
         });
       }
     }
 
-    // ====== Overlay ======
-    function showOverlay(type, state){
-      overlay.style.display = "flex";
+    function showResultOverlay(state){
+      // Build overlay style + character
+      resultOverlay.style.display = "flex";
 
-      if(type === "win"){
-        overlay.style.background = "rgba(16,185,129,.92)";
-        overlayTitle.textContent = (state.winner === "blue" ? "BLUE TEAM WINS ✅" : "RED TEAM WINS ✅");
-        overlaySub.textContent = "تم جمع كل كلمات الفريق 🎉";
-        playWinSound();
-      }else if(type === "assassin"){
-        overlay.style.background = "rgba(0,0,0,.92)";
-        overlayTitle.textContent = (state.loser === "blue" ? "BLUE TEAM LOST ☠️" : "RED TEAM LOST ☠️");
-        overlaySub.textContent = "تم اختيار البطاقة السوداء";
-      }
-    }
+      overlayRight.innerHTML = "";
+      overlayLeft.classList.remove("glitch");
 
-    function hideOverlay(){
-      overlay.style.display = "none";
-    }
+      const duration = state.endedAtMs ? (state.endedAtMs - (state.startedAtMs || state.endedAtMs)) : 0;
 
-    // ====== Render ======
-    let latest = null;
+      stRounds.textContent = String(state.roundCount ?? 0);
+      stMoves.textContent = String(state.moveCount ?? 0);
+      stTime.textContent = msToClock(duration);
+      stAssassin.textContent = state.assassinTriggered ? "YES" : "NO";
 
-    function render(state){
-      latest = state;
-
-      turnLine.textContent = "Turn: " + (state.activeTeam || "—").toUpperCase();
-      phaseLine.textContent = "Phase: " + (state.phase || "—").toUpperCase();
-
-      guessesLeftEl.textContent = String(state.guessesLeft || 0);
-      clueShow.textContent = state.clueText || "—";
-      numShow.textContent = state.clueNumber || "—";
-
-      const left = countLeft(state.mapping || {});
-      blueLeftEl.textContent = left.blue;
-      redLeftEl.textContent = left.red;
-      neutralLeftEl.textContent = left.neutral;
-
-      // spymaster buttons enabling
-      if(myRole === "spymaster"){
-        const myTeam = teamSelect.value;
-        const myTurn = myTeam === state.activeTeam;
-
-        btnSendClue.disabled = !(myTurn && state.phase === "clue" && !state.winner);
-        btnEndTurn.disabled  = !(myTurn && state.phase === "guess" && !state.winner);
-
-        useTimer.checked = !!state.timerEnabled;
-        secondsInput.value = state.timerSeconds ?? 60;
-
-        btnStartTimer.disabled = !(myTurn && state.phase === "guess" && state.timerEnabled && !state.timerRunning && !state.winner);
-        btnStopTimer.disabled  = !(myTurn && state.timerRunning && !state.winner);
-      }
-
-      // timer
-      if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
-      updateTimerUI(state);
-      timerInterval = setInterval(()=> updateTimerUI(latest), 250);
-
-      // overlay only on game end
-      if(state.winner){
-        if(state.endedBy === "assassin") showOverlay("assassin", state);
-        else showOverlay("win", state);
-      }else{
-        hideOverlay();
-      }
-
-      // draw board
-      board.innerHTML = "";
-      const order = state.words || Object.keys(state.mapping || {});
-      for(const w of order){
-        const info = state.mapping?.[w];
-        if(!info) continue;
-
-        const btn = document.createElement("button");
-        btn.className = "card";
-        btn.type = "button";
-
-        // icon
-        const icon = document.createElement("div");
-        icon.className = "icon";
-        icon.innerHTML = ICONS[info.icon ?? 0];
-        btn.appendChild(icon);
-
-        // word
-        const word = document.createElement("div");
-        word.className = "word";
-        word.textContent = w;
-        btn.appendChild(word);
-
-        // classes:
-        if(myRole === "spymaster"){
-          // show hints even unrevealed
-          if(!info.revealed){
-            btn.classList.add("spyHint");
-            btn.classList.add(info.team);
-          }
+      // WIN
+      if(state.status === "win"){
+        const w = state.winnerTeam;
+        if(w === "blue"){
+          overlayLeft.style.background = "linear-gradient(180deg, rgba(59,130,246,.92), rgba(17,24,39,.72))";
+          overlayTitle.textContent = "BLUE TEAM WINS";
+          overlaySub.textContent = "Excellent Support!";
+          overlayRight.innerHTML = document.querySelector(".char.blue").outerHTML;
         }else{
-          // player sees nothing until revealed
-          if(!info.revealed) btn.classList.add("hidden");
+          overlayLeft.style.background = "linear-gradient(180deg, rgba(239,68,68,.90), rgba(17,24,39,.72))";
+          overlayTitle.textContent = "RED TEAM WINS";
+          overlaySub.textContent = "System Secured!";
+          overlayRight.innerHTML = document.querySelector(".char.red").outerHTML;
         }
-
-        if(info.revealed){
-          btn.classList.add("revealed");
-          btn.classList.add(info.team);
-        }
-
-        btn.addEventListener("click", async ()=>{
-          if(latest?.winner) return;
-          await reveal(w);
-        });
-
-        board.appendChild(btn);
+        playWinSound();
+        return;
       }
+
+      // LOSE (assassin)
+      overlayLeft.style.background = "linear-gradient(180deg, rgba(0,0,0,.92), rgba(17,24,39,.72))";
+      overlayLeft.classList.add("glitch");
+      overlayTitle.textContent = "SYSTEM FAILURE";
+      overlaySub.textContent = (state.loserTeam ? state.loserTeam.toUpperCase() : "A TEAM") + " LOST";
+      // show loser character (dim)
+      if(state.loserTeam === "blue") overlayRight.innerHTML = document.querySelector(".char.blue").outerHTML;
+      else if(state.loserTeam === "red") overlayRight.innerHTML = document.querySelector(".char.red").outerHTML;
+      else overlayRight.innerHTML = "";
     }
 
-    // ====== Spymaster actions ======
-    btnNewGame.addEventListener("click", async ()=>{
-      if(myRole !== "spymaster") return;
-      const ok = confirm("أكيد تبين تبدأين لعبة جديدة؟");
-      if(!ok) return;
-      await setDoc(roomRef, createNewGame());
-    });
+    function hideResultOverlay(){
+      resultOverlay.style.display = "none";
+    }
 
-    btnSendClue.addEventListener("click", async ()=>{
-      if(myRole !== "spymaster") return;
-      if(!latest || latest.winner) return;
+    async function finishWin(team, mapping, cur){
+      await updateDoc(roomRef, {
+        mapping,
+        status: "win",
+        winnerTeam: team,
+        loserTeam: null,
+        endedAtMs: Date.now(),
+        updatedAt: serverTimestamp()
+      });
+    }
 
-      const myTeam = teamSelect.value;
-      if(myTeam !== latest.activeTeam) return;
-      if(latest.phase !== "clue") return;
+    async function finishLose(loserTeam, mapping){
+      await updateDoc(roomRef, {
+        mapping,
+        status: "lose",
+        winnerTeam: null,
+        loserTeam,
+        assassinTriggered: true,
+        endedAtMs: Date.now(),
+        phase: "clue",
+        guessesLeft: 0,
+        timerRunning: false,
+        timerEndsAt: null,
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    async function revealWord(word){
+      const snap = await getDoc(roomRef);
+      if(!snap.exists()) return;
+      const cur = snap.data();
+      if(cur.status !== "playing") return;
+
+      const mapping = cur.mapping || {};
+      if(!mapping[word] || mapping[word].revealed) return;
+
+      mapping[word].revealed = true;
+      playClick();
+
+      const revealedTeam = mapping[word].team; // blue|red|neutral|assassin
+      const active = cur.activeTeam;
+
+      // increment move count
+      const newMoveCount = (cur.moveCount || 0) + 1;
+
+      // Assassin -> active loses
+      if(revealedTeam === "assassin"){
+        await updateDoc(roomRef, { moveCount: newMoveCount, updatedAt: serverTimestamp() });
+        await finishLose(active, mapping);
+        return;
+      }
+
+      // check win condition
+      const countsAfter = computeCounts(mapping);
+      if(countsAfter.blueLeft === 0){
+        await updateDoc(roomRef, { moveCount: newMoveCount, updatedAt: serverTimestamp() });
+        await finishWin("blue", mapping, cur);
+        return;
+      }
+      if(countsAfter.redLeft === 0){
+        await updateDoc(roomRef, { moveCount: newMoveCount, updatedAt: serverTimestamp() });
+        await finishWin("red", mapping, cur);
+        return;
+      }
+
+      // Guess logic
+      if(cur.phase === "guess"){
+        // correct
+        if(revealedTeam === active){
+          const newGuesses = Math.max(0, (cur.guessesLeft || 0) - 1);
+
+          await updateDoc(roomRef, {
+            mapping,
+            guessesLeft: newGuesses,
+            moveCount: newMoveCount,
+            updatedAt: serverTimestamp()
+          });
+
+          if(newGuesses <= 0){
+            // auto end turn when guesses end
+            await endTurnRemote(cur);
+          }
+          return;
+        }
+
+        // wrong (neutral or other team) => end immediately
+        await updateDoc(roomRef, {
+          mapping,
+          moveCount: newMoveCount,
+          updatedAt: serverTimestamp()
+        });
+        await endTurnRemote(cur);
+        return;
+      }
+
+      // phase clue: reveal only (no turn change)
+      await updateDoc(roomRef, {
+        mapping,
+        moveCount: newMoveCount,
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    // =========================
+    // SPYMASTER CONTROLS
+    // =========================
+    btnSendClue?.addEventListener("click", async ()=>{
+      if(!isSpymaster) return;
+      if(!latestState) return;
+      if(latestState.status !== "playing") return;
+      if(latestState.phase !== "clue") return;
+      if(spymasterTeam !== latestState.activeTeam) return;
 
       const clue = (clueInput.value || "").trim().toUpperCase();
-      const n = Number(numInput.value);
+      const n = Number((numInput.value || "").trim());
 
       if(!clue || !Number.isFinite(n) || n < 0 || n > 9){
-        alert("اكتب Clue + رقم من 0 إلى 9");
+        alert("Enter clue + number (0 to 9)");
         return;
       }
 
-      await updateDoc(roomRef, {
+      const nextRound = (latestState.roundCount || 0) + 1;
+
+      const update = {
         clueText: clue,
         clueNumber: String(n),
         guessesLeft: n,
         phase: "guess",
-        timerRunning: false,
-        timerEndsAt: null,
+        roundCount: nextRound,
         updatedAt: serverTimestamp()
-      });
+      };
+
+      // prepare timer (do not auto start unless user clicks Start)
+      if(latestState.timerEnabled){
+        update.timerSeconds = Number(latestState.timerSeconds || 60);
+        update.timerRunning = false;
+        update.timerEndsAt = null;
+      }
+
+      await updateDoc(roomRef, update);
 
       clueInput.value = "";
       numInput.value = "";
     });
 
-    btnEndTurn.addEventListener("click", async ()=>{
-      if(myRole !== "spymaster") return;
+    btnEndTurn?.addEventListener("click", async ()=>{
+      if(!isSpymaster) return;
       const snap = await getDoc(roomRef);
       if(!snap.exists()) return;
       const cur = snap.data();
-      if(cur.winner) return;
-
-      const myTeam = teamSelect.value;
-      if(myTeam !== cur.activeTeam) return;
+      if(cur.status !== "playing") return;
       if(cur.phase !== "guess") return;
-
-      await endTurn(cur);
+      if(spymasterTeam !== cur.activeTeam) return;
+      await endTurnRemote(cur);
     });
 
-    useTimer.addEventListener("change", async ()=>{
-      if(myRole !== "spymaster") return;
-      const enabled = !!useTimer.checked;
-      const seconds = clamp(Number(secondsInput.value || 60), 10, 600);
+    btnClearClue?.addEventListener("click", async ()=>{
+      if(!isSpymaster) return;
+      await updateDoc(roomRef, { clueText: "—", clueNumber: "—", updatedAt: serverTimestamp() });
+      clueInput.value = "";
+      numInput.value = "";
+    });
+
+    timerEnabledChk?.addEventListener("change", async ()=>{
+      if(!isSpymaster) return;
+      const enabled = !!timerEnabledChk.checked;
+      const seconds = Number(timerSecondsInp.value || 60);
       await updateDoc(roomRef, {
         timerEnabled: enabled,
-        timerSeconds: Number.isFinite(seconds) ? seconds : 60,
+        timerSeconds: Number.isFinite(seconds) ? clamp(seconds, 10, 600) : 60,
         timerRunning: false,
         timerEndsAt: null,
         updatedAt: serverTimestamp()
       });
     });
 
-    secondsInput.addEventListener("change", async ()=>{
-      if(myRole !== "spymaster") return;
-      const seconds = clamp(Number(secondsInput.value || 60), 10, 600);
-      await updateDoc(roomRef, {
-        timerSeconds: Number.isFinite(seconds) ? seconds : 60,
-        updatedAt: serverTimestamp()
-      });
-    });
-
-    btnStartTimer.addEventListener("click", async ()=>{
-      if(myRole !== "spymaster") return;
+    btnStartTimer?.addEventListener("click", async ()=>{
+      if(!isSpymaster) return;
       const snap = await getDoc(roomRef);
       if(!snap.exists()) return;
       const cur = snap.data();
-      if(cur.winner) return;
-
-      const myTeam = teamSelect.value;
-      if(myTeam !== cur.activeTeam) return;
+      if(cur.status !== "playing") return;
       if(cur.phase !== "guess") return;
+      if(spymasterTeam !== cur.activeTeam) return;
       if(!cur.timerEnabled) return;
 
-      const secs = clamp(Number(cur.timerSeconds || 60), 10, 600);
-      const ends = Date.now() + secs * 1000;
+      const seconds = clamp(Number(cur.timerSeconds || 60), 10, 600);
+      const endsAt = Date.now() + seconds*1000;
 
       await updateDoc(roomRef, {
         timerRunning: true,
-        timerEndsAt: ends,
+        timerEndsAt: endsAt,
         updatedAt: serverTimestamp()
       });
     });
 
-    btnStopTimer.addEventListener("click", async ()=>{
-      if(myRole !== "spymaster") return;
+    btnStopTimer?.addEventListener("click", async ()=>{
+      if(!isSpymaster) return;
+      const snap = await getDoc(roomRef);
+      if(!snap.exists()) return;
+      const cur = snap.data();
+      if(spymasterTeam !== cur.activeTeam) return;
       await updateDoc(roomRef, {
         timerRunning: false,
         timerEndsAt: null,
@@ -983,12 +1606,171 @@
       });
     });
 
-    // ====== Start ======
+    // New Game
+    btnNew.addEventListener("click", async ()=>{
+      await setDoc(roomRef, createNewGameState());
+      hideResultOverlay();
+    });
+
+    // Overlay controls (spymaster only close)
+    btnOverlayNew.addEventListener("click", async ()=>{
+      await setDoc(roomRef, createNewGameState());
+      hideResultOverlay();
+    });
+
+    btnOverlayClose.addEventListener("click", ()=>{
+      if(!isSpymaster) return;
+      hideResultOverlay();
+    });
+
+    // ESC close overlay for spymaster
+    document.addEventListener("keydown", (e)=>{
+      if(e.key === "Escape" && isSpymaster && resultOverlay.style.display === "flex"){
+        hideResultOverlay();
+      }
+    });
+
+    // Click anywhere to close overlay (spymaster only)
+    resultOverlay.addEventListener("click", (e)=>{
+      if(!isSpymaster) return;
+      // close when clicking outside the box or even inside (as requested: mouse click)
+      hideResultOverlay();
+    });
+    document.getElementById("overlayBox").addEventListener("click", (e)=> e.stopPropagation());
+
+    // =========================
+    // RENDER
+    // =========================
+    function render(state){
+      latestState = state;
+
+      // Aura by active team
+      setAura(state.activeTeam || "blue");
+
+      // Turn label
+      turnLine.textContent = `Turn: ${(state.activeTeam||"—").toUpperCase()} • ${(state.phase||"—").toUpperCase()}`;
+
+      // clue
+      clueTextEl.textContent = state.clueText || "—";
+      clueNumEl.textContent = state.clueNumber || "—";
+      guessesLeftEl.textContent = String(state.guessesLeft ?? "—");
+
+      // counts
+      const counts = computeCounts(state.mapping || {});
+      blueLeftEl.textContent = counts.blueLeft;
+      redLeftEl.textContent = counts.redLeft;
+      neutralLeftEl.textContent = counts.neutralLeft;
+
+      updateNearVictory(counts);
+
+      // Spymaster panel controls
+      if(isSpymaster){
+        const isMyTurn = (spymasterTeam === state.activeTeam);
+        smTitle.textContent =
+          `Spymaster Panel — You: ${spymasterTeam.toUpperCase()} — Active: ${state.activeTeam.toUpperCase()} — Start: ${state.startingTeam.toUpperCase()}`;
+
+        btnSendClue.disabled = !(isMyTurn && state.phase === "clue" && state.status === "playing");
+        btnEndTurn.disabled  = !(isMyTurn && state.phase === "guess" && state.status === "playing");
+
+        timerEnabledChk.checked = !!state.timerEnabled;
+        timerSecondsInp.value = state.timerSeconds ?? 60;
+
+        btnStartTimer.disabled = !(isMyTurn && state.phase === "guess" && state.timerEnabled && !state.timerRunning && state.status === "playing");
+        btnStopTimer.disabled  = !(isMyTurn && state.timerRunning && state.status === "playing");
+      }
+
+      // Timer
+      if(timerInterval) clearInterval(timerInterval);
+      renderTimer(state);
+      timerInterval = setInterval(()=> renderTimer(latestState), 250);
+
+      // Board
+      board.innerHTML = "";
+      const wordsOrder = state.words || Object.keys(state.mapping || {});
+
+      for(const w of wordsOrder){
+        const info = state.mapping?.[w];
+        if(!info) continue;
+
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "card";
+
+        const inner = document.createElement("div");
+        inner.className = "cardInner";
+
+        const front = document.createElement("div");
+        front.className = "face front";
+
+        const back = document.createElement("div");
+        back.className = "face back";
+
+        const icon = document.createElement("div");
+        icon.className = "tinyIcon";
+        icon.textContent = info.icon || "⚙️";
+
+        const word = document.createElement("div");
+        word.className = "word";
+        word.textContent = w;
+
+        const revealed = !!info.revealed;
+        const team = info.team; // blue red neutral assassin
+
+        // Front (hidden or hinted)
+        if(isSpymaster){
+          front.classList.add("hinted");
+          front.classList.add(team === "assassin" ? "black" : team);
+        } else {
+          front.classList.add("hidden");
+        }
+
+        // Back (revealed color)
+        if(revealed){
+          card.classList.add("reveal");
+          back.classList.add(team === "assassin" ? "black" : team);
+        } else {
+          back.classList.add("neutral"); // back exists but will be hidden until flip
+        }
+
+        front.appendChild(icon);
+        front.appendChild(word);
+
+        // back text (same word + small status)
+        const backWord = document.createElement("div");
+        backWord.className = "word";
+        backWord.textContent = w;
+        back.appendChild(backWord);
+
+        inner.appendChild(front);
+        inner.appendChild(back);
+        card.appendChild(inner);
+
+        card.addEventListener("click", async ()=>{
+          if(latestState?.status !== "playing") return;
+          await revealWord(w);
+        });
+
+        board.appendChild(card);
+      }
+
+      // Result overlay: only when game ends
+      if(state.status === "playing"){
+        hideResultOverlay();
+      } else {
+        showResultOverlay(state);
+      }
+    }
+
+    // =========================
+    // START
+    // =========================
     await ensureRoom();
+
     onSnapshot(roomRef, (snap)=>{
       if(!snap.exists()) return;
       render(snap.data());
     });
+
   </script>
 </body>
 </html>
