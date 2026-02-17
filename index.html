@@ -34,6 +34,7 @@
     }
 
     .app{ max-width:1200px; margin:0 auto; padding:18px; }
+
     .top{
       display:flex;
       gap:16px;
@@ -41,6 +42,7 @@
       justify-content:space-between;
       flex-wrap:wrap;
     }
+
     .brand{ display:flex; gap:12px; align-items:center; }
     .logo{
       width:54px; height:54px;
@@ -141,6 +143,35 @@
       font-weight:900;
       font-size:12px;
     }
+    #guessesLeft{ font-size:18px; }
+
+    .spymasterOnly{
+      flex:1;
+      min-width:360px;
+      background:#fff;
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+      padding:14px 16px;
+    }
+    .smTitle{ font-weight:1100; margin-bottom:10px; }
+    .smRow{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    }
+    .smRow input{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.12);
+      outline:none;
+      font-weight:900;
+    }
+    #clueInput{ flex:1; min-width:200px; }
+    #numInput{ width:110px; }
+    .timerRow{ margin-top:8px; }
+    .check{
+      display:flex; gap:8px; align-items:center;
+      font-weight:900; color:var(--text);
+    }
+    .hint{ margin-top:10px; font-size:13px; color:var(--muted); }
 
     .board{
       margin-top:16px;
@@ -158,15 +189,44 @@
       background:#fff;
       box-shadow:var(--shadow);
       cursor:pointer;
-      transition: transform .10s ease;
+      transition: transform .10s ease, filter .15s ease, opacity .15s ease;
+      letter-spacing:.4px;
+      position:relative;
+      overflow:hidden;
     }
     .card:hover{ transform:translateY(-2px); }
+    .card:active{ transform:translateY(0px); }
 
+    .card.hidden{ background:#fff; color:var(--text); }
+
+    /* spymaster hint colors (before reveal) */
+    .card.hinted.blue{ background:rgba(37,99,235,.14); }
+    .card.hinted.red{ background:rgba(239,68,68,.14); }
+    .card.hinted.neutral{ background:rgba(148,163,184,.22); }
+    .card.hinted.black{ background:rgba(17,24,39,.18); color:var(--text); }
+
+    /* revealed colors */
     .card.revealed.blue{ background:var(--blue); color:#fff; }
     .card.revealed.red{ background:var(--red); color:#fff; }
-    .card.revealed.neutral{ background:var(--neutral); }
+    .card.revealed.neutral{ background:var(--neutral); color:var(--text); }
     .card.revealed.black{ background:var(--black); color:#fff; }
 
+    /* reveal sheen */
+    .card.revealed::after{
+      content:"";
+      position:absolute;
+      inset:-60%;
+      background: radial-gradient(circle at 20% 10%, rgba(255,255,255,.30), transparent 60%);
+      transform: rotate(14deg);
+      animation: sheen .55s ease;
+      pointer-events:none;
+    }
+    @keyframes sheen{
+      from{ transform: translateX(-28%) rotate(14deg); opacity:.0; }
+      to  { transform: translateX(28%) rotate(14deg); opacity:1; }
+    }
+
+    /* WIN OVERLAY */
     .winOverlay{
       position:fixed;
       inset:0;
@@ -181,6 +241,84 @@
       padding:42px 54px;
       border-radius:24px;
       text-align:center;
+      box-shadow:0 20px 60px rgba(0,0,0,.25);
+      animation: pop .35s ease;
+    }
+    @keyframes pop{
+      from{ transform:scale(.75); opacity:0; }
+      to{ transform:scale(1); opacity:1; }
+    }
+    .winBox h2{
+      font-size:44px;
+      margin:0 0 16px;
+      font-weight:1100;
+    }
+    .winBox button{
+      margin-top:12px;
+      padding:12px 22px;
+      border:none;
+      border-radius:14px;
+      background:#0f172a;
+      color:#fff;
+      font-weight:1000;
+      cursor:pointer;
+    }
+
+    /* Mobile */
+    @media (max-width: 860px){
+      .board{ grid-template-columns: repeat(3, minmax(140px, 1fr)); }
+    }
+    @media (max-width: 520px){
+      .board{ grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+    }
+
+    /* SIMPLE SPYMASTER LOGIN (same link, no extra URLs) */
+    .smLogin{
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      z-index: 9998;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .smLogin .mini{
+      border:none;
+      border-radius:999px;
+      padding:10px 12px;
+      font-weight:1000;
+      cursor:pointer;
+      background:#fff;
+      color:var(--text);
+      box-shadow:var(--shadow);
+      border:1px solid rgba(15,23,42,.10);
+    }
+    .smModal{
+      position:fixed; inset:0;
+      display:none;
+      align-items:center; justify-content:center;
+      background: rgba(15,23,42,.55);
+      z-index: 10000;
+      padding:16px;
+    }
+    .smModal .box{
+      width:min(520px, 100%);
+      background:#fff;
+      border-radius:20px;
+      box-shadow:0 20px 60px rgba(0,0,0,.25);
+      padding:16px;
+    }
+    .smModal h3{ margin:0 0 10px; }
+    .smModal .row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+    .smModal input{
+      flex:1;
+      min-width:220px;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.12);
+      font-weight:900;
+      outline:none;
     }
   </style>
 </head>
@@ -201,32 +339,666 @@
           </div>
         </div>
       </div>
+
+      <div class="right">
+        <div class="counters">
+          <div class="pill blue">🔵 Blue left: <b id="blueLeft">—</b></div>
+          <div class="pill red">🔴 Red left: <b id="redLeft">—</b></div>
+          <div class="pill gray">⚪ Neutral: <b id="neutralLeft">—</b></div>
+          <div class="pill dark">⏱️ <span id="timerText">—</span></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="btnNew">New Game</button>
+          <button class="btn ghost" id="btnCopyPlayers">Copy Players Link</button>
+          <button class="btn ghost" id="btnCopyBlue">Copy Blue Spymaster Link</button>
+          <button class="btn ghost" id="btnCopyRed">Copy Red Spymaster Link</button>
+        </div>
+      </div>
     </header>
+
+    <section class="clueBar">
+      <div class="clueShow">
+        <div class="label">Clue</div>
+        <div class="clueText" id="clueText">—</div>
+        <div class="clueNum" id="clueNum">—</div>
+        <div class="guesses">
+          <span class="tag">Guesses left</span>
+          <b id="guessesLeft">—</b>
+        </div>
+      </div>
+
+      <div class="spymasterOnly" id="spymasterPanel" style="display:none;">
+        <div class="smTitle" id="smTitle">Spymaster Panel</div>
+
+        <div class="smRow">
+          <input id="clueInput" placeholder="Clue word (e.g., NETWORK)" maxlength="20" />
+          <input id="numInput" placeholder="Number" type="number" min="0" max="9" />
+          <button class="btn" id="btnSendClue">Send</button>
+          <button class="btn ghost" id="btnEndTurn">End Turn</button>
+          <button class="btn ghost" id="btnClearClue">Clear</button>
+        </div>
+
+        <div class="smRow timerRow">
+          <label class="check">
+            <input type="checkbox" id="timerEnabled" />
+            Use Timer
+          </label>
+          <input id="timerSeconds" type="number" min="10" max="600" placeholder="Seconds (e.g., 60)" />
+          <button class="btn ghost" id="btnStartTimer">Start Timer</button>
+          <button class="btn ghost" id="btnStopTimer">Stop Timer</button>
+        </div>
+
+        <div class="hint">
+          ✅ Spymaster sees all colors. Players see colors only after reveal. <br/>
+          ✅ Wrong guess ends turn immediately (like original).
+        </div>
+      </div>
+    </section>
 
     <main class="board" id="board"></main>
 
     <div class="winOverlay" id="winOverlay">
       <div class="winBox">
         <h2 id="winText"></h2>
-        <button onclick="location.reload()">New Game</button>
+        <button id="btnWinNew">New Game</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Same link spymaster login -->
+  <div class="smLogin">
+    <button class="mini" id="btnOpenSpy">🧠 دخول سباي ماستر</button>
+    <button class="mini" id="btnLogoutSpy" style="display:none;">🚪 خروج</button>
+  </div>
+
+  <div class="smModal" id="smModal">
+    <div class="box">
+      <h3>دخول السباي ماستر (بدون روابط)</h3>
+      <div style="color:#64748b;font-weight:900;">
+        اختاري الفريق واكتبي الكود مرة واحدة فقط (بينحفظ بالجهاز).
+      </div>
+      <div class="row">
+        <button class="btn" id="pickBlue">BLUE</button>
+        <button class="btn" id="pickRed">RED</button>
+        <button class="btn ghost" id="pickCancel">إلغاء</button>
+      </div>
+      <div class="row">
+        <input id="spyCode" placeholder="الكود (مثال: BLUE-777 أو RED-777)" />
+        <button class="btn" id="spyEnter">دخول</button>
+      </div>
+      <div style="margin-top:10px;color:#64748b;font-weight:900;">
+        للمشغّل على البروجكتر: لا تضغط زر السباي ماستر وخلاص 👍
       </div>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
+    // ===== firebaseConfig =====
     const firebaseConfig = {
       apiKey: "AIzaSyBaQKAER5HLq6LhPWIaIqrBRpd4qn0lUss",
       authDomain: "codenames-it-support.firebaseapp.com",
-      projectId: "codenames-it-support"
+      projectId: "codenames-it-support",
+      storageBucket: "codenames-it-support.firebasestorage.app",
+      messagingSenderId: "328187580670",
+      appId: "1:328187580670:web:b18953ccf1ad374a1dd5af",
+      measurementId: "G-NVG0G4SM6D"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    console.log("Game Loaded Successfully");
+    // ===== CODES =====
+    const BLUE_CODE = "BLUE-777";
+    const RED_CODE  = "RED-777";
+
+    // ===== 25 IT Support Words =====
+    const WORDS = [
+      "Ticket","Service Desk","VPN","Firewall","DNS",
+      "DHCP","IP Address","Router","Switch","Wi-Fi",
+      "Active Directory","Password","MFA","Account","Permissions",
+      "Hardware","Software","Printer","Antivirus","Patch",
+      "Backup","Restore","Incident","Outage","Email"
+    ];
+
+    // ===== Utils =====
+    const qs = new URLSearchParams(location.search);
+    const getParam = (k) => qs.get(k);
+    const setParam = (k, v) => { qs.set(k, v); history.replaceState({}, "", location.pathname + "?" + qs.toString()); };
+
+    function shuffle(arr){
+      const a = [...arr];
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]] = [a[j],a[i]];
+      }
+      return a;
+    }
+
+    const otherTeam = (t) => t === "blue" ? "red" : "blue";
+
+    function playWinSound(){
+      try{
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = "sine";
+        o.connect(g);
+        g.connect(ctx.destination);
+
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(0.22, now + 0.02);
+
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((f, i) => o.frequency.setValueAtTime(f, now + i * 0.12));
+
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+        o.start(now);
+        o.stop(now + 0.60);
+      } catch {}
+    }
+
+    // ===== Room & Role =====
+    let roomId = (getParam("room") || "CLASS1").toUpperCase();
+    setParam("room", roomId);
+
+    // role now can come from localStorage (so no many links)
+    const storedRole = localStorage.getItem("cn_role") || "player";
+    const storedCode = localStorage.getItem("cn_code") || "";
+
+    const role = (getParam("role") || storedRole || "player").toLowerCase();
+    const code = (getParam("code") || storedCode || "");
+    const isSpymaster = (role === "spymaster") && (code === BLUE_CODE || code === RED_CODE);
+    const spymasterTeam = (code === BLUE_CODE) ? "blue" : (code === RED_CODE ? "red" : null);
+
+    // persist for next time
+    localStorage.setItem("cn_role", role);
+    localStorage.setItem("cn_code", code);
+
+    document.getElementById("roomLine").textContent = "Room: " + roomId;
+    document.getElementById("roleLine").textContent = isSpymaster
+      ? ("Role: Spymaster (" + spymasterTeam.toUpperCase() + ")")
+      : "Role: Player";
+
+    const spymasterPanel = document.getElementById("spymasterPanel");
+    if(isSpymaster) spymasterPanel.style.display = "block";
+
+    const roomRef = doc(db, "rooms", roomId);
+
+    // ===== State creation =====
+    function createNewGameState(){
+      const startingTeam = Math.random() < 0.5 ? "blue" : "red";
+      const activeTeam = startingTeam;
+
+      const blueCount = startingTeam === "blue" ? 9 : 8;
+      const redCount  = startingTeam === "red"  ? 9 : 8;
+      const assassinCount = 1;
+      const neutralCount = 25 - blueCount - redCount - assassinCount;
+
+      const colors = [
+        ...Array(blueCount).fill("blue"),
+        ...Array(redCount).fill("red"),
+        ...Array(neutralCount).fill("neutral"),
+        ...Array(assassinCount).fill("assassin"),
+      ];
+
+      const words = shuffle(WORDS);
+      const shuffledColors = shuffle(colors);
+
+      const mapping = {};
+      for(let i=0;i<25;i++){
+        mapping[words[i]] = { team: shuffledColors[i], revealed: false };
+      }
+
+      return {
+        roomId,
+        words,
+        mapping,
+        startingTeam,
+        activeTeam,
+        phase: "clue",
+        clueText: "—",
+        clueNumber: "—",
+        guessesLeft: 0,
+        winner: null,
+        timerEnabled: false,
+        timerSeconds: 60,
+        timerEndsAt: null,
+        timerRunning: false,
+        updatedAt: serverTimestamp()
+      };
+    }
+
+    async function ensureRoom(){
+      const snap = await getDoc(roomRef);
+      if(!snap.exists()){
+        await setDoc(roomRef, createNewGameState());
+      }
+    }
+
+    // ===== UI =====
+    const board = document.getElementById("board");
+    const clueTextEl = document.getElementById("clueText");
+    const clueNumEl = document.getElementById("clueNum");
+    const guessesLeftEl = document.getElementById("guessesLeft");
+    const blueLeftEl = document.getElementById("blueLeft");
+    const redLeftEl = document.getElementById("redLeft");
+    const neutralLeftEl = document.getElementById("neutralLeft");
+    const turnLineEl = document.getElementById("turnLine");
+    const timerTextEl = document.getElementById("timerText");
+
+    const clueInput = document.getElementById("clueInput");
+    const numInput = document.getElementById("numInput");
+    const btnSendClue = document.getElementById("btnSendClue");
+    const btnEndTurn = document.getElementById("btnEndTurn");
+    const btnClearClue = document.getElementById("btnClearClue");
+
+    const timerEnabledChk = document.getElementById("timerEnabled");
+    const timerSecondsInp = document.getElementById("timerSeconds");
+    const btnStartTimer = document.getElementById("btnStartTimer");
+    const btnStopTimer = document.getElementById("btnStopTimer");
+
+    const winOverlay = document.getElementById("winOverlay");
+    const winText = document.getElementById("winText");
+    const btnWinNew = document.getElementById("btnWinNew");
+
+    const btnNew = document.getElementById("btnNew");
+    const btnCopyPlayers = document.getElementById("btnCopyPlayers");
+    const btnCopyBlue = document.getElementById("btnCopyBlue");
+    const btnCopyRed = document.getElementById("btnCopyRed");
+
+    function baseUrl(){
+      return location.origin + location.pathname + "?room=" + encodeURIComponent(roomId);
+    }
+
+    function teamClass(t){
+      if(t==="blue") return "blue";
+      if(t==="red") return "red";
+      if(t==="assassin") return "black";
+      return "neutral";
+    }
+
+    function computeCounts(mapping){
+      let blueLeft=0, redLeft=0, neutralLeft=0;
+      for(const w in mapping){
+        const c = mapping[w];
+        if(!c.revealed && c.team==="blue") blueLeft++;
+        if(!c.revealed && c.team==="red") redLeft++;
+        if(!c.revealed && c.team==="neutral") neutralLeft++;
+      }
+      return {blueLeft, redLeft, neutralLeft};
+    }
+
+    function showWin(message){
+      winText.textContent = message;
+      winOverlay.style.display = "flex";
+      playWinSound();
+    }
+
+    function hideWin(){
+      winOverlay.style.display = "none";
+    }
+
+    // ===== Game Logic =====
+    async function endTurnRemote(cur){
+      const next = otherTeam(cur.activeTeam);
+      await updateDoc(roomRef, {
+        activeTeam: next,
+        phase: "clue",
+        clueText: "—",
+        clueNumber: "—",
+        guessesLeft: 0,
+        timerRunning: false,
+        timerEndsAt: null,
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    async function revealWord(word){
+      const snap = await getDoc(roomRef);
+      if(!snap.exists()) return;
+      const cur = snap.data();
+      if(cur.winner) return;
+
+      const mapping = cur.mapping || {};
+      if(!mapping[word] || mapping[word].revealed) return;
+
+      mapping[word].revealed = true;
+
+      const revealedTeam = mapping[word].team;
+      const active = cur.activeTeam;
+
+      if(revealedTeam === "assassin"){
+        const winnerTeam = otherTeam(active);
+        await updateDoc(roomRef, {
+          mapping,
+          winner: winnerTeam,
+          phase: "clue",
+          guessesLeft: 0,
+          timerRunning: false,
+          timerEndsAt: null,
+          updatedAt: serverTimestamp()
+        });
+        return;
+      }
+
+      const countsAfter = computeCounts(mapping);
+      if(countsAfter.blueLeft === 0){
+        await updateDoc(roomRef, { mapping, winner: "blue", updatedAt: serverTimestamp() });
+        return;
+      }
+      if(countsAfter.redLeft === 0){
+        await updateDoc(roomRef, { mapping, winner: "red", updatedAt: serverTimestamp() });
+        return;
+      }
+
+      if(cur.phase === "guess"){
+        if(revealedTeam === active){
+          const newGuesses = Math.max(0, (cur.guessesLeft || 0) - 1);
+          if(newGuesses <= 0){
+            await updateDoc(roomRef, { mapping, guessesLeft: newGuesses, updatedAt: serverTimestamp() });
+            await endTurnRemote(cur);
+          } else {
+            await updateDoc(roomRef, { mapping, guessesLeft: newGuesses, updatedAt: serverTimestamp() });
+          }
+        } else {
+          await updateDoc(roomRef, { mapping, updatedAt: serverTimestamp() });
+          await endTurnRemote(cur);
+        }
+      } else {
+        await updateDoc(roomRef, { mapping, updatedAt: serverTimestamp() });
+      }
+    }
+
+    // ===== Render =====
+    let latestState = null;
+    let timerInterval = null;
+
+    function updateTimerText(state){
+      if(!state.timerEnabled){
+        timerTextEl.textContent = "Timer OFF";
+        return;
+      }
+      if(!state.timerRunning || !state.timerEndsAt){
+        timerTextEl.textContent = "Timer READY";
+        return;
+      }
+      const leftMs = state.timerEndsAt - Date.now();
+      const s = Math.max(0, Math.ceil(leftMs / 1000));
+      timerTextEl.textContent = "Time: " + s + "s";
+
+      if(s <= 0 && isSpymaster && spymasterTeam === state.activeTeam && state.phase === "guess"){
+        clearInterval(timerInterval);
+        timerInterval = null;
+        getDoc(roomRef).then(snap=>{
+          if(!snap.exists()) return;
+          const cur = snap.data();
+          if(cur.phase === "guess" && cur.timerRunning){
+            endTurnRemote(cur);
+          }
+        });
+      }
+    }
+
+    function render(state){
+      latestState = state;
+
+      const turnLabel = `${(state.activeTeam || "—").toUpperCase()} • ${(state.phase || "—").toUpperCase()}`;
+      turnLineEl.textContent = "Turn: " + turnLabel;
+
+      clueTextEl.textContent = state.clueText || "—";
+      clueNumEl.textContent = state.clueNumber || "—";
+      guessesLeftEl.textContent = String(state.guessesLeft ?? "—");
+
+      const counts = computeCounts(state.mapping || {});
+      blueLeftEl.textContent = counts.blueLeft;
+      redLeftEl.textContent = counts.redLeft;
+      neutralLeftEl.textContent = counts.neutralLeft;
+
+      if(state.winner){
+        const msg = state.winner === "blue"
+          ? "✅ BLUE TEAM WINS!"
+          : state.winner === "red"
+            ? "✅ RED TEAM WINS!"
+            : "✅ GAME OVER!";
+        showWin(msg);
+      } else {
+        hideWin();
+      }
+
+      if(isSpymaster){
+        const isMyTurn = spymasterTeam === state.activeTeam;
+        document.getElementById("smTitle").textContent =
+          `Spymaster Panel — You: ${spymasterTeam.toUpperCase()} — Active: ${state.activeTeam.toUpperCase()} — Start: ${state.startingTeam.toUpperCase()}`;
+
+        btnSendClue.disabled = !(isMyTurn && state.phase === "clue" && !state.winner);
+        btnEndTurn.disabled  = !(isMyTurn && state.phase === "guess" && !state.winner);
+
+        timerEnabledChk.checked = !!state.timerEnabled;
+        timerSecondsInp.value = state.timerSeconds ?? 60;
+
+        btnStartTimer.disabled = !(isMyTurn && state.phase === "guess" && state.timerEnabled && !state.timerRunning && !state.winner);
+        btnStopTimer.disabled  = !(isMyTurn && state.timerRunning && !state.winner);
+      }
+
+      if(timerInterval) clearInterval(timerInterval);
+      updateTimerText(state);
+      timerInterval = setInterval(()=> updateTimerText(latestState), 300);
+
+      board.innerHTML = "";
+      const wordsOrder = state.words || Object.keys(state.mapping || {});
+      for(const w of wordsOrder){
+        const info = state.mapping?.[w];
+        if(!info) continue;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "card";
+
+        const revealed = !!info.revealed;
+        const team = info.team;
+
+        if(isSpymaster){
+          btn.classList.add("hinted");
+          btn.classList.add(teamClass(team));
+          if(revealed) btn.classList.add("revealed");
+        } else {
+          if(revealed){
+            btn.classList.add("revealed");
+            btn.classList.add(teamClass(team));
+          } else {
+            btn.classList.add("hidden");
+          }
+        }
+
+        btn.textContent = w;
+
+        btn.addEventListener("click", async ()=>{
+          if(latestState?.winner) return;
+          await revealWord(w);
+        });
+
+        board.appendChild(btn);
+      }
+    }
+
+    // ===== Buttons =====
+    btnWinNew.addEventListener("click", async ()=>{ await setDoc(roomRef, createNewGameState()); });
+    btnNew.addEventListener("click", async ()=>{ await setDoc(roomRef, createNewGameState()); });
+
+    btnCopyPlayers.addEventListener("click", async ()=>{
+      const url = baseUrl();
+      await navigator.clipboard.writeText(url);
+      alert("Players/Projector link copied ✅");
+    });
+
+    btnCopyBlue.addEventListener("click", async ()=>{
+      const url = baseUrl() + "&role=spymaster&code=" + encodeURIComponent(BLUE_CODE);
+      await navigator.clipboard.writeText(url);
+      alert("Blue spymaster link copied ✅");
+    });
+
+    btnCopyRed.addEventListener("click", async ()=>{
+      const url = baseUrl() + "&role=spymaster&code=" + encodeURIComponent(RED_CODE);
+      await navigator.clipboard.writeText(url);
+      alert("Red spymaster link copied ✅");
+    });
+
+    btnSendClue?.addEventListener("click", async ()=>{
+      if(!isSpymaster) return;
+      if(!latestState) return;
+      if(latestState.winner) return;
+      if(latestState.phase !== "clue") return;
+      if(spymasterTeam !== latestState.activeTeam) return;
+
+      const clue = (clueInput.value || "").trim().toUpperCase();
+      const num = (numInput.value || "").trim();
+      const n = Number(num);
+
+      if(!clue || !Number.isFinite(n) || n < 0 || n > 9){
+        alert("اكتبي clue + رقم من 0 إلى 9");
+        return;
+      }
+
+      const update = {
+        clueText: clue,
+        clueNumber: String(n),
+        guessesLeft: n,
+        phase: "guess",
+        updatedAt: serverTimestamp()
+      };
+
+      if(latestState.timerEnabled){
+        update.timerSeconds = Number(latestState.timerSeconds || 60);
+        update.timerRunning = false;
+        update.timerEndsAt = null;
+      }
+
+      await updateDoc(roomRef, update);
+      clueInput.value = "";
+      numInput.value = "";
+    });
+
+    btnEndTurn?.addEventListener("click", async ()=>{
+      if(!isSpymaster) return;
+      const snap = await getDoc(roomRef);
+      if(!snap.exists()) return;
+      const cur = snap.data();
+      if(cur.winner) return;
+      if(cur.phase !== "guess") return;
+      if(spymasterTeam !== cur.activeTeam) return;
+      await endTurnRemote(cur);
+    });
+
+    btnClearClue?.addEventListener("click", async ()=>{
+      if(!isSpymaster) return;
+      await updateDoc(roomRef, { clueText: "—", clueNumber: "—", updatedAt: serverTimestamp() });
+      clueInput.value = "";
+      numInput.value = "";
+    });
+
+    timerEnabledChk?.addEventListener("change", async ()=>{
+      if(!isSpymaster) return;
+      const enabled = !!timerEnabledChk.checked;
+      const seconds = Number(timerSecondsInp.value || 60);
+      await updateDoc(roomRef, {
+        timerEnabled: enabled,
+        timerSeconds: Number.isFinite(seconds) ? Math.max(10, Math.min(600, seconds)) : 60,
+        updatedAt: serverTimestamp()
+      });
+    });
+
+    btnStartTimer?.addEventListener("click", async ()=>{
+      if(!isSpymaster) return;
+      const snap = await getDoc(roomRef);
+      if(!snap.exists()) return;
+      const cur = snap.data();
+      if(cur.winner) return;
+      if(cur.phase !== "guess") return;
+      if(spymasterTeam !== cur.activeTeam) return;
+      if(!cur.timerEnabled) return;
+
+      const seconds = Number(cur.timerSeconds || 60);
+      const endsAt = Date.now() + Math.max(10, Math.min(600, seconds)) * 1000;
+
+      await updateDoc(roomRef, { timerRunning: true, timerEndsAt: endsAt, updatedAt: serverTimestamp() });
+    });
+
+    btnStopTimer?.addEventListener("click", async ()=>{
+      if(!isSpymaster) return;
+      const snap = await getDoc(roomRef);
+      if(!snap.exists()) return;
+      const cur = snap.data();
+      if(spymasterTeam !== cur.activeTeam) return;
+      await updateDoc(roomRef, { timerRunning: false, timerEndsAt: null, updatedAt: serverTimestamp() });
+    });
+
+    // ===== Spymaster simple login (same link) =====
+    const btnOpenSpy = document.getElementById("btnOpenSpy");
+    const btnLogoutSpy = document.getElementById("btnLogoutSpy");
+    const smModal = document.getElementById("smModal");
+    const pickBlue = document.getElementById("pickBlue");
+    const pickRed = document.getElementById("pickRed");
+    const pickCancel = document.getElementById("pickCancel");
+    const spyCodeInp = document.getElementById("spyCode");
+    const spyEnter = document.getElementById("spyEnter");
+
+    let pickedTeam = "blue";
+    function openModal(){
+      smModal.style.display = "flex";
+      spyCodeInp.value = localStorage.getItem("cn_code") || "";
+      pickedTeam = "blue";
+    }
+    function closeModal(){ smModal.style.display = "none"; }
+
+    btnOpenSpy.addEventListener("click", openModal);
+    pickCancel.addEventListener("click", closeModal);
+    pickBlue.addEventListener("click", ()=>{ pickedTeam="blue"; alert("اختيار: BLUE"); });
+    pickRed.addEventListener("click", ()=>{ pickedTeam="red"; alert("اختيار: RED"); });
+
+    spyEnter.addEventListener("click", ()=>{
+      const c = (spyCodeInp.value || "").trim();
+      if(!c){ alert("اكتبي الكود"); return; }
+
+      // save in device
+      localStorage.setItem("cn_role", "spymaster");
+      localStorage.setItem("cn_code", c);
+
+      // reload clean (same link) - no need many links
+      const nqs = new URLSearchParams(location.search);
+      nqs.set("room", roomId);
+      nqs.set("role", "spymaster:"); // just to mark; real check uses code
+      nqs.set("code", c);
+      location.search = "?" + nqs.toString();
+    });
+
+    // logout button appears when spymaster
+    if(isSpymaster){
+      btnLogoutSpy.style.display = "inline-block";
+      btnOpenSpy.style.display = "none";
+    }
+    btnLogoutSpy.addEventListener("click", ()=>{
+      localStorage.setItem("cn_role", "player");
+      localStorage.setItem("cn_code", "");
+      const nqs = new URLSearchParams(location.search);
+      nqs.set("room", roomId);
+      nqs.delete("role");
+      nqs.delete("code");
+      location.search = "?" + nqs.toString();
+    });
+
+    // ===== Start =====
+    await ensureRoom();
+    onSnapshot(roomRef, (snap) => {
+      if(!snap.exists()) return;
+      render(snap.data());
+    });
   </script>
 </body>
 </html>
