@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Codenames — IT Support</title>
+
+  <style>
+    :root{
+      --bg:#f3f6ff;
+      --card:#ffffff;
+      --shadow:0 10px 30px rgba(15,23,42,.10);
+      --radius:18px;
+
+      --blue:#2563eb;
+      --red:#ef4444;
+      --neutral:#e5e7eb;
+      --black:#111827;
+
+      --text:#0f172a;
+      --muted:#64748b;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 15% 0%, #dbeafe 0%, transparent 60%),
+        radial-gradient(900px 500px at 85% 0%, #fee2e2 0%, transparent 60%),
+        radial-gradient(900px 600px at 50% 100%, #dcfce7 0%, transparent 60%),
+        var(--bg);
+    }
+
+    .app{ max-width:1200px; margin:0 auto; padding:18px; }
+    .top{
+      display:flex;
+      gap:16px;
+      align-items:flex-start;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .brand{ display:flex; gap:12px; align-items:center; }
+    .logo{
+      width:54px; height:54px;
+      border-radius:16px;
+      background:#fff;
+      box-shadow:var(--shadow);
+      display:grid; place-items:center;
+      font-size:26px;
+    }
+    h1{ margin:0; font-size:28px; letter-spacing:.3px; }
+    .sub{ color:var(--muted); display:flex; gap:10px; align-items:center; margin-top:2px; flex-wrap:wrap;}
+    .dot{ opacity:.5; }
+
+    .right{ display:flex; gap:14px; flex-direction:column; align-items:flex-end; }
+    .counters{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+    .pill{
+      background:#fff;
+      box-shadow:var(--shadow);
+      border-radius:999px;
+      padding:10px 12px;
+      font-size:14px;
+    }
+    .pill.blue b{ color:var(--blue); }
+    .pill.red b{ color:var(--red); }
+    .pill.gray b{ color:var(--muted); }
+    .pill.dark{ background:#0f172a; color:#fff; }
+    .pill.dark b{ color:#fff; }
+
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+    .btn{
+      border:none;
+      border-radius:14px;
+      padding:10px 14px;
+      font-weight:900;
+      cursor:pointer;
+      background:var(--text);
+      color:#fff;
+      box-shadow:var(--shadow);
+    }
+    .btn:hover{ transform:translateY(-1px); }
+    .btn:active{ transform:translateY(0px); }
+    .btn.ghost{
+      background:#fff;
+      color:var(--text);
+      border:1px solid rgba(15,23,42,.10);
+    }
+    .btn[disabled]{ opacity:.5; cursor:not-allowed; transform:none; }
+
+    .clueBar{
+      margin-top:14px;
+      display:flex;
+      gap:14px;
+      flex-wrap:wrap;
+      align-items:stretch;
+    }
+
+    .clueShow{
+      flex:1;
+      min-width:280px;
+      background:#fff;
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+      padding:14px 16px;
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+    .label{
+      font-weight:1000;
+      color:var(--muted);
+      width:55px;
+    }
+    .clueText{
+      flex:1;
+      font-size:20px;
+      font-weight:1000;
+      letter-spacing:.8px;
+    }
+    .clueNum{
+      width:48px;
+      height:48px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      background:#0f172a;
+      color:#fff;
+      font-weight:1000;
+      font-size:18px;
+    }
+    .guesses{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-left:auto;
+    }
+    .tag{
+      color:var(--muted);
+      font-weight:900;
+      font-size:12px;
+    }
+
+    .board{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      gap:14px;
+    }
+
+    .card{
+      border:none;
+      border-radius:20px;
+      padding:18px 14px;
+      font-size:18px;
+      font-weight:1000;
+      background:#fff;
+      box-shadow:var(--shadow);
+      cursor:pointer;
+      transition: transform .10s ease;
+    }
+    .card:hover{ transform:translateY(-2px); }
+
+    .card.revealed.blue{ background:var(--blue); color:#fff; }
+    .card.revealed.red{ background:var(--red); color:#fff; }
+    .card.revealed.neutral{ background:var(--neutral); }
+    .card.revealed.black{ background:var(--black); color:#fff; }
+
+    .winOverlay{
+      position:fixed;
+      inset:0;
+      background: rgba(16,185,129,.92);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+    }
+    .winBox{
+      background:#ffffff;
+      padding:42px 54px;
+      border-radius:24px;
+      text-align:center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header class="top">
+      <div class="brand">
+        <div class="logo">🛠️</div>
+        <div>
+          <h1>Codenames — IT Support</h1>
+          <div class="sub">
+            <span id="roomLine">Room: —</span>
+            <span class="dot">•</span>
+            <span id="roleLine">Role: Player</span>
+            <span class="dot">•</span>
+            <span id="turnLine">Turn: —</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="board" id="board"></main>
+
+    <div class="winOverlay" id="winOverlay">
+      <div class="winBox">
+        <h2 id="winText"></h2>
+        <button onclick="location.reload()">New Game</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBaQKAER5HLq6LhPWIaIqrBRpd4qn0lUss",
+      authDomain: "codenames-it-support.firebaseapp.com",
+      projectId: "codenames-it-support"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    console.log("Game Loaded Successfully");
+  </script>
+</body>
+</html>
