@@ -2,29 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>Codenames — IT Support</title>
 
   <style>
     :root{
       --bg0:#070A12;
       --bg1:#0B1020;
+
       --panel: rgba(255,255,255,.06);
       --panel2: rgba(255,255,255,.08);
       --stroke: rgba(255,255,255,.12);
+
       --text:#EAF0FF;
       --muted: rgba(234,240,255,.72);
 
       --blue:#4EA2FF;
       --red:#FF5A76;
       --neutral:#B9C0D3;
-      --black:#000;
 
-      --shadow: 0 18px 55px rgba(0,0,0,.45);
+      --shadow: 0 14px 34px rgba(0,0,0,.38);
       --radius: 18px;
 
       --cardText:#F2F6FF;
-      --cardTextDim: rgba(242,246,255,.82);
     }
 
     *{ box-sizing:border-box; }
@@ -33,43 +33,45 @@
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
-      background: radial-gradient(1200px 700px at 20% 10%, rgba(78,162,255,.18), transparent 60%),
-                  radial-gradient(1000px 650px at 80% 20%, rgba(255,90,118,.16), transparent 62%),
-                  linear-gradient(180deg, var(--bg0), var(--bg1));
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(78,162,255,.14), transparent 60%),
+        radial-gradient(1000px 650px at 80% 20%, rgba(255,90,118,.12), transparent 62%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
       overflow-x:hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
 
-    /* slow background motion (NO FLASH) */
+    /* ✅ Very light background motion (no flashing) */
     body::before{
       content:"";
       position:fixed;
-      inset:-40%;
+      inset:0;
       background:
-        radial-gradient(600px 420px at 30% 40%, rgba(78,162,255,.10), transparent 60%),
-        radial-gradient(650px 450px at 70% 55%, rgba(255,90,118,.09), transparent 62%),
-        repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 1px, transparent 1px 140px);
-      filter: blur(0px);
-      transform: translate3d(0,0,0);
-      animation: bgDrift 28s linear infinite;
+        radial-gradient(600px 420px at 30% 40%, rgba(78,162,255,.08), transparent 60%),
+        radial-gradient(650px 450px at 70% 55%, rgba(255,90,118,.07), transparent 62%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 160px);
+      opacity:.65;
       pointer-events:none;
-      opacity:.85;
+      transform: translateZ(0);
+      animation: bgShift 60s ease-in-out infinite alternate;
     }
-    @keyframes bgDrift{
-      from{ transform: translate3d(-2%, -1%, 0); }
-      to  { transform: translate3d( 2%,  1%, 0); }
+    @keyframes bgShift{
+      from{ background-position: 0% 50%, 100% 50%, 0% 0%; }
+      to  { background-position: 100% 50%, 0% 50%, 100% 0%; }
     }
 
     .app{
       max-width: 1220px;
       margin: 0 auto;
-      padding: 16px 16px 34px;
+      padding: 14px 14px 30px;
     }
 
     .top{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
-      gap:14px;
+      gap:12px;
       flex-wrap:wrap;
     }
 
@@ -77,21 +79,22 @@
       display:flex;
       align-items:center;
       gap:12px;
-      min-width: 280px;
+      min-width: 260px;
     }
     .logo{
-      width:54px; height:54px;
+      width:52px; height:52px;
       border-radius:16px;
-      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
       border:1px solid var(--stroke);
       box-shadow: var(--shadow);
       display:grid; place-items:center;
-      font-size:26px;
+      font-size:24px;
+      flex: 0 0 auto;
     }
     .title{ display:flex; flex-direction:column; gap:4px; }
     h1{
       margin:0;
-      font-size: 22px;
+      font-size: 20px;
       letter-spacing: .3px;
       font-weight: 900;
     }
@@ -110,7 +113,7 @@
       gap:10px;
       flex-direction:column;
       flex:1;
-      min-width: 320px;
+      min-width: 290px;
     }
 
     .chips{
@@ -124,14 +127,13 @@
       display:flex;
       align-items:center;
       gap:8px;
-      padding: 10px 12px;
+      padding: 9px 11px;
       border-radius: 999px;
       background: var(--panel);
       border: 1px solid var(--stroke);
-      backdrop-filter: blur(10px);
       font-weight: 900;
       font-size: 13px;
-      box-shadow: 0 12px 35px rgba(0,0,0,.25);
+      box-shadow: 0 10px 22px rgba(0,0,0,.22);
       white-space: nowrap;
     }
     .chip b{ font-size: 14px; }
@@ -147,27 +149,27 @@
     }
     .btn{
       border:1px solid var(--stroke);
-      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      background: linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.06));
       color: var(--text);
       padding: 10px 12px;
       border-radius: 14px;
       font-weight: 900;
       cursor:pointer;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 12px 35px rgba(0,0,0,.25);
+      box-shadow: 0 10px 22px rgba(0,0,0,.22);
+      transition: transform .08s ease;
     }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn:active{ transform: translateY(0); }
+
     .btn.primary{
       border-color: rgba(78,162,255,.35);
-      background: linear-gradient(180deg, rgba(78,162,255,.26), rgba(78,162,255,.10));
+      background: linear-gradient(180deg, rgba(78,162,255,.22), rgba(78,162,255,.10));
     }
     .btn.danger{
       border-color: rgba(255,90,118,.35);
-      background: linear-gradient(180deg, rgba(255,90,118,.22), rgba(255,90,118,.08));
+      background: linear-gradient(180deg, rgba(255,90,118,.20), rgba(255,90,118,.08));
     }
-    .btn:disabled{
-      opacity:.45;
-      cursor:not-allowed;
-    }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; }
 
     /* clue bar */
     .clueBar{
@@ -184,7 +186,6 @@
       border: 1px solid var(--stroke);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
       padding: 12px 14px;
       display:flex;
       align-items:center;
@@ -220,10 +221,7 @@
       color: var(--muted);
       font-weight: 900;
     }
-    .guessInfo b{
-      color: var(--text);
-      font-size: 16px;
-    }
+    .guessInfo b{ color: var(--text); font-size: 16px; }
 
     /* spymaster panel */
     .smPanel{
@@ -233,7 +231,6 @@
       border: 1px solid var(--stroke);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
       padding: 12px 14px;
       display:none;
     }
@@ -295,12 +292,12 @@
       width:44px; height:44px;
       border-radius: 50%;
       border: 1px solid var(--stroke);
-      background: conic-gradient(rgba(78,162,255,.75) 0deg, rgba(255,255,255,.10) 0deg);
+      background: rgba(255,255,255,.08);
       display:grid; place-items:center;
       font-weight: 950;
       font-size: 12px;
       color: var(--text);
-      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+      box-shadow: 0 8px 18px rgba(0,0,0,.22);
     }
 
     /* board */
@@ -325,15 +322,15 @@
       border-radius: 18px;
       border: 1px solid var(--stroke);
       background: rgba(255,255,255,.06);
-      box-shadow: 0 16px 38px rgba(0,0,0,.35);
+      box-shadow: 0 12px 26px rgba(0,0,0,.30);
       padding: 16px 14px 14px;
       cursor:pointer;
       text-align:center;
       user-select:none;
       min-height: 72px;
 
-      /* keep it smooth but NOT flashy */
       transition: transform .10s ease, background-color .12s ease, border-color .12s ease;
+      will-change: transform;
     }
     .card:hover{ transform: translateY(-1px); }
     .card:active{ transform: translateY(0); }
@@ -343,45 +340,42 @@
       letter-spacing: .3px;
       font-size: 16px;
       color: var(--cardText);
-      text-shadow: 0 2px 10px rgba(0,0,0,.4);
+      text-shadow: 0 2px 8px rgba(0,0,0,.35); /* lighter to avoid flicker */
     }
 
-    /* tiny IT icon */
     .icon{
       position:absolute;
       left: 10px;
       top: 10px;
       font-size: 14px;
-      opacity: .88;
-      filter: drop-shadow(0 6px 16px rgba(0,0,0,.35));
+      opacity: .90;
     }
 
     /* spymaster hint border */
     .hint.blue{ border-color: rgba(78,162,255,.55); }
     .hint.red{ border-color: rgba(255,90,118,.55); }
     .hint.neutral{ border-color: rgba(185,192,211,.45); }
-    .hint.assassin{ border-color: rgba(255,255,255,.25); }
+    .hint.assassin{ border-color: rgba(255,255,255,.22); }
 
     /* revealed */
     .revealed.blue{
-      background: linear-gradient(180deg, rgba(78,162,255,.78), rgba(78,162,255,.55));
+      background: linear-gradient(180deg, rgba(78,162,255,.80), rgba(78,162,255,.55));
       border-color: rgba(78,162,255,.75);
     }
     .revealed.red{
-      background: linear-gradient(180deg, rgba(255,90,118,.76), rgba(255,90,118,.54));
+      background: linear-gradient(180deg, rgba(255,90,118,.78), rgba(255,90,118,.54));
       border-color: rgba(255,90,118,.72);
     }
     .revealed.neutral{
-      background: linear-gradient(180deg, rgba(185,192,211,.42), rgba(185,192,211,.26));
+      background: linear-gradient(180deg, rgba(185,192,211,.40), rgba(185,192,211,.24));
       border-color: rgba(185,192,211,.45);
     }
     .revealed.assassin{
-      background: linear-gradient(180deg, rgba(0,0,0,.88), rgba(0,0,0,.70));
-      border-color: rgba(255,255,255,.22);
+      background: linear-gradient(180deg, rgba(0,0,0,.88), rgba(0,0,0,.72));
+      border-color: rgba(255,255,255,.20);
     }
 
-    /* near victory glow (subtle, no flashing) */
-    .nearVictoryBlue body{}
+    /* near victory (subtle, no flashing) */
     .nearVictory{
       position: fixed;
       inset:0;
@@ -391,13 +385,13 @@
     }
     .nearVictory.on{ opacity:1; }
     .nearVictory.blue{
-      background: radial-gradient(900px 500px at 30% 20%, rgba(78,162,255,.16), transparent 60%);
+      background: radial-gradient(900px 500px at 30% 20%, rgba(78,162,255,.12), transparent 60%);
     }
     .nearVictory.red{
-      background: radial-gradient(900px 500px at 70% 25%, rgba(255,90,118,.14), transparent 60%);
+      background: radial-gradient(900px 500px at 70% 25%, rgba(255,90,118,.11), transparent 60%);
     }
 
-    /* start gate */
+    /* Password gate */
     .gate{
       position: fixed;
       inset: 0;
@@ -405,7 +399,6 @@
       align-items:center;
       justify-content:center;
       background: rgba(0,0,0,.62);
-      backdrop-filter: blur(10px);
       z-index: 9999;
       padding: 16px;
     }
@@ -413,7 +406,7 @@
       width: min(520px, 100%);
       border-radius: 22px;
       border: 1px solid var(--stroke);
-      background: rgba(10,12,18,.82);
+      background: rgba(10,12,18,.88);
       box-shadow: var(--shadow);
       padding: 16px;
     }
@@ -457,7 +450,6 @@
       z-index: 10000;
       padding: 16px;
       background: rgba(0,0,0,.66);
-      backdrop-filter: blur(12px);
     }
     .overlay .panel{
       width: min(980px, 100%);
@@ -466,9 +458,10 @@
       box-shadow: var(--shadow);
       overflow:hidden;
       position:relative;
+      background: rgba(10,12,18,.90);
     }
     .overlay .hero{
-      min-height: 260px;
+      min-height: 240px;
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -476,12 +469,12 @@
       padding: 18px;
     }
     .overlay .hero.blue{
-      background: radial-gradient(900px 460px at 20% 25%, rgba(78,162,255,.35), transparent 60%),
-                  linear-gradient(180deg, rgba(78,162,255,.30), rgba(10,12,18,.85));
+      background: radial-gradient(900px 460px at 20% 25%, rgba(78,162,255,.30), transparent 60%),
+                  linear-gradient(180deg, rgba(78,162,255,.18), rgba(10,12,18,.88));
     }
     .overlay .hero.red{
-      background: radial-gradient(900px 460px at 80% 25%, rgba(255,90,118,.32), transparent 60%),
-                  linear-gradient(180deg, rgba(255,90,118,.28), rgba(10,12,18,.85));
+      background: radial-gradient(900px 460px at 80% 25%, rgba(255,90,118,.28), transparent 60%),
+                  linear-gradient(180deg, rgba(255,90,118,.16), rgba(10,12,18,.88));
     }
     .overlay .hero.black{
       background: linear-gradient(180deg, rgba(0,0,0,.92), rgba(10,12,18,.92));
@@ -490,11 +483,11 @@
       display:flex;
       flex-direction:column;
       gap:10px;
-      padding: 10px 6px;
+      padding: 8px 6px;
     }
     .overlay h3{
       margin:0;
-      font-size: 34px;
+      font-size: 32px;
       font-weight: 1000;
       letter-spacing: .6px;
     }
@@ -514,19 +507,25 @@
       background: rgba(0,0,0,.22);
     }
 
-    /* robots (inline SVG containers) */
+    /* robots */
     .robotWrap{
-      width: 320px;
-      max-width: 40vw;
+      width: 260px;          /* ✅ smaller to avoid big head on iPad */
+      max-width: 46vw;
       opacity: .95;
-      filter: drop-shadow(0 18px 45px rgba(0,0,0,.55));
+      filter: drop-shadow(0 16px 36px rgba(0,0,0,.55));
+      flex: 0 0 auto;
     }
     @media (max-width: 720px){
       .overlay .hero{ flex-direction:column; align-items:flex-start; }
-      .robotWrap{ width: 300px; max-width: 85vw; }
+      .robotWrap{ width: 240px; max-width: 85vw; }
     }
 
-    /* reduce motion for accessibility */
+    /* ✅ Kill heavy effects on iOS / small screens */
+    @media (max-width: 820px){
+      body::before{ animation: none; opacity:.55; } /* stop motion on iPad/small */
+      .chip, .btn, .clueCard, .smPanel{ box-shadow: 0 8px 16px rgba(0,0,0,.22); }
+    }
+
     @media (prefers-reduced-motion: reduce){
       body::before{ animation:none; }
       .card{ transition:none; }
@@ -626,20 +625,19 @@
         <input id="pwInput" placeholder="Password">
         <button class="btn primary" id="pwEnter">Start</button>
       </div>
-      <p style="margin-top:10px;">Tip: your link can include <b>pw=LY10</b> so this screen will be skipped.</p>
+      <p style="margin-top:10px;">Tip: your link can include <b>pw=LY10</b> to skip this screen.</p>
     </div>
   </div>
 
   <!-- End Overlay -->
   <div class="overlay" id="overlay">
-    <div class="panel">
+    <div class="panel" id="overlayPanel">
       <div class="hero" id="hero">
         <div class="titleBlock">
           <h3 id="endTitle">—</h3>
           <p class="sub" id="endSub">—</p>
           <p class="sub" id="endSummary" style="opacity:.9;margin-top:8px;"></p>
         </div>
-
         <div class="robotWrap" id="robotWrap"></div>
       </div>
 
@@ -664,7 +662,6 @@
     // ====== CONFIG ======
     const PASSWORD = "LY10";
     const ROOM_ID = "CLASS1";
-
     const BLUE_KEY = "BLUE-777";
     const RED_KEY  = "RED-777";
 
@@ -711,10 +708,10 @@
         const g = ctx.createGain();
         o.type = "square";
         o.frequency.value = 680;
-        g.gain.value = 0.03;
+        g.gain.value = 0.02;
         o.connect(g); g.connect(ctx.destination);
         o.start();
-        setTimeout(()=>{ o.stop(); ctx.close(); }, 55);
+        setTimeout(()=>{ o.stop(); ctx.close(); }, 45);
       }catch{}
     }
     function playWin(){
@@ -726,7 +723,7 @@
         o.connect(g); g.connect(ctx.destination);
         const t = ctx.currentTime;
         g.gain.setValueAtTime(0.0001,t);
-        g.gain.exponentialRampToValueAtTime(0.12,t+0.02);
+        g.gain.exponentialRampToValueAtTime(0.10,t+0.02);
         const notes=[523.25,659.25,783.99,1046.5];
         notes.forEach((f,i)=>o.frequency.setValueAtTime(f,t+i*0.12));
         g.gain.exponentialRampToValueAtTime(0.0001,t+0.62);
@@ -744,7 +741,6 @@
     const isSpy =
       role === "spymaster" &&
       ( (team==="blue" && key===BLUE_KEY) || (team==="red" && key===RED_KEY) );
-
     const spyTeam = isSpy ? team : null;
 
     // ====== PASSWORD GATE ======
@@ -757,15 +753,12 @@
       if(sessionStorage.getItem("cn_pw_ok")==="1") return true;
       return false;
     }
-
     function showGate(){
       gate.style.display = "flex";
       pwInput.value = "";
-      pwInput.focus();
+      setTimeout(()=>pwInput.focus(), 50);
     }
-    function hideGate(){
-      gate.style.display = "none";
-    }
+    function hideGate(){ gate.style.display = "none"; }
 
     pwEnter.addEventListener("click", ()=>{
       const v = (pwInput.value||"").trim();
@@ -777,9 +770,7 @@
       }
     });
 
-    if(!accessOk()){
-      showGate();
-    }
+    if(!accessOk()) showGate();
 
     // ====== UI refs ======
     document.getElementById("roomLine").textContent = "Room: " + ROOM_ID;
@@ -825,6 +816,7 @@
 
     // overlay
     const overlay = document.getElementById("overlay");
+    const overlayPanel = document.getElementById("overlayPanel");
     const hero = document.getElementById("hero");
     const endTitle = document.getElementById("endTitle");
     const endSub = document.getElementById("endSub");
@@ -835,51 +827,44 @@
 
     if(isSpy) endClose.style.display = "inline-block";
 
-    // robots (simple SVG, no external images)
+    // robots (simple SVG)
     function robotSVG(color){
       const c = color==="blue" ? "#4EA2FF" : "#FF5A76";
       const eye = color==="blue" ? "#BFE3FF" : "#FFD0D9";
       const mood = color==="blue" ? "Calm mode" : "Power mode";
       return `
-        <svg viewBox="0 0 420 420" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 420 420" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" aria-label="robot">
           <defs>
             <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0" stop-color="${c}" stop-opacity="0.95"/>
-              <stop offset="1" stop-color="#0B1020" stop-opacity="0.85"/>
+              <stop offset="0" stop-color="${c}" stop-opacity="0.92"/>
+              <stop offset="1" stop-color="#0B1020" stop-opacity="0.88"/>
             </linearGradient>
-            <filter id="sh" x="-40%" y="-40%" width="180%" height="180%">
-              <feDropShadow dx="0" dy="18" stdDeviation="14" flood-color="#000" flood-opacity=".55"/>
-            </filter>
           </defs>
 
-          <g filter="url(#sh)">
-            <rect x="120" y="70" rx="26" ry="26" width="180" height="170" fill="url(#g1)" stroke="rgba(255,255,255,.22)" stroke-width="2"/>
-            <rect x="135" y="90" rx="22" ry="22" width="150" height="90" fill="rgba(0,0,0,.25)" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
-            <circle cx="185" cy="135" r="14" fill="${eye}" opacity="0.95"/>
-            <circle cx="235" cy="135" r="14" fill="${eye}" opacity="0.95"/>
-            <rect x="180" y="165" rx="10" ry="10" width="60" height="12" fill="rgba(255,255,255,.75)" opacity="0.55"/>
+          <g>
+            <rect x="120" y="80" rx="24" ry="24" width="180" height="160" fill="url(#g1)" stroke="rgba(255,255,255,.22)" stroke-width="2"/>
+            <rect x="136" y="100" rx="20" ry="20" width="148" height="80" fill="rgba(0,0,0,.25)" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+            <circle cx="186" cy="140" r="12.5" fill="${eye}" opacity="0.95"/>
+            <circle cx="234" cy="140" r="12.5" fill="${eye}" opacity="0.95"/>
+            <rect x="182" y="166" rx="8" ry="8" width="56" height="10" fill="rgba(255,255,255,.65)" opacity="0.55"/>
 
-            <rect x="150" y="240" rx="22" ry="22" width="120" height="110" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
-            <rect x="165" y="262" rx="12" ry="12" width="90" height="16" fill="rgba(255,255,255,.20)"/>
-            <rect x="165" y="290" rx="12" ry="12" width="90" height="16" fill="rgba(255,255,255,.16)"/>
-            <rect x="165" y="318" rx="12" ry="12" width="90" height="16" fill="rgba(255,255,255,.12)"/>
+            <rect x="150" y="246" rx="20" ry="20" width="120" height="104" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+            <rect x="165" y="266" rx="10" ry="10" width="90" height="14" fill="rgba(255,255,255,.18)"/>
+            <rect x="165" y="292" rx="10" ry="10" width="90" height="14" fill="rgba(255,255,255,.14)"/>
+            <rect x="165" y="318" rx="10" ry="10" width="90" height="14" fill="rgba(255,255,255,.10)"/>
 
-            <text x="210" y="388" text-anchor="middle" fill="rgba(234,240,255,.70)" font-family="ui-sans-serif,system-ui" font-weight="900" font-size="16">${mood}</text>
+            <text x="210" y="388" text-anchor="middle" fill="rgba(234,240,255,.70)"
+              font-family="ui-sans-serif,system-ui" font-weight="900" font-size="16">${mood}</text>
+
+            <circle cx="210" cy="64" r="9" fill="${c}" opacity="0.90"/>
+            <rect x="206" y="40" width="8" height="20" rx="4" fill="rgba(255,255,255,.30)"/>
           </g>
-
-          <circle cx="210" cy="55" r="10" fill="${c}" opacity="0.9"/>
-          <rect x="206" y="30" width="8" height="22" rx="4" fill="rgba(255,255,255,.35)"/>
         </svg>
       `;
     }
 
-    function baseUrl(){
-      return location.origin + location.pathname;
-    }
-
-    function linkProjector(){
-      return `${baseUrl()}?pw=${encodeURIComponent(PASSWORD)}`;
-    }
+    function baseUrl(){ return location.origin + location.pathname; }
+    function linkProjector(){ return `${baseUrl()}?pw=${encodeURIComponent(PASSWORD)}`; }
     function linkSpy(t){
       const k = (t==="blue") ? BLUE_KEY : RED_KEY;
       return `${baseUrl()}?pw=${encodeURIComponent(PASSWORD)}&role=spymaster&team=${t}&key=${encodeURIComponent(k)}`;
@@ -928,7 +913,7 @@
         mapping,
         startingTeam,
         activeTeam: startingTeam,
-        phase: "clue",          // "clue" or "guess"
+        phase: "clue",
         clueText: "—",
         clueNumber: "—",
         guessesLeft: 0,
@@ -938,8 +923,8 @@
         timerRunning: false,
         timerEndsAt: null,
 
-        winner: null,           // "blue" | "red" | null
-        loser: null,            // "blue" | "red" | null (assassin)
+        winner: null,
+        loser: null,
         updatedAt: serverTimestamp()
       };
     }
@@ -951,9 +936,7 @@
       }
     }
 
-    btnNew.addEventListener("click", async ()=>{
-      await setDoc(roomRef, makeNewState());
-    });
+    btnNew.addEventListener("click", async ()=>{ await setDoc(roomRef, makeNewState()); });
     endNew.addEventListener("click", async ()=>{
       await setDoc(roomRef, makeNewState());
       hideOverlay();
@@ -996,7 +979,6 @@
 
       cell.revealed = true;
 
-      // assassin = instant loss for active team
       if(cell.team === "assassin"){
         await updateDoc(roomRef, {
           mapping,
@@ -1009,7 +991,6 @@
         return;
       }
 
-      // check win after reveal
       const after = counts(mapping);
       if(after.blue === 0){
         await updateDoc(roomRef, { mapping, winner:"blue", updatedAt: serverTimestamp() });
@@ -1020,32 +1001,26 @@
         return;
       }
 
-      // if in guess phase: apply rules
       if(cur.phase === "guess"){
         if(cell.team === cur.activeTeam){
           const newLeft = Math.max(0, (cur.guessesLeft||0) - 1);
           await updateDoc(roomRef, { mapping, guessesLeft: newLeft, updatedAt: serverTimestamp() });
-
-          // if guesses finished -> auto end turn
           if(newLeft <= 0){
-            // re-read is optional; using cur is fine
             await endTurn({ ...cur, guessesLeft: newLeft, mapping });
           }
         } else {
-          // wrong team OR neutral -> end turn immediately
           await updateDoc(roomRef, { mapping, updatedAt: serverTimestamp() });
           await endTurn(cur);
         }
       } else {
-        // clue phase: allow reveal (if someone clicked early) but do not change guesses
         await updateDoc(roomRef, { mapping, updatedAt: serverTimestamp() });
       }
     }
 
-    // ====== Rendering without heavy re-build ======
+    // ====== Efficient render ======
     let cardsBuilt = false;
-    const cardEls = new Map(); // word -> element
-    let lastRevealed = {};     // word -> bool
+    const cardEls = new Map();
+    const lastRevealed = new Map();
     let lastState = null;
 
     function setNearVictory(teamOn){
@@ -1057,15 +1032,16 @@
       if(!state.timerEnabled){
         timerTextEl.textContent = "Timer OFF";
         timerCircle.textContent = "OFF";
-        timerCircle.style.background = "conic-gradient(rgba(255,255,255,.15) 0deg, rgba(255,255,255,.10) 0deg)";
+        timerCircle.style.background = "rgba(255,255,255,.08)";
         return;
       }
       if(!state.timerRunning || !state.timerEndsAt){
         timerTextEl.textContent = "Timer READY";
         timerCircle.textContent = "—";
-        timerCircle.style.background = "conic-gradient(rgba(78,162,255,.45) 360deg, rgba(255,255,255,.10) 0deg)";
+        timerCircle.style.background = "rgba(255,255,255,.10)";
         return;
       }
+
       const ms = state.timerEndsAt - Date.now();
       const sec = Math.max(0, Math.ceil(ms/1000));
       timerTextEl.textContent = "Time: " + sec + "s";
@@ -1075,7 +1051,6 @@
       const frac = Math.max(0, Math.min(1, sec / total));
       const deg = Math.round(frac * 360);
 
-      // green -> yellow -> red
       let col = "rgba(78,162,255,.65)";
       if(frac <= 0.35) col = "rgba(255,90,118,.70)";
       else if(frac <= 0.65) col = "rgba(255,210,90,.65)";
@@ -1083,41 +1058,41 @@
       timerCircle.style.background = `conic-gradient(${col} ${deg}deg, rgba(255,255,255,.10) 0deg)`;
     }
 
+    // ✅ ticker ONCE (no re-creating intervals per render)
     let timerTick = null;
-    function startTimerTicker(){
-      if(timerTick) clearInterval(timerTick);
-      timerTick = setInterval(()=>{
-        if(lastState) setTimerUI(lastState);
-        // if timer ends: let spymaster auto-end turn (only once)
-        if(lastState && lastState.timerEnabled && lastState.timerRunning && lastState.timerEndsAt){
+    function ensureTimerTicker(){
+      if(timerTick) return;
+      timerTick = setInterval(async ()=>{
+        if(!lastState) return;
+        setTimerUI(lastState);
+
+        // auto end turn when timer ends
+        if(lastState.timerEnabled && lastState.timerRunning && lastState.timerEndsAt){
           const sec = Math.max(0, Math.ceil((lastState.timerEndsAt - Date.now())/1000));
           if(sec <= 0){
-            // stop locally
-            clearInterval(timerTick); timerTick=null;
-            // end turn (anyone can write, rules allow; but usually spymaster is controlling)
-            getDoc(roomRef).then(s=>{
-              if(!s.exists()) return;
-              const cur = s.data();
-              if(cur.winner || cur.loser) return;
-              if(cur.phase === "guess" && cur.timerRunning){
-                endTurn(cur);
-              }
-            });
+            const s = await getDoc(roomRef);
+            if(!s.exists()) return;
+            const cur = s.data();
+            if(cur.winner || cur.loser) return;
+            if(cur.phase === "guess" && cur.timerRunning){
+              await endTurn(cur);
+            }
           }
         }
-      }, 1000); // 1s to avoid lag / flashing
+      }, 1000);
     }
 
     function buildBoardOnce(state){
       boardEl.innerHTML = "";
       cardEls.clear();
-      lastRevealed = {};
+      lastRevealed.clear();
 
       for(const w of state.words){
         const cell = state.mapping[w];
+
         const btn = document.createElement("div");
         btn.className = "card";
-        btn.tabIndex = 0;
+        btn.setAttribute("role","button");
 
         const icon = document.createElement("div");
         icon.className = "icon";
@@ -1137,16 +1112,16 @@
           reveal(w);
         });
 
-        boardEl.appendChild(btn);
-        cardEls.set(w, btn);
-        lastRevealed[w] = false;
-
-        // initial spymaster hint border
         if(isSpy && cell){
           btn.classList.add("hint");
-          btn.classList.add(cell.team); // blue/red/neutral/assassin
+          btn.classList.add(cell.team);
         }
+
+        boardEl.appendChild(btn);
+        cardEls.set(w, btn);
+        lastRevealed.set(w, false);
       }
+
       cardsBuilt = true;
     }
 
@@ -1156,7 +1131,7 @@
         const el = cardEls.get(w);
         if(!cell || !el) continue;
 
-        // spymaster hint border
+        // hint borders for spymaster
         if(isSpy){
           el.classList.add("hint");
           el.classList.toggle("blue", cell.team==="blue");
@@ -1167,8 +1142,7 @@
           el.classList.remove("hint","blue","red","neutral","assassin");
         }
 
-        // revealed state (update only if changed)
-        const was = !!lastRevealed[w];
+        const was = !!lastRevealed.get(w);
         const now = !!cell.revealed;
         if(was !== now){
           el.classList.toggle("revealed", now);
@@ -1176,18 +1150,7 @@
           el.classList.toggle("red", now && cell.team==="red");
           el.classList.toggle("neutral", now && cell.team==="neutral");
           el.classList.toggle("assassin", now && cell.team==="assassin");
-          lastRevealed[w] = now;
-        } else {
-          // keep classes correct (just in case)
-          if(now){
-            el.classList.toggle("blue", cell.team==="blue");
-            el.classList.toggle("red", cell.team==="red");
-            el.classList.toggle("neutral", cell.team==="neutral");
-            el.classList.toggle("assassin", cell.team==="assassin");
-            el.classList.add("revealed");
-          }else{
-            el.classList.remove("revealed");
-          }
+          lastRevealed.set(w, now);
         }
       }
     }
@@ -1220,21 +1183,20 @@
       const c = counts(state.mapping);
       endSummary.textContent = `Remaining — Blue: ${c.blue} | Red: ${c.red} | Neutral: ${c.neutral}`;
 
-      if(isSpy){
-        endClose.style.display = "inline-block";
-      }else{
-        endClose.style.display = "none";
-      }
+      endClose.style.display = isSpy ? "inline-block" : "none";
     }
+    function hideOverlay(){ overlay.style.display = "none"; }
 
-    function hideOverlay(){
-      overlay.style.display = "none";
-    }
+    endClose.addEventListener("click", ()=>{ if(isSpy) hideOverlay(); });
 
-    endClose.addEventListener("click", ()=>{
+    // ✅ click outside closes (spymaster only)
+    overlay.addEventListener("click", (e)=>{
       if(!isSpy) return;
-      hideOverlay();
+      if(e.target === overlay) hideOverlay();
     });
+
+    // prevent overlay panel click from closing
+    overlayPanel.addEventListener("click", (e)=> e.stopPropagation());
 
     window.addEventListener("keydown", (e)=>{
       if(e.key === "Escape" && overlay.style.display === "flex"){
@@ -1245,7 +1207,6 @@
     function render(state){
       lastState = state;
 
-      // header and clue info
       turnLineEl.textContent = `Turn: ${String(state.activeTeam||"—").toUpperCase()} • ${String(state.phase||"—").toUpperCase()}`;
       clueTextEl.textContent = state.clueText || "—";
       clueNumEl.textContent  = state.clueNumber || "—";
@@ -1256,16 +1217,13 @@
       redLeftEl.textContent = c.red;
       neutralLeftEl.textContent = c.neutral;
 
-      // near victory mode (only when 1 left)
       if(c.blue === 1) setNearVictory("blue");
       else if(c.red === 1) setNearVictory("red");
       else setNearVictory(null);
 
-      // timer UI
       setTimerUI(state);
-      startTimerTicker();
+      ensureTimerTicker();
 
-      // spymaster enable/disable
       if(isSpy){
         document.getElementById("smTeamPill").textContent = `YOU: ${spyTeam.toUpperCase()} • ACTIVE: ${state.activeTeam.toUpperCase()}`;
         const myTurn = (spyTeam === state.activeTeam);
@@ -1280,30 +1238,21 @@
         btnStopTimer.disabled  = !(myTurn && state.timerRunning && !state.winner && !state.loser);
       }
 
-      // build board once
-      if(!cardsBuilt){
-        buildBoardOnce(state);
-      }
+      if(!cardsBuilt) buildBoardOnce(state);
       updateCards(state);
 
-      // overlay logic
       if(state.winner){
         if(state.winner === "blue"){
-          if(overlay.style.display!=="flex"){ playWin(); }
+          if(overlay.style.display!=="flex") playWin();
           showOverlay("winBlue", state);
-        }else if(state.winner === "red"){
-          if(overlay.style.display!=="flex"){ playWin(); }
+        } else if(state.winner === "red"){
+          if(overlay.style.display!=="flex") playWin();
           showOverlay("winRed", state);
         }
       } else if(state.loser){
-        // loser is the team who clicked assassin
-        if(state.loser === "blue"){
-          showOverlay("loseBlue", state);
-        } else if(state.loser === "red"){
-          showOverlay("loseRed", state);
-        }
+        if(state.loser === "blue") showOverlay("loseBlue", state);
+        if(state.loser === "red")  showOverlay("loseRed", state);
       } else {
-        // keep closed if not finished
         if(overlay.style.display==="flex") hideOverlay();
       }
     }
@@ -1397,9 +1346,14 @@
 
     // ====== START ======
     await ensureRoom();
-    onSnapshot(roomRef, (snap)=>{
+    const unsub = onSnapshot(roomRef, (snap)=>{
       if(!snap.exists()) return;
       render(snap.data());
+    });
+
+    // optional: stop snapshot when tab hidden (reduces iPad work)
+    document.addEventListener("visibilitychange", ()=>{
+      // keep it simple: no unsubscribe/resubscribe to avoid bugs
     });
   </script>
 </body>
