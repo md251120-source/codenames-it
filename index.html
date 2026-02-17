@@ -3,22 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Codenames IT Support</title>
+<title>Codenames — IT Support</title>
 
 <style>
 body{
   margin:0;
   font-family:Arial, sans-serif;
-  background:linear-gradient(135deg,#e0f2fe,#fef9c3);
-  text-align:center;
+  background:linear-gradient(135deg,#dbeafe,#fef3c7);
 }
 
-h1{margin-top:20px}
+h1{text-align:center;margin-top:15px}
 
 .topbar{
   display:flex;
   justify-content:center;
-  gap:20px;
+  gap:25px;
   font-weight:bold;
   margin:10px;
 }
@@ -26,28 +25,28 @@ h1{margin-top:20px}
 .board{
   display:grid;
   grid-template-columns:repeat(5,1fr);
-  gap:10px;
-  max-width:900px;
+  gap:12px;
+  max-width:1000px;
   margin:20px auto;
 }
 
 .card{
   padding:20px;
-  border-radius:12px;
+  border-radius:14px;
   background:white;
   cursor:pointer;
   font-weight:bold;
-  position:relative;
-  transition:0.2s;
   border:2px solid #ddd;
+  transition:0.2s;
+  position:relative;
 }
 
 .card:hover{transform:scale(1.05)}
 
-.revealed.blue{background:#2563eb;color:white}
-.revealed.red{background:#ef4444;color:white}
-.revealed.neutral{background:#e5e7eb}
-.revealed.black{background:black;color:white}
+.card.revealed.blue{background:#2563eb;color:white}
+.card.revealed.red{background:#ef4444;color:white}
+.card.revealed.neutral{background:#e5e7eb}
+.card.revealed.black{background:black;color:white}
 
 .overlay{
   position:fixed;
@@ -55,19 +54,28 @@ h1{margin-top:20px}
   display:none;
   align-items:center;
   justify-content:center;
-  color:white;
   font-size:40px;
+  font-weight:bold;
+  color:white;
+  z-index:1000;
+}
+
+button{
+  padding:8px 16px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
   font-weight:bold;
 }
 
-#spymasterBtn{
+.controls{
+  text-align:center;
   margin:10px;
-  padding:10px 20px;
-  border:none;
-  background:#111;
-  color:white;
-  border-radius:8px;
-  cursor:pointer;
+}
+
+.timer{
+  text-align:center;
+  font-weight:bold;
 }
 </style>
 </head>
@@ -81,14 +89,21 @@ h1{margin-top:20px}
   <div>Turn: <span id="turnText"></span></div>
 </div>
 
-<button id="spymasterBtn">Toggle Spymaster</button>
+<div class="controls">
+  <button onclick="newGame()">New Game</button>
+  <button onclick="toggleSpymaster()">Toggle Spymaster</button>
+  <button onclick="startTimer()">Start 60s Timer</button>
+</div>
+
+<div class="timer">
+  ⏱️ <span id="timerText">OFF</span>
+</div>
 
 <div class="board" id="board"></div>
 
 <div class="overlay" id="overlay"></div>
 
 <script>
-
 const words=[
 "VPN","Firewall","Router","Switch","Server",
 "Backup","Restore","Password","MFA","DNS",
@@ -102,6 +117,8 @@ let turn="blue";
 let blueLeft=9;
 let redLeft=8;
 let spymaster=false;
+let timerInterval=null;
+let timeLeft=0;
 
 function shuffle(a){
  for(let i=a.length-1;i>0;i--){
@@ -111,7 +128,7 @@ function shuffle(a){
  return a;
 }
 
-function setup(){
+function newGame(){
  let colors=[
   ...Array(9).fill("blue"),
   ...Array(8).fill("red"),
@@ -125,6 +142,11 @@ function setup(){
  for(let i=0;i<25;i++){
   cards.push({word:words[i],color:colors[i],revealed:false});
  }
+
+ turn="blue";
+ blueLeft=9;
+ redLeft=8;
+ stopTimer();
  render();
 }
 
@@ -144,6 +166,7 @@ function render(){
   div.onclick=()=>clickCard(i);
   board.appendChild(div);
  });
+
  document.getElementById("blueCount").innerText=blueLeft;
  document.getElementById("redCount").innerText=redLeft;
  document.getElementById("turnText").innerText=turn.toUpperCase();
@@ -178,6 +201,7 @@ function showWin(text){
  overlay.style.background="green";
  overlay.innerText=text+" WINS 🎉";
  overlay.style.display="flex";
+ stopTimer();
 }
 
 function showLose(team){
@@ -185,15 +209,38 @@ function showLose(team){
  overlay.style.background="black";
  overlay.innerText=team.toUpperCase()+" LOST 💀";
  overlay.style.display="flex";
+ stopTimer();
 }
 
-document.getElementById("spymasterBtn").onclick=()=>{
+function toggleSpymaster(){
  spymaster=!spymaster;
  render();
 }
 
-setup();
+function startTimer(){
+ stopTimer();
+ timeLeft=60;
+ document.getElementById("timerText").innerText=timeLeft+"s";
+ timerInterval=setInterval(()=>{
+  timeLeft--;
+  document.getElementById("timerText").innerText=timeLeft+"s";
+  if(timeLeft<=0){
+   clearInterval(timerInterval);
+   turn=turn==="blue"?"red":"blue";
+   render();
+  }
+ },1000);
+}
 
+function stopTimer(){
+ if(timerInterval){
+  clearInterval(timerInterval);
+ }
+ document.getElementById("timerText").innerText="OFF";
+}
+
+newGame();
 </script>
+
 </body>
 </html>
