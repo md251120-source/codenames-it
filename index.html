@@ -1,286 +1,994 @@
-<!DOCTYPE html>
-<html lang="ar">
+<!doctype html>
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Codenames — IT Support</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Codenames — IT Support</title>
 
-<style>
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#0f172a;
-  color:white;
-  text-align:center;
-}
+  <style>
+    :root{
+      --bg0:#070b16;
+      --bg1:#0a1226;
+      --panel:rgba(255,255,255,.06);
+      --panel2:rgba(255,255,255,.08);
+      --stroke:rgba(255,255,255,.10);
+      --text:#eaf0ff;
+      --muted:#a7b4d6;
 
-h1{margin:20px 0}
+      --blue:#3b82f6;
+      --red:#ef4444;
+      --neutral:#cbd5e1;
+      --black:#0b0f1a;
 
-.topbar{
-  display:flex;
-  justify-content:center;
-  gap:25px;
-  font-weight:bold;
-  margin-bottom:10px;
-  flex-wrap:wrap;
-}
+      --shadow: 0 18px 50px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
 
-.board{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:12px;
-  max-width:1000px;
-  margin:20px auto;
-}
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
 
-.card{
-  padding:20px;
-  border-radius:15px;
-  background:#1e293b;
-  cursor:pointer;
-  font-weight:bold;
-  transition:0.2s;
-  border:2px solid #334155;
-  position:relative;
-}
+      /* Dark IT background */
+      background:
+        radial-gradient(900px 500px at 15% 0%, rgba(59,130,246,.18) 0%, transparent 60%),
+        radial-gradient(900px 500px at 85% 0%, rgba(239,68,68,.14) 0%, transparent 60%),
+        radial-gradient(900px 700px at 50% 110%, rgba(34,197,94,.10) 0%, transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
 
-.card:hover{transform:scale(1.05)}
+    /* subtle tech grid + icons */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:
+        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 54px 54px;
+      mask-image: radial-gradient(circle at 50% 30%, rgba(0,0,0,.9), transparent 70%);
+      opacity:.25;
+    }
+    body::after{
+      content:"";
+      position:fixed;
+      inset:-20%;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.08), transparent 40%),
+        radial-gradient(circle at 70% 60%, rgba(255,255,255,.06), transparent 45%),
+        radial-gradient(circle at 50% 80%, rgba(255,255,255,.05), transparent 45%);
+      filter: blur(22px);
+      opacity:.65;
+    }
 
-.card::before{
-  content:"⚙️";
-  position:absolute;
-  top:6px;
-  right:8px;
-  font-size:14px;
-  opacity:0.4;
-}
+    .app{ max-width:1200px; margin:0 auto; padding:18px; position:relative; z-index:1; }
 
-.revealed.blue{background:#2563eb}
-.revealed.red{background:#ef4444}
-.revealed.neutral{background:#9ca3af}
-.revealed.black{background:black}
+    .top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
 
-.overlay{
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  font-size:40px;
-  font-weight:bold;
-  flex-direction:column;
-  z-index:1000;
-}
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px 14px;
+      background: var(--panel);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
 
-button{
-  padding:10px 18px;
-  border:none;
-  border-radius:8px;
-  font-weight:bold;
-  cursor:pointer;
-}
+    .logo{
+      width:52px; height:52px;
+      border-radius:16px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      display:grid; place-items:center;
+      font-size:26px;
+      box-shadow: 0 14px 30px rgba(0,0,0,.25);
+    }
 
-#newGameBtn{background:#22c55e;color:black}
-#spyBtn{background:#111;color:white;margin-top:10px}
+    h1{ margin:0; font-size:26px; letter-spacing:.3px; }
+    .sub{
+      margin-top:4px;
+      color:var(--muted);
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      font-weight:800;
+      font-size:13px;
+      opacity:.95;
+    }
+    .dot{ opacity:.55; }
 
-input{
-  padding:8px;
-  border-radius:6px;
-  border:none;
-  margin:5px;
-}
-</style>
+    .right{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:flex-end;
+    }
+
+    .pills{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .pill{
+      background: var(--panel);
+      border: 1px solid var(--stroke);
+      border-radius: 999px;
+      padding:10px 12px;
+      font-weight:1000;
+      font-size:13px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 14px 35px rgba(0,0,0,.25);
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .pill b{ font-weight:1200; }
+    .pill.blue b{ color: var(--blue); }
+    .pill.red b{ color: var(--red); }
+    .pill.neutral b{ color: var(--neutral); }
+    .pill.time{ background: rgba(255,255,255,.08); }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .btn{
+      border:none;
+      border-radius: 14px;
+      padding:10px 14px;
+      font-weight:1100;
+      cursor:pointer;
+      color:var(--text);
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 14px 35px rgba(0,0,0,.25);
+      backdrop-filter: blur(8px);
+      transition: transform .12s ease, opacity .12s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn:active{ transform: translateY(0px); }
+    .btn.primary{ background: rgba(34,197,94,.22); border-color: rgba(34,197,94,.25); }
+    .btn.danger{ background: rgba(239,68,68,.18); border-color: rgba(239,68,68,.22); }
+    .btn[disabled]{ opacity:.45; cursor:not-allowed; transform:none; }
+
+    /* spymaster panel */
+    #spymasterPanel{
+      display:none;
+      margin-top:12px;
+      padding:14px;
+      background: var(--panel);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+    .smTitle{
+      font-weight:1200;
+      margin-bottom:10px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .smRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .smRow input, .smRow select{
+      padding:11px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      outline:none;
+      font-weight:1000;
+    }
+    .smRow input::placeholder{ color: rgba(234,240,255,.55); }
+    #clueInput{ min-width:220px; flex:1; }
+    #numInput{ width:120px; }
+    #secondsInput{ width:170px; }
+
+    .check{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      font-weight:1000;
+      color: var(--muted);
+    }
+
+    /* board */
+    .board{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      gap:14px;
+    }
+
+    .card{
+      border:none;
+      border-radius: 18px;
+      padding:18px 14px;
+      background: rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: 0 14px 35px rgba(0,0,0,.25);
+      color: var(--text);
+      cursor:pointer;
+      position:relative;
+      overflow:hidden;
+      transition: transform .10s ease, filter .15s ease, opacity .15s ease;
+      backdrop-filter: blur(8px);
+      text-align:center;
+    }
+    .card:hover{ transform: translateY(-2px); }
+    .card:active{ transform: translateY(0px); }
+
+    .word{
+      font-weight:1200;
+      letter-spacing:.3px;
+      font-size:18px;
+      text-shadow: 0 2px 10px rgba(0,0,0,.35);
+    }
+
+    .icon{
+      position:absolute;
+      top:10px;
+      left:10px;
+      width:22px;
+      height:22px;
+      opacity:.55;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
+    }
+
+    /* hidden state for players */
+    .hidden{
+      background: rgba(255,255,255,.06);
+    }
+
+    /* spymaster hint border (unrevealed) */
+    .spyHint.blue{ outline: 2px solid rgba(59,130,246,.55); }
+    .spyHint.red{ outline: 2px solid rgba(239,68,68,.55); }
+    .spyHint.neutral{ outline: 2px solid rgba(203,213,225,.45); }
+    .spyHint.assassin{ outline: 2px solid rgba(0,0,0,.85); }
+
+    /* revealed colors */
+    .revealed.blue{ background: rgba(59,130,246,.85); border-color: rgba(59,130,246,.90); }
+    .revealed.red{ background: rgba(239,68,68,.85); border-color: rgba(239,68,68,.90); }
+    .revealed.neutral{ background: rgba(203,213,225,.88); border-color: rgba(203,213,225,.92); color:#0b1220; }
+    .revealed.assassin{ background: rgba(0,0,0,.92); border-color: rgba(0,0,0,.92); }
+
+    .revealed .icon{ opacity:.85; }
+
+    /* overlay */
+    .overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding:18px;
+    }
+    .overlayBox{
+      width:min(720px, 100%);
+      border-radius: 24px;
+      padding:32px 26px;
+      text-align:center;
+      box-shadow: 0 30px 90px rgba(0,0,0,.45);
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.08);
+      backdrop-filter: blur(10px);
+      animation: pop .25s ease;
+    }
+    @keyframes pop{ from{ transform:scale(.92); opacity:.2; } to{ transform:scale(1); opacity:1; } }
+
+    .overlayTitle{
+      font-size:44px;
+      font-weight:1300;
+      margin:0 0 10px;
+    }
+    .overlaySub{
+      margin:0;
+      color: rgba(255,255,255,.88);
+      font-weight:900;
+      font-size:16px;
+    }
+
+    .deny{
+      max-width:640px;
+      margin:60px auto;
+      padding:18px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      text-align:center;
+    }
+    .deny h2{ margin:0 0 10px; font-weight:1300; }
+    .deny p{ margin:0; color: var(--muted); font-weight:900; line-height:1.6; }
+
+    @media (max-width: 860px){
+      .board{ grid-template-columns: repeat(3, minmax(140px, 1fr)); }
+    }
+    @media (max-width: 520px){
+      .board{ grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+      .overlayTitle{ font-size:34px; }
+    }
+  </style>
 </head>
+
 <body>
+  <div class="app" id="appRoot" style="display:none;">
+    <div class="top">
+      <div class="brand">
+        <div class="logo">🛠️</div>
+        <div>
+          <h1>Codenames — IT Support</h1>
+          <div class="sub">
+            <span id="roleLine">Role: —</span>
+            <span class="dot">•</span>
+            <span id="turnLine">Turn: —</span>
+            <span class="dot">•</span>
+            <span id="phaseLine">Phase: —</span>
+          </div>
+        </div>
+      </div>
 
-<h1>🛠️ Codenames — IT Support</h1>
+      <div class="right">
+        <div class="pills">
+          <div class="pill blue">🔵 Blue left: <b id="blueLeft">—</b></div>
+          <div class="pill red">🔴 Red left: <b id="redLeft">—</b></div>
+          <div class="pill neutral">⚪ Neutral: <b id="neutralLeft">—</b></div>
+          <div class="pill time">⏱️ <b id="timerText">Timer OFF</b></div>
+          <div class="pill">🎯 Guesses left: <b id="guessesLeft">0</b></div>
+          <div class="pill">💡 Clue: <b id="clueShow">—</b></div>
+          <div class="pill">🔢 Num: <b id="numShow">—</b></div>
+        </div>
 
-<div class="topbar">
-  <div>🔵 Blue left: <span id="blueLeft"></span></div>
-  <div>🔴 Red left: <span id="redLeft"></span></div>
-  <div>Turn: <span id="turnText"></span></div>
-  <div>Guesses left: <span id="guessLeft"></span></div>
-</div>
+        <div class="actions">
+          <button class="btn primary" id="btnNewGame" style="display:none;">New Game</button>
+        </div>
+      </div>
+    </div>
 
-<div>
-  <input id="clueInput" placeholder="Clue">
-  <input id="numberInput" type="number" placeholder="Number">
-  <button onclick="setClue()">Send Clue</button>
-</div>
+    <!-- Spymaster only -->
+    <div id="spymasterPanel">
+      <div class="smTitle" id="smTitle">🧠 Spymaster Panel</div>
 
-<div>
-  <label>
-    <input type="checkbox" id="timerToggle">
-    Use Timer
-  </label>
-  <input type="number" id="timerSeconds" placeholder="Seconds">
-</div>
+      <div class="smRow" style="margin-bottom:10px;">
+        <label style="font-weight:1100;color:var(--muted);">Team</label>
+        <select id="teamSelect">
+          <option value="blue">BLUE</option>
+          <option value="red">RED</option>
+        </select>
 
-<button id="spyBtn" onclick="toggleSpy()">Toggle Spymaster</button>
-<button id="newGameBtn" onclick="setup()">New Game</button>
+        <input id="clueInput" placeholder="Clue (مثال: NETWORK)" maxlength="20" />
+        <input id="numInput" type="number" min="0" max="9" placeholder="Number" />
+        <button class="btn" id="btnSendClue">Send Clue</button>
+        <button class="btn danger" id="btnEndTurn">End Turn</button>
+      </div>
 
-<div class="board" id="board"></div>
+      <div class="smRow">
+        <label class="check">
+          <input type="checkbox" id="useTimer" />
+          Use Timer
+        </label>
+        <input id="secondsInput" type="number" min="10" max="600" placeholder="Seconds (مثال: 60)" />
+        <button class="btn" id="btnStartTimer">Start</button>
+        <button class="btn" id="btnStopTimer">Stop</button>
+      </div>
 
-<div class="overlay" id="overlay"></div>
+      <div style="margin-top:10px;color:var(--muted);font-weight:900;line-height:1.5;">
+        ✅ الرقم = عدد المحاولات بهذا الراوند. <br/>
+        ✅ كلمة خطأ/بيضاء/حق الفريق الثاني = ينتقل الدور فورًا. <br/>
+        ✅ السوداء = خسارة مباشرة للفريق اللي دوره.
+      </div>
+    </div>
 
-<script>
+    <main class="board" id="board"></main>
+  </div>
 
-const PASSWORD="LY10";
+  <!-- Access denied -->
+  <div class="deny" id="denyBox" style="display:none;">
+    <h2>🚫 Access Denied</h2>
+    <p>
+      لازم تفتح الرابط الصحيح اللي فيه كلمة المرور.<br/>
+      إذا أنت مع المجموعة، اطلب الرابط من المنظّم.
+    </p>
+  </div>
 
-const params=new URLSearchParams(location.search);
-if(params.get("password")!==PASSWORD){
-  document.body.innerHTML="<h2>🚫 Access Denied</h2>";
-  throw "";
-}
+  <!-- Overlay -->
+  <div class="overlay" id="overlay">
+    <div class="overlayBox" id="overlayBox">
+      <h2 class="overlayTitle" id="overlayTitle">—</h2>
+      <p class="overlaySub" id="overlaySub">—</p>
+    </div>
+  </div>
 
-const words=[
-"VPN","Firewall","Router","Switch","Server",
-"Backup","Restore","Password","MFA","DNS",
-"DHCP","Ticket","Outage","Printer","Email",
-"Patch","Antivirus","Cloud","Database","IP",
-"WiFi","Hardware","Software","Account","Support"
-];
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-let cards=[];
-let turn="blue";
-let blueLeft=9;
-let redLeft=8;
-let guessLeft=0;
-let spymaster=false;
-let timer=null;
+    // ====== ACCESS (الحل الأول) ======
+    const REQUIRED_PW = "LY10";
+    const qs = new URLSearchParams(location.search);
+    const pw = qs.get("pw") || "";
+    const isSpyLink = qs.get("spy") === "1";
 
-function shuffle(a){
- for(let i=a.length-1;i>0;i--){
-  let j=Math.floor(Math.random()*(i+1));
-  [a[i],a[j]]=[a[j],a[i]];
- }
- return a;
-}
+    const appRoot = document.getElementById("appRoot");
+    const denyBox = document.getElementById("denyBox");
+    if(pw !== REQUIRED_PW){
+      denyBox.style.display = "block";
+      appRoot.style.display = "none";
+      throw new Error("Access denied");
+    }else{
+      appRoot.style.display = "block";
+      denyBox.style.display = "none";
+    }
 
-function setup(){
- let colors=[
-  ...Array(9).fill("blue"),
-  ...Array(8).fill("red"),
-  ...Array(7).fill("neutral"),
-  "black"
- ];
- shuffle(colors);
- shuffle(words);
+    // ====== Firebase Config (كما عندك) ======
+    const firebaseConfig = {
+      apiKey: "AIzaSyBaQKAER5HLq6LhPWIaIqrBRpd4qn0lUss",
+      authDomain: "codenames-it-support.firebaseapp.com",
+      projectId: "codenames-it-support",
+      storageBucket: "codenames-it-support.firebasestorage.app",
+      messagingSenderId: "328187580670",
+      appId: "1:328187580670:web:b18953ccf1ad374a1dd5af",
+      measurementId: "G-NVG0G4SM6D"
+    };
 
- cards=[];
- blueLeft=9;
- redLeft=8;
- guessLeft=0;
- turn="blue";
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
- for(let i=0;i<25;i++){
-  cards.push({word:words[i],color:colors[i],revealed:false});
- }
- render();
-}
+    // ====== غرفة واحدة فقط ======
+    const ROOM_ID = "CLASS1";
+    const roomRef = doc(db, "rooms", ROOM_ID);
 
-function render(){
- const board=document.getElementById("board");
- board.innerHTML="";
- cards.forEach((card,i)=>{
-  const div=document.createElement("div");
-  div.className="card";
-  if(card.revealed){
-   div.classList.add("revealed",card.color);
-  }
-  if(spymaster && !card.revealed){
-   div.style.borderColor=card.color;
-  }
-  div.innerText=card.word;
-  div.onclick=()=>clickCard(i);
-  board.appendChild(div);
- });
+    // ====== كلمات IT Support (25) ======
+    const WORDS = [
+      "Ticket","Service Desk","VPN","Firewall","DNS",
+      "DHCP","IP Address","Router","Switch","Wi-Fi",
+      "Active Directory","Password","MFA","Account","Permissions",
+      "Hardware","Software","Printer","Antivirus","Patch",
+      "Backup","Restore","Incident","Outage","Email"
+    ];
 
- document.getElementById("blueLeft").innerText=blueLeft;
- document.getElementById("redLeft").innerText=redLeft;
- document.getElementById("turnText").innerText=turn.toUpperCase();
- document.getElementById("guessLeft").innerText=guessLeft;
-}
+    // ====== Helpers ======
+    const otherTeam = (t) => t === "blue" ? "red" : "blue";
+    const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
-function clickCard(i){
- let card=cards[i];
- if(card.revealed) return;
+    function shuffle(arr){
+      const a = [...arr];
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]] = [a[j],a[i]];
+      }
+      return a;
+    }
 
- card.revealed=true;
+    // icons (simple inline SVG)
+    const ICONS = [
+      // server
+      `<svg viewBox="0 0 24 24" fill="none"><path d="M4 6c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2v3c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V6Z" stroke="currentColor" stroke-width="2"/><path d="M4 13c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2v3c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2v-3Z" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1" fill="currentColor"/><circle cx="8" cy="15" r="1" fill="currentColor"/></svg>`,
+      // gear
+      `<svg viewBox="0 0 24 24" fill="none"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" stroke-width="2"/><path d="M19 12a7.6 7.6 0 0 0-.1-1l2-1.5-2-3.5-2.4 1a8 8 0 0 0-1.7-1l-.4-2.6H10l-.4 2.6a8 8 0 0 0-1.7 1l-2.4-1-2 3.5 2 1.5A7.6 7.6 0 0 0 5 12c0 .34.03.67.1 1l-2 1.5 2 3.5 2.4-1a8 8 0 0 0 1.7 1l.4 2.6h4.2l.4-2.6a8 8 0 0 0 1.7-1l2.4 1 2-3.5-2-1.5c.07-.33.1-.66.1-1Z" stroke="currentColor" stroke-width="2" opacity=".9"/></svg>`,
+      // shield
+      `<svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 6v6c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V6l8-3Z" stroke="currentColor" stroke-width="2"/></svg>`,
+      // network
+      `<svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="12" r="2" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="6" r="2" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="18" r="2" stroke="currentColor" stroke-width="2"/><path d="M7.7 11.1 16.2 6.9M7.7 12.9l8.5 4.2" stroke="currentColor" stroke-width="2"/></svg>`
+    ];
 
- if(card.color==="black"){
-  showLose(turn);
-  return;
- }
+    function playWinSound(){
+      try{
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = "sine";
+        o.connect(g);
+        g.connect(ctx.destination);
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(0.18, now + 0.02);
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((f, i) => o.frequency.setValueAtTime(f, now + i * 0.12));
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+        o.start(now);
+        o.stop(now + 0.60);
+      } catch {}
+    }
 
- if(card.color===turn){
-  guessLeft--;
-  if(turn==="blue") blueLeft--;
-  else redLeft--;
+    // ====== Create state ======
+    function createNewGame(){
+      const startingTeam = Math.random() < 0.5 ? "blue" : "red";
+      const blueCount = startingTeam === "blue" ? 9 : 8;
+      const redCount  = startingTeam === "red" ? 9 : 8;
+      const assassinCount = 1;
+      const neutralCount = 25 - blueCount - redCount - assassinCount;
 
-  if(blueLeft===0) return showWin("BLUE TEAM");
-  if(redLeft===0) return showWin("RED TEAM");
+      const colors = shuffle([
+        ...Array(blueCount).fill("blue"),
+        ...Array(redCount).fill("red"),
+        ...Array(neutralCount).fill("neutral"),
+        ...Array(assassinCount).fill("assassin")
+      ]);
 
-  if(guessLeft<=0){
-    switchTurn();
-  }
+      const words = shuffle(WORDS);
 
- }else{
-  switchTurn();
- }
+      const mapping = {};
+      for(let i=0;i<25;i++){
+        mapping[words[i]] = {
+          team: colors[i],
+          revealed: false,
+          icon: Math.floor(Math.random()*ICONS.length) // store icon index
+        };
+      }
 
- render();
-}
+      return {
+        roomId: ROOM_ID,
+        words,
+        mapping,
+        startingTeam,
+        activeTeam: startingTeam,
+        phase: "clue",          // clue | guess
+        clueText: "—",
+        clueNumber: "—",
+        guessesLeft: 0,
 
-function switchTurn(){
- turn=turn==="blue"?"red":"blue";
- guessLeft=0;
-}
+        // timer
+        timerEnabled: false,
+        timerSeconds: 60,
+        timerRunning: false,
+        timerEndsAt: null,
 
-function setClue(){
- guessLeft=parseInt(document.getElementById("numberInput").value);
- render();
+        // end
+        winner: null,           // "blue" | "red"
+        loser: null,            // "blue" | "red" (for assassin)
+        endedBy: null,          // "win" | "assassin"
+        updatedAt: serverTimestamp()
+      };
+    }
 
- if(document.getElementById("timerToggle").checked){
-   let seconds=parseInt(document.getElementById("timerSeconds").value);
-   clearTimeout(timer);
-   timer=setTimeout(()=>{
-     switchTurn();
-     render();
-   },seconds*1000);
- }
-}
+    async function ensureRoom(){
+      const snap = await getDoc(roomRef);
+      if(!snap.exists()){
+        await setDoc(roomRef, createNewGame());
+      }
+    }
 
-function showWin(text){
- const overlay=document.getElementById("overlay");
- overlay.style.background="green";
- overlay.innerHTML=text+" WINS 🎉<br><button onclick='setup()'>New Game</button>";
- overlay.style.display="flex";
- playSound();
-}
+    function countLeft(mapping){
+      let blue=0, red=0, neutral=0;
+      for(const w in mapping){
+        const c = mapping[w];
+        if(!c.revealed && c.team==="blue") blue++;
+        if(!c.revealed && c.team==="red") red++;
+        if(!c.revealed && c.team==="neutral") neutral++;
+      }
+      return {blue, red, neutral};
+    }
 
-function showLose(team){
- const overlay=document.getElementById("overlay");
- overlay.style.background="black";
- overlay.innerHTML=team.toUpperCase()+" LOST 💀<br><button onclick='setup()'>New Game</button>";
- overlay.style.display="flex";
-}
+    // ====== UI refs ======
+    const roleLine = document.getElementById("roleLine");
+    const turnLine = document.getElementById("turnLine");
+    const phaseLine = document.getElementById("phaseLine");
 
-function toggleSpy(){
- spymaster=!spymaster;
- render();
-}
+    const blueLeftEl = document.getElementById("blueLeft");
+    const redLeftEl = document.getElementById("redLeft");
+    const neutralLeftEl = document.getElementById("neutralLeft");
 
-function playSound(){
- const audio=new AudioContext();
- const osc=audio.createOscillator();
- osc.connect(audio.destination);
- osc.start();
- osc.stop(audio.currentTime+0.3);
-}
+    const timerText = document.getElementById("timerText");
+    const guessesLeftEl = document.getElementById("guessesLeft");
+    const clueShow = document.getElementById("clueShow");
+    const numShow = document.getElementById("numShow");
 
-setup();
+    const spymasterPanel = document.getElementById("spymasterPanel");
+    const btnNewGame = document.getElementById("btnNewGame");
 
-</script>
+    const teamSelect = document.getElementById("teamSelect");
+    const clueInput = document.getElementById("clueInput");
+    const numInput = document.getElementById("numInput");
+    const btnSendClue = document.getElementById("btnSendClue");
+    const btnEndTurn = document.getElementById("btnEndTurn");
+
+    const useTimer = document.getElementById("useTimer");
+    const secondsInput = document.getElementById("secondsInput");
+    const btnStartTimer = document.getElementById("btnStartTimer");
+    const btnStopTimer = document.getElementById("btnStopTimer");
+
+    const board = document.getElementById("board");
+
+    const overlay = document.getElementById("overlay");
+    const overlayBox = document.getElementById("overlayBox");
+    const overlayTitle = document.getElementById("overlayTitle");
+    const overlaySub = document.getElementById("overlaySub");
+
+    // ====== Role ======
+    // projector: spy=0
+    // spymaster: spy=1 (and choose team inside)
+    let myRole = isSpyLink ? "spymaster" : "player";
+    roleLine.textContent = "Role: " + (myRole === "spymaster" ? "Spymaster" : "Player/Projector");
+
+    if(myRole === "spymaster"){
+      spymasterPanel.style.display = "block";
+      btnNewGame.style.display = "inline-block";
+    }else{
+      spymasterPanel.style.display = "none";
+      btnNewGame.style.display = "none";
+    }
+
+    // store team choice locally on spymaster device
+    if(myRole === "spymaster"){
+      const savedTeam = localStorage.getItem("cn_team");
+      if(savedTeam === "blue" || savedTeam === "red") teamSelect.value = savedTeam;
+      teamSelect.addEventListener("change", ()=> localStorage.setItem("cn_team", teamSelect.value));
+    }
+
+    // ====== Game actions ======
+    async function endTurn(cur){
+      const next = otherTeam(cur.activeTeam);
+      await updateDoc(roomRef, {
+        activeTeam: next,
+        phase: "clue",
+        clueText: "—",
+        clueNumber: "—",
+        guessesLeft: 0,
+        timerRunning: false,
+        timerEndsAt: null,
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    async function setWinner(team){
+      await updateDoc(roomRef, {
+        winner: team,
+        endedBy: "win",
+        timerRunning: false,
+        timerEndsAt: null,
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    async function assassinHit(cur){
+      const loser = cur.activeTeam;
+      const winner = otherTeam(cur.activeTeam);
+      await updateDoc(roomRef, {
+        winner,
+        loser,
+        endedBy: "assassin",
+        timerRunning: false,
+        timerEndsAt: null,
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    async function reveal(word){
+      const snap = await getDoc(roomRef);
+      if(!snap.exists()) return;
+      const cur = snap.data();
+      if(cur.winner) return;
+
+      const mapping = cur.mapping || {};
+      const card = mapping[word];
+      if(!card || card.revealed) return;
+
+      // reveal
+      card.revealed = true;
+
+      // assassin
+      if(card.team === "assassin"){
+        await updateDoc(roomRef, { mapping, updatedAt: serverTimestamp() });
+        await assassinHit(cur);
+        return;
+      }
+
+      // check win after revealing (only if all of a team done)
+      const left = countLeft(mapping);
+      await updateDoc(roomRef, { mapping, updatedAt: serverTimestamp() });
+      if(left.blue === 0){ await setWinner("blue"); return; }
+      if(left.red === 0){ await setWinner("red"); return; }
+
+      // if in guessing phase: apply your rules
+      if(cur.phase === "guess"){
+        const active = cur.activeTeam;
+
+        if(card.team === active){
+          // correct -> reduce guesses
+          const newGuesses = Math.max(0, (cur.guessesLeft || 0) - 1);
+          await updateDoc(roomRef, { guessesLeft: newGuesses, updatedAt: serverTimestamp() });
+
+          // if finished allowed guesses -> auto end turn
+          if(newGuesses <= 0){
+            const snap2 = await getDoc(roomRef);
+            if(snap2.exists() && !snap2.data().winner){
+              await endTurn(snap2.data());
+            }
+          }
+        }else{
+          // wrong team OR neutral -> end turn immediately
+          const snap2 = await getDoc(roomRef);
+          if(snap2.exists() && !snap2.data().winner){
+            await endTurn(snap2.data());
+          }
+        }
+      }
+    }
+
+    // ====== Timer ======
+    let timerInterval = null;
+    function updateTimerUI(state){
+      if(!state.timerEnabled){
+        timerText.textContent = "Timer OFF";
+        return;
+      }
+      if(!state.timerRunning || !state.timerEndsAt){
+        timerText.textContent = "Timer READY";
+        return;
+      }
+      const ms = state.timerEndsAt - Date.now();
+      const s = Math.max(0, Math.ceil(ms/1000));
+      timerText.textContent = "Time: " + s + "s";
+
+      // when time ends => end turn automatically (only once)
+      if(s <= 0){
+        // stop local ticking
+        if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+        getDoc(roomRef).then(sn=>{
+          if(!sn.exists()) return;
+          const cur = sn.data();
+          if(cur.timerRunning && cur.phase === "guess" && !cur.winner){
+            endTurn(cur);
+          }
+        });
+      }
+    }
+
+    // ====== Overlay ======
+    function showOverlay(type, state){
+      overlay.style.display = "flex";
+
+      if(type === "win"){
+        overlay.style.background = "rgba(16,185,129,.92)";
+        overlayTitle.textContent = (state.winner === "blue" ? "BLUE TEAM WINS ✅" : "RED TEAM WINS ✅");
+        overlaySub.textContent = "تم جمع كل كلمات الفريق 🎉";
+        playWinSound();
+      }else if(type === "assassin"){
+        overlay.style.background = "rgba(0,0,0,.92)";
+        overlayTitle.textContent = (state.loser === "blue" ? "BLUE TEAM LOST ☠️" : "RED TEAM LOST ☠️");
+        overlaySub.textContent = "تم اختيار البطاقة السوداء";
+      }
+    }
+
+    function hideOverlay(){
+      overlay.style.display = "none";
+    }
+
+    // ====== Render ======
+    let latest = null;
+
+    function render(state){
+      latest = state;
+
+      turnLine.textContent = "Turn: " + (state.activeTeam || "—").toUpperCase();
+      phaseLine.textContent = "Phase: " + (state.phase || "—").toUpperCase();
+
+      guessesLeftEl.textContent = String(state.guessesLeft || 0);
+      clueShow.textContent = state.clueText || "—";
+      numShow.textContent = state.clueNumber || "—";
+
+      const left = countLeft(state.mapping || {});
+      blueLeftEl.textContent = left.blue;
+      redLeftEl.textContent = left.red;
+      neutralLeftEl.textContent = left.neutral;
+
+      // spymaster buttons enabling
+      if(myRole === "spymaster"){
+        const myTeam = teamSelect.value;
+        const myTurn = myTeam === state.activeTeam;
+
+        btnSendClue.disabled = !(myTurn && state.phase === "clue" && !state.winner);
+        btnEndTurn.disabled  = !(myTurn && state.phase === "guess" && !state.winner);
+
+        useTimer.checked = !!state.timerEnabled;
+        secondsInput.value = state.timerSeconds ?? 60;
+
+        btnStartTimer.disabled = !(myTurn && state.phase === "guess" && state.timerEnabled && !state.timerRunning && !state.winner);
+        btnStopTimer.disabled  = !(myTurn && state.timerRunning && !state.winner);
+      }
+
+      // timer
+      if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+      updateTimerUI(state);
+      timerInterval = setInterval(()=> updateTimerUI(latest), 250);
+
+      // overlay only on game end
+      if(state.winner){
+        if(state.endedBy === "assassin") showOverlay("assassin", state);
+        else showOverlay("win", state);
+      }else{
+        hideOverlay();
+      }
+
+      // draw board
+      board.innerHTML = "";
+      const order = state.words || Object.keys(state.mapping || {});
+      for(const w of order){
+        const info = state.mapping?.[w];
+        if(!info) continue;
+
+        const btn = document.createElement("button");
+        btn.className = "card";
+        btn.type = "button";
+
+        // icon
+        const icon = document.createElement("div");
+        icon.className = "icon";
+        icon.innerHTML = ICONS[info.icon ?? 0];
+        btn.appendChild(icon);
+
+        // word
+        const word = document.createElement("div");
+        word.className = "word";
+        word.textContent = w;
+        btn.appendChild(word);
+
+        // classes:
+        if(myRole === "spymaster"){
+          // show hints even unrevealed
+          if(!info.revealed){
+            btn.classList.add("spyHint");
+            btn.classList.add(info.team);
+          }
+        }else{
+          // player sees nothing until revealed
+          if(!info.revealed) btn.classList.add("hidden");
+        }
+
+        if(info.revealed){
+          btn.classList.add("revealed");
+          btn.classList.add(info.team);
+        }
+
+        btn.addEventListener("click", async ()=>{
+          if(latest?.winner) return;
+          await reveal(w);
+        });
+
+        board.appendChild(btn);
+      }
+    }
+
+    // ====== Spymaster actions ======
+    btnNewGame.addEventListener("click", async ()=>{
+      if(myRole !== "spymaster") return;
+      const ok = confirm("أكيد تبين تبدأين لعبة جديدة؟");
+      if(!ok) return;
+      await setDoc(roomRef, createNewGame());
+    });
+
+    btnSendClue.addEventListener("click", async ()=>{
+      if(myRole !== "spymaster") return;
+      if(!latest || latest.winner) return;
+
+      const myTeam = teamSelect.value;
+      if(myTeam !== latest.activeTeam) return;
+      if(latest.phase !== "clue") return;
+
+      const clue = (clueInput.value || "").trim().toUpperCase();
+      const n = Number(numInput.value);
+
+      if(!clue || !Number.isFinite(n) || n < 0 || n > 9){
+        alert("اكتب Clue + رقم من 0 إلى 9");
+        return;
+      }
+
+      await updateDoc(roomRef, {
+        clueText: clue,
+        clueNumber: String(n),
+        guessesLeft: n,
+        phase: "guess",
+        timerRunning: false,
+        timerEndsAt: null,
+        updatedAt: serverTimestamp()
+      });
+
+      clueInput.value = "";
+      numInput.value = "";
+    });
+
+    btnEndTurn.addEventListener("click", async ()=>{
+      if(myRole !== "spymaster") return;
+      const snap = await getDoc(roomRef);
+      if(!snap.exists()) return;
+      const cur = snap.data();
+      if(cur.winner) return;
+
+      const myTeam = teamSelect.value;
+      if(myTeam !== cur.activeTeam) return;
+      if(cur.phase !== "guess") return;
+
+      await endTurn(cur);
+    });
+
+    useTimer.addEventListener("change", async ()=>{
+      if(myRole !== "spymaster") return;
+      const enabled = !!useTimer.checked;
+      const seconds = clamp(Number(secondsInput.value || 60), 10, 600);
+      await updateDoc(roomRef, {
+        timerEnabled: enabled,
+        timerSeconds: Number.isFinite(seconds) ? seconds : 60,
+        timerRunning: false,
+        timerEndsAt: null,
+        updatedAt: serverTimestamp()
+      });
+    });
+
+    secondsInput.addEventListener("change", async ()=>{
+      if(myRole !== "spymaster") return;
+      const seconds = clamp(Number(secondsInput.value || 60), 10, 600);
+      await updateDoc(roomRef, {
+        timerSeconds: Number.isFinite(seconds) ? seconds : 60,
+        updatedAt: serverTimestamp()
+      });
+    });
+
+    btnStartTimer.addEventListener("click", async ()=>{
+      if(myRole !== "spymaster") return;
+      const snap = await getDoc(roomRef);
+      if(!snap.exists()) return;
+      const cur = snap.data();
+      if(cur.winner) return;
+
+      const myTeam = teamSelect.value;
+      if(myTeam !== cur.activeTeam) return;
+      if(cur.phase !== "guess") return;
+      if(!cur.timerEnabled) return;
+
+      const secs = clamp(Number(cur.timerSeconds || 60), 10, 600);
+      const ends = Date.now() + secs * 1000;
+
+      await updateDoc(roomRef, {
+        timerRunning: true,
+        timerEndsAt: ends,
+        updatedAt: serverTimestamp()
+      });
+    });
+
+    btnStopTimer.addEventListener("click", async ()=>{
+      if(myRole !== "spymaster") return;
+      await updateDoc(roomRef, {
+        timerRunning: false,
+        timerEndsAt: null,
+        updatedAt: serverTimestamp()
+      });
+    });
+
+    // ====== Start ======
+    await ensureRoom();
+    onSnapshot(roomRef, (snap)=>{
+      if(!snap.exists()) return;
+      render(snap.data());
+    });
+  </script>
 </body>
 </html>
