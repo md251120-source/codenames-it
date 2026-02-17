@@ -9,17 +9,20 @@
 body{
   margin:0;
   font-family:Arial, sans-serif;
-  background:linear-gradient(135deg,#dbeafe,#fef3c7);
+  background:#0f172a;
+  color:white;
+  text-align:center;
 }
 
-h1{text-align:center;margin-top:15px}
+h1{margin:20px 0}
 
 .topbar{
   display:flex;
   justify-content:center;
   gap:25px;
   font-weight:bold;
-  margin:10px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
 }
 
 .board{
@@ -32,21 +35,30 @@ h1{text-align:center;margin-top:15px}
 
 .card{
   padding:20px;
-  border-radius:14px;
-  background:white;
+  border-radius:15px;
+  background:#1e293b;
   cursor:pointer;
   font-weight:bold;
-  border:2px solid #ddd;
   transition:0.2s;
+  border:2px solid #334155;
   position:relative;
 }
 
 .card:hover{transform:scale(1.05)}
 
-.card.revealed.blue{background:#2563eb;color:white}
-.card.revealed.red{background:#ef4444;color:white}
-.card.revealed.neutral{background:#e5e7eb}
-.card.revealed.black{background:black;color:white}
+.card::before{
+  content:"⚙️";
+  position:absolute;
+  top:6px;
+  right:8px;
+  font-size:14px;
+  opacity:0.4;
+}
+
+.revealed.blue{background:#2563eb}
+.revealed.red{background:#ef4444}
+.revealed.neutral{background:#9ca3af}
+.revealed.black{background:black}
 
 .overlay{
   position:fixed;
@@ -56,26 +68,26 @@ h1{text-align:center;margin-top:15px}
   justify-content:center;
   font-size:40px;
   font-weight:bold;
-  color:white;
+  flex-direction:column;
   z-index:1000;
 }
 
 button{
-  padding:8px 16px;
+  padding:10px 18px;
   border:none;
   border-radius:8px;
+  font-weight:bold;
   cursor:pointer;
-  font-weight:bold;
 }
 
-.controls{
-  text-align:center;
-  margin:10px;
-}
+#newGameBtn{background:#22c55e;color:black}
+#spyBtn{background:#111;color:white;margin-top:10px}
 
-.timer{
-  text-align:center;
-  font-weight:bold;
+input{
+  padding:8px;
+  border-radius:6px;
+  border:none;
+  margin:5px;
 }
 </style>
 </head>
@@ -84,26 +96,43 @@ button{
 <h1>🛠️ Codenames — IT Support</h1>
 
 <div class="topbar">
-  <div>🔵 Blue left: <span id="blueCount"></span></div>
-  <div>🔴 Red left: <span id="redCount"></span></div>
+  <div>🔵 Blue left: <span id="blueLeft"></span></div>
+  <div>🔴 Red left: <span id="redLeft"></span></div>
   <div>Turn: <span id="turnText"></span></div>
+  <div>Guesses left: <span id="guessLeft"></span></div>
 </div>
 
-<div class="controls">
-  <button onclick="newGame()">New Game</button>
-  <button onclick="toggleSpymaster()">Toggle Spymaster</button>
-  <button onclick="startTimer()">Start 60s Timer</button>
+<div>
+  <input id="clueInput" placeholder="Clue">
+  <input id="numberInput" type="number" placeholder="Number">
+  <button onclick="setClue()">Send Clue</button>
 </div>
 
-<div class="timer">
-  ⏱️ <span id="timerText">OFF</span>
+<div>
+  <label>
+    <input type="checkbox" id="timerToggle">
+    Use Timer
+  </label>
+  <input type="number" id="timerSeconds" placeholder="Seconds">
 </div>
+
+<button id="spyBtn" onclick="toggleSpy()">Toggle Spymaster</button>
+<button id="newGameBtn" onclick="setup()">New Game</button>
 
 <div class="board" id="board"></div>
 
 <div class="overlay" id="overlay"></div>
 
 <script>
+
+const PASSWORD="LY10";
+
+const params=new URLSearchParams(location.search);
+if(params.get("password")!==PASSWORD){
+  document.body.innerHTML="<h2>🚫 Access Denied</h2>";
+  throw "";
+}
+
 const words=[
 "VPN","Firewall","Router","Switch","Server",
 "Backup","Restore","Password","MFA","DNS",
@@ -116,9 +145,9 @@ let cards=[];
 let turn="blue";
 let blueLeft=9;
 let redLeft=8;
+let guessLeft=0;
 let spymaster=false;
-let timerInterval=null;
-let timeLeft=0;
+let timer=null;
 
 function shuffle(a){
  for(let i=a.length-1;i>0;i--){
@@ -128,7 +157,7 @@ function shuffle(a){
  return a;
 }
 
-function newGame(){
+function setup(){
  let colors=[
   ...Array(9).fill("blue"),
   ...Array(8).fill("red"),
@@ -139,14 +168,14 @@ function newGame(){
  shuffle(words);
 
  cards=[];
+ blueLeft=9;
+ redLeft=8;
+ guessLeft=0;
+ turn="blue";
+
  for(let i=0;i<25;i++){
   cards.push({word:words[i],color:colors[i],revealed:false});
  }
-
- turn="blue";
- blueLeft=9;
- redLeft=8;
- stopTimer();
  render();
 }
 
@@ -167,9 +196,10 @@ function render(){
   board.appendChild(div);
  });
 
- document.getElementById("blueCount").innerText=blueLeft;
- document.getElementById("redCount").innerText=redLeft;
+ document.getElementById("blueLeft").innerText=blueLeft;
+ document.getElementById("redLeft").innerText=redLeft;
  document.getElementById("turnText").innerText=turn.toUpperCase();
+ document.getElementById("guessLeft").innerText=guessLeft;
 }
 
 function clickCard(i){
@@ -184,63 +214,73 @@ function clickCard(i){
  }
 
  if(card.color===turn){
+  guessLeft--;
   if(turn==="blue") blueLeft--;
   else redLeft--;
 
-  if(blueLeft===0) showWin("BLUE TEAM");
-  if(redLeft===0) showWin("RED TEAM");
+  if(blueLeft===0) return showWin("BLUE TEAM");
+  if(redLeft===0) return showWin("RED TEAM");
+
+  if(guessLeft<=0){
+    switchTurn();
+  }
+
  }else{
-  turn=turn==="blue"?"red":"blue";
+  switchTurn();
  }
 
  render();
+}
+
+function switchTurn(){
+ turn=turn==="blue"?"red":"blue";
+ guessLeft=0;
+}
+
+function setClue(){
+ guessLeft=parseInt(document.getElementById("numberInput").value);
+ render();
+
+ if(document.getElementById("timerToggle").checked){
+   let seconds=parseInt(document.getElementById("timerSeconds").value);
+   clearTimeout(timer);
+   timer=setTimeout(()=>{
+     switchTurn();
+     render();
+   },seconds*1000);
+ }
 }
 
 function showWin(text){
  const overlay=document.getElementById("overlay");
  overlay.style.background="green";
- overlay.innerText=text+" WINS 🎉";
+ overlay.innerHTML=text+" WINS 🎉<br><button onclick='setup()'>New Game</button>";
  overlay.style.display="flex";
- stopTimer();
+ playSound();
 }
 
 function showLose(team){
  const overlay=document.getElementById("overlay");
  overlay.style.background="black";
- overlay.innerText=team.toUpperCase()+" LOST 💀";
+ overlay.innerHTML=team.toUpperCase()+" LOST 💀<br><button onclick='setup()'>New Game</button>";
  overlay.style.display="flex";
- stopTimer();
 }
 
-function toggleSpymaster(){
+function toggleSpy(){
  spymaster=!spymaster;
  render();
 }
 
-function startTimer(){
- stopTimer();
- timeLeft=60;
- document.getElementById("timerText").innerText=timeLeft+"s";
- timerInterval=setInterval(()=>{
-  timeLeft--;
-  document.getElementById("timerText").innerText=timeLeft+"s";
-  if(timeLeft<=0){
-   clearInterval(timerInterval);
-   turn=turn==="blue"?"red":"blue";
-   render();
-  }
- },1000);
+function playSound(){
+ const audio=new AudioContext();
+ const osc=audio.createOscillator();
+ osc.connect(audio.destination);
+ osc.start();
+ osc.stop(audio.currentTime+0.3);
 }
 
-function stopTimer(){
- if(timerInterval){
-  clearInterval(timerInterval);
- }
- document.getElementById("timerText").innerText="OFF";
-}
+setup();
 
-newGame();
 </script>
-
 </body>
 </html>
